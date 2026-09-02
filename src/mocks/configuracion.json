@@ -1,0 +1,92 @@
+[
+  {
+    "id": "menu_dashboard",
+    "title": "Dashboard",
+    "path": "/",
+    "icon": "dashboard",
+    "rolesAllowed": ["role_admin", "role_manager", "role_viewer"],
+    "children": [
+      {
+        "id": "menu_metrics",
+        "title": "Medición",
+        "path": "/metrics",
+        "icon": "metrics",
+        "permissionsAllowed": ["metrics:view"]
+      },
+      {
+        "id": "menu_measurements",
+        "title": "Mediciones tangibles",
+        "path": "/metrics/tangible",
+        "icon": "chart",
+        "permissionsAllowed": ["metrics:view"]
+      }
+    ]
+  },
+  {
+    "id": "menu_access",
+    "title": "Acceso",
+    "path": "/access",
+    "icon": "access",
+    "rolesAllowed": ["role_admin", "role_manager"],
+    "children": [
+      {
+        "id": "menu_roles",
+        "title": "Gestión de roles",
+        "path": "/access/roles",
+        "permissionsAllowed": ["roles:manage"]
+      },
+      {
+        "id": "menu_profile",
+        "title": "Perfil",
+        "path": "/access/profile",
+        "permissionsAllowed": ["profile:edit"]
+      },
+      {
+        "id": "menu_audit",
+        "title": "Auditoría / Logs",
+        "path": "/access/audit",
+        "permissionsAllowed": ["audit:view"]
+      }
+    ]
+  },
+  {
+    "id": "menu_operation",
+    "title": "Operación",
+    "path": "/ops",
+    "icon": "operation",
+    "rolesAllowed": ["role_admin", "role_manager", "role_operator"],
+    "children": [
+      {
+        "id": "menu_orders",
+        "title": "Gestión pedidos",
+        "path": "/ops/orders",
+        "permissionsAllowed": ["orders:read"]
+      },
+      {
+        "id": "menu_clients",
+        "title": "Gestión clientes",
+        "path": "/ops/clients",
+        "permissionsAllowed": ["clients:read"]
+      },
+      {
+        "id": "menu_shipments",
+        "title": "Gestión envíos",
+        "path": "/ops/shipments",
+        "permissionsAllowed": ["shipments:read"]
+      },
+      {
+        "id": "menu_products",
+        "title": "Gestión productos",
+        "path": "/ops/products",
+        "permissionsAllowed": ["products:read"]
+      }
+    ]
+  },
+  {
+    "id": "menu_settings",
+    "title": "Configuración",
+    "path": "/settings",
+    "icon": "settings",
+    "permissionsAllowed": ["settings:manage"]
+  }
+]

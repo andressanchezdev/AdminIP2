@@ -1,0 +1,98 @@
+[
+  {
+    "id": "user_1",
+    "fullName": "Admin Principal",
+    "email": "adminIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0001",
+    "address": "Calle Admin 1, Bogotá",
+    "roles": ["role_admin"],
+    "status": "activo",
+    "lastLogin": "2026-08-21T08:15:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_2",
+    "fullName": "Ana Asesor",
+    "email": "asesorIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0002",
+    "address": "Calle Asesor 2, Bogotá",
+    "roles": ["role_asesor"],
+    "status": "activo",
+    "lastLogin": "2026-08-20T12:10:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_3",
+    "fullName": "Bruno Bodega",
+    "email": "bodegaIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0003",
+    "address": "Bodega Central, Bogotá",
+    "roles": ["role_bodega"],
+    "status": "activo",
+    "lastLogin": "2026-08-19T09:05:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_4",
+    "fullName": "Carla Cajero",
+    "email": "cajeroIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0004",
+    "address": "Punto de caja, Bogotá",
+    "roles": ["role_cajero"],
+    "status": "activo",
+    "lastLogin": "2026-08-18T16:00:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_5",
+    "fullName": "Diego Despachador",
+    "email": "despachadorIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0005",
+    "address": "Despacho norte, Bogotá",
+    "roles": ["role_despachador"],
+    "status": "activo",
+    "lastLogin": null,
+    "avatar": ""
+  },
+  {
+    "id": "user_6",
+    "fullName": "Diana Domiciliario",
+    "email": "domiciliarioIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0006",
+    "address": "Ruta urbana, Bogotá",
+    "roles": ["role_domiciliario"],
+    "status": "activo",
+    "lastLogin": null,
+    "avatar": ""
+  },
+  {
+    "id": "user_8",
+    "fullName": "Usuario Inactivo",
+    "email": "inactivoIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0008",
+    "address": "Sin sede",
+    "roles": ["role_asesor"],
+    "status": "inactivo",
+    "lastLogin": null,
+    "avatar": ""
+  },
+  {
+    "id": "user_9",
+    "fullName": "Cliente Demo",
+    "email": "clienteIP@importadorapremium.com",
+    "password": "123456",
+    "phone": "300-111-0009",
+    "address": "Bogotá",
+    "roles": ["role_cliente"],
+    "status": "activo",
+    "lastLogin": null,
+    "avatar": ""
+  }
+]

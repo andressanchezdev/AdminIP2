@@ -1,0 +1,40 @@
+.schedule-picker {
+  display: flex;
+  flex: 1 1 200px;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.schedule-picker--inline {
+  position: static;
+}
+
+.schedule-picker__label {
+  color: var(--color-text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.schedule-picker__row {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+}
+
+.schedule-picker__input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 8px;
+}
+
+.schedule-picker__clear {
+  background: transparent;
+  border: 0;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  flex: 0 0 auto;
+  font: inherit;
+  font-size: 12px;
+  text-decoration: underline;
+}

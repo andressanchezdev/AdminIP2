@@ -1,0 +1,57 @@
+[
+  {
+    "id": "user_1",
+    "username": "admin@admin.local",
+    "fullName": "Admin Principal",
+    "email": "admin@admin.local",
+    "password": "admin123",
+    "roles": ["role_admin"],
+    "status": "active",
+    "lastLogin": "2026-08-21T08:15:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_2",
+    "username": "manager@company.local",
+    "fullName": "María Manager",
+    "email": "manager@company.local",
+    "password": "manager123",
+    "roles": ["role_manager"],
+    "status": "active",
+    "lastLogin": "2026-08-20T12:10:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_3",
+    "username": "operator@company.local",
+    "fullName": "Óscar Operador",
+    "email": "operator@company.local",
+    "password": "operator123",
+    "roles": ["role_operator"],
+    "status": "active",
+    "lastLogin": "2026-08-19T09:05:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_4",
+    "username": "viewer@company.local",
+    "fullName": "Violeta Viewer",
+    "email": "viewer@company.local",
+    "password": "viewer123",
+    "roles": ["role_viewer"],
+    "status": "active",
+    "lastLogin": "2026-08-18T16:00:00.000Z",
+    "avatar": ""
+  },
+  {
+    "id": "user_5",
+    "username": "locked.user@company.local",
+    "fullName": "Usuario Bloqueado",
+    "email": "locked@company.local",
+    "password": "locked123",
+    "roles": [],
+    "status": "disabled",
+    "lastLogin": null,
+    "avatar": ""
+  }
+]

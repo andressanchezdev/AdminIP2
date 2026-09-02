@@ -1,0 +1,94 @@
+/**
+ * Sistema de movimiento — duraciones y curvas unificadas (suaves y lentas).
+ * Importar después de variables.css.
+ */
+
+:root {
+  --motion-duration-instant: 0.22s;
+  --motion-duration-fast: 0.34s;
+  --motion-duration-base: 0.48s;
+  --motion-duration-slow: 3s;
+  --motion-duration-ambient: 1.15s;
+
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-soft: cubic-bezier(0.33, 0, 0.2, 1);
+  --motion-ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
+  --motion-ease-emphasis: cubic-bezier(0.34, 0.56, 0.64, 1);
+
+  --motion-hover-lift: -1px;
+  --motion-hover-scale-subtle: 1.03;
+  --motion-hover-scale-mid: 1.05;
+  --motion-hover-scale-strong: 1.07;
+
+  --motion-marquee-brands: 55s;
+  --motion-marquee-highlights: 38s;
+}
+
+/* Admin — transiciones base en controles interactivos */
+.admin-btn,
+.admin-icon-btn,
+.admin-modal__close,
+.admin-password__toggle,
+.multi-select-filter__trigger,
+.multi-select-filter__chip-remove,
+.sidebar__item,
+.sidebar__subitem {
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-soft),
+    border-color var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft),
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    transform var(--motion-duration-base) var(--motion-ease-out),
+    box-shadow var(--motion-duration-base) var(--motion-ease-soft),
+    filter var(--motion-duration-fast) var(--motion-ease-soft);
+}
+
+.admin-table tbody tr {
+  transition: background-color var(--motion-duration-fast) var(--motion-ease-soft);
+}
+
+.sidebar__icon {
+  transition: opacity var(--motion-duration-fast) var(--motion-ease-soft);
+}
+
+.drawer {
+  transition: transform var(--motion-duration-base) var(--motion-ease-out);
+}
+
+/* Landing — CTAs, navegación y cards */
+.landing-hero__cta,
+.catalog-productos__cta,
+.catalog-productos__dot,
+.landing-header__link,
+.landing-header__btn,
+.landing-detail__gallery-item,
+.landing-detail__hero-nav,
+.landing-carousel__nav,
+.landing-carousel__dot,
+.catalog-productos__item-link {
+  transition:
+    background-color var(--motion-duration-fast) var(--motion-ease-soft),
+    border-color var(--motion-duration-fast) var(--motion-ease-soft),
+    color var(--motion-duration-fast) var(--motion-ease-soft),
+    opacity var(--motion-duration-fast) var(--motion-ease-soft),
+    transform var(--motion-duration-base) var(--motion-ease-out),
+    box-shadow var(--motion-duration-base) var(--motion-ease-soft),
+    visibility var(--motion-duration-base) var(--motion-ease-soft),
+    width var(--motion-duration-base) var(--motion-ease-in-out);
+}
+
+.landing-hero__bg {
+  transition: opacity var(--motion-duration-ambient) var(--motion-ease-in-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-instant: 0.01ms;
+    --motion-duration-fast: 0.01ms;
+    --motion-duration-base: 0.01ms;
+    --motion-duration-slow: 0.01ms;
+    --motion-duration-ambient: 0.01ms;
+    --motion-marquee-brands: 1ms;
+    --motion-marquee-highlights: 1ms;
+  }
+}

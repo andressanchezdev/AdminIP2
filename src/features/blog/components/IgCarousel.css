@@ -1,0 +1,104 @@
+.ig-carousel {
+  position: relative;
+  width: 100%;
+}
+
+.ig-carousel__track {
+  display: flex;
+  gap: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ig-carousel__track::-webkit-scrollbar {
+  display: none;
+}
+
+.ig-carousel__slide {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  width: 100%;
+}
+
+.ig-carousel__image {
+  aspect-ratio: 1 / 1;
+  background: var(--brand-gray-light, #E6E7E8);
+  display: block;
+  object-fit: cover;
+  width: 100%;
+}
+
+.ig-carousel--compact .ig-carousel__image {
+  aspect-ratio: 4 / 5;
+  max-height: 360px;
+}
+
+.ig-carousel__empty {
+  align-items: center;
+  aspect-ratio: 1 / 1;
+  background: var(--brand-gray-light, #E6E7E8);
+  color: var(--color-text-secondary);
+  display: flex;
+  font-size: 13px;
+  justify-content: center;
+}
+
+.ig-carousel__nav {
+  align-items: center;
+  background: color-mix(in srgb, var(--brand-dark, #2D3238) 72%, transparent);
+  border: 0;
+  border-radius: 999px;
+  color: var(--brand-white, #fff);
+  cursor: pointer;
+  display: inline-flex;
+  height: 32px;
+  justify-content: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  z-index: 2;
+}
+
+.ig-carousel__nav:disabled {
+  opacity: 0.35;
+}
+
+.ig-carousel__nav--prev {
+  left: 8px;
+}
+
+.ig-carousel__nav--next {
+  right: 8px;
+}
+
+.ig-carousel__dots {
+  bottom: 10px;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 2;
+}
+
+.ig-carousel__dot {
+  background: color-mix(in srgb, var(--brand-white, #fff) 55%, transparent);
+  border-radius: 999px;
+  display: block;
+  height: 6px;
+  width: 6px;
+}
+
+.ig-carousel__dot.is-active {
+  background: var(--brand-gold, #FFC629);
+}
+
+@media (max-width: 640px) {
+  .ig-carousel--compact .ig-carousel__image {
+    max-height: min(360px, 55dvh);
+  }
+}

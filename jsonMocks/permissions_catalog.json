@@ -1,0 +1,218 @@
+[
+  {
+    "code": "metrics:view",
+    "label": "Ver métricas",
+    "management": "metrics",
+    "action": "view",
+    "description": "Ver métricas y dashboards (solo lectura)",
+    "aliases": ["Ver métricas", "Ver dashboards"]
+  },
+  {
+    "code": "metrics:export",
+    "label": "Exportar métricas",
+    "management": "metrics",
+    "action": "export",
+    "description": "Exportar datos de métricas",
+    "aliases": ["Exportar métricas"]
+  },
+  {
+    "code": "orders:create",
+    "label": "Crear pedidos",
+    "management": "orders",
+    "action": "create",
+    "description": "Crear pedidos",
+    "aliases": ["Crear Pedidos"]
+  },
+  {
+    "code": "orders:read",
+    "label": "Ver pedidos",
+    "management": "orders",
+    "action": "read",
+    "description": "Leer/listar pedidos",
+    "aliases": ["Ver Pedidos"]
+  },
+  {
+    "code": "orders:update",
+    "label": "Actualizar pedidos",
+    "management": "orders",
+    "action": "update",
+    "description": "Actualizar pedidos",
+    "aliases": []
+  },
+  {
+    "code": "orders:delete",
+    "label": "Eliminar pedidos",
+    "management": "orders",
+    "action": "delete",
+    "description": "Eliminar pedidos",
+    "aliases": []
+  },
+  {
+    "code": "products:create",
+    "label": "Crear productos",
+    "management": "products",
+    "action": "create",
+    "description": "Crear productos",
+    "aliases": []
+  },
+  {
+    "code": "products:read",
+    "label": "Ver productos",
+    "management": "products",
+    "action": "read",
+    "description": "Leer/listar productos",
+    "aliases": []
+  },
+  {
+    "code": "products:update",
+    "label": "Actualizar productos",
+    "management": "products",
+    "action": "update",
+    "description": "Actualizar productos",
+    "aliases": []
+  },
+  {
+    "code": "products:delete",
+    "label": "Eliminar productos",
+    "management": "products",
+    "action": "delete",
+    "description": "Eliminar productos",
+    "aliases": []
+  },
+  {
+    "code": "clients:create",
+    "label": "Crear clientes",
+    "management": "clients",
+    "action": "create",
+    "description": "Crear clientes",
+    "aliases": []
+  },
+  {
+    "code": "clients:read",
+    "label": "Ver clientes",
+    "management": "clients",
+    "action": "read",
+    "description": "Leer/listar clientes",
+    "aliases": []
+  },
+  {
+    "code": "clients:update",
+    "label": "Actualizar clientes",
+    "management": "clients",
+    "action": "update",
+    "description": "Actualizar clientes",
+    "aliases": []
+  },
+  {
+    "code": "clients:delete",
+    "label": "Eliminar clientes",
+    "management": "clients",
+    "action": "delete",
+    "description": "Eliminar clientes",
+    "aliases": []
+  },
+  {
+    "code": "shipments:create",
+    "label": "Crear envíos",
+    "management": "shipments",
+    "action": "create",
+    "description": "Crear envíos",
+    "aliases": []
+  },
+  {
+    "code": "shipments:read",
+    "label": "Ver envíos",
+    "management": "shipments",
+    "action": "read",
+    "description": "Leer/listar envíos",
+    "aliases": []
+  },
+  {
+    "code": "shipments:update",
+    "label": "Actualizar envíos",
+    "management": "shipments",
+    "action": "update",
+    "description": "Actualizar envíos",
+    "aliases": []
+  },
+  {
+    "code": "shipments:cancel",
+    "label": "Cancelar envíos",
+    "management": "shipments",
+    "action": "cancel",
+    "description": "Cancelar envíos",
+    "aliases": []
+  },
+  {
+    "code": "roles:manage",
+    "label": "Gestionar roles",
+    "management": "access",
+    "action": "manage",
+    "description": "Gestionar roles",
+    "aliases": []
+  },
+  {
+    "code": "permissions:manage",
+    "label": "Gestionar permisos",
+    "management": "access",
+    "action": "manage",
+    "description": "Gestionar permisos (asignar permisos a roles)",
+    "aliases": []
+  },
+  {
+    "code": "users:invite",
+    "label": "Invitar usuarios",
+    "management": "access",
+    "action": "invite",
+    "description": "Invitar/crear usuarios",
+    "aliases": []
+  },
+  {
+    "code": "users:manage",
+    "label": "Administrar usuarios",
+    "management": "access",
+    "action": "manage",
+    "description": "Editar/administrar usuarios",
+    "aliases": []
+  },
+  {
+    "code": "profile:edit",
+    "label": "Editar perfil",
+    "management": "access",
+    "action": "edit",
+    "description": "Editar perfil propio",
+    "aliases": []
+  },
+  {
+    "code": "audit:view",
+    "label": "Ver auditoría",
+    "management": "access",
+    "action": "view",
+    "description": "Ver registros de auditoría",
+    "aliases": []
+  },
+  {
+    "code": "settings:manage",
+    "label": "Configuración del sistema",
+    "management": "system",
+    "action": "manage",
+    "description": "Gestionar configuración del sistema",
+    "aliases": []
+  },
+  {
+    "code": "notifications:manage",
+    "label": "Gestionar notificaciones",
+    "management": "system",
+    "action": "manage",
+    "description": "Gestionar notificaciones y alertas",
+    "aliases": []
+  },
+  {
+    "code": "reports:export",
+    "label": "Exportar reportes",
+    "management": "reports",
+    "action": "export",
+    "description": "Exportar reportes",
+    "aliases": []
+  }
+]

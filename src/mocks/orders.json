@@ -1,0 +1,56 @@
+[
+  {
+    "id": "P001",
+    "orderNumber": "P001",
+    "clientId": "C001",
+    "items": [
+      { "productId": "PR001", "qty": 20, "unitPrice": 75000 },
+      { "productId": "PR003", "qty": 12, "unitPrice": 58000 }
+    ],
+    "total": 2196000,
+    "status": "picking",
+    "deliveryAddress": "Av. Autopista 123, Bogotá",
+    "contactPhone": "300-123-4567",
+    "createdAt": "2026-08-18T11:20:00.000Z",
+    "updatedAt": "2026-08-18T11:45:00.000Z",
+    "assignedTo": "user_3",
+    "createdBy": "user_1",
+    "cancelReason": null
+  },
+  {
+    "id": "P002",
+    "orderNumber": "P002",
+    "clientId": "C002",
+    "items": [
+      { "productId": "PR004", "qty": 4, "unitPrice": 350000 },
+      { "productId": "PR006", "qty": 3, "unitPrice": 215000 }
+    ],
+    "total": 2045000,
+    "status": "envio",
+    "deliveryAddress": "Calle 44 #12-90, Medellín",
+    "contactPhone": "310-987-6543",
+    "createdAt": "2026-08-10T09:00:00.000Z",
+    "updatedAt": "2026-08-12T14:00:00.000Z",
+    "assignedTo": "user_2",
+    "createdBy": "user_1",
+    "cancelReason": null
+  },
+  {
+    "id": "P003",
+    "orderNumber": "P003",
+    "clientId": "C001",
+    "items": [
+      { "productId": "PR005", "qty": 10, "unitPrice": 89000 },
+      { "productId": "PR002", "qty": 6, "unitPrice": 128000 }
+    ],
+    "total": 1658000,
+    "status": "verificar",
+    "deliveryAddress": "Av. Autopista 123, Bogotá",
+    "contactPhone": "300-123-4567",
+    "createdAt": "2026-08-24T15:45:00.000Z",
+    "updatedAt": "2026-08-24T15:45:00.000Z",
+    "assignedTo": null,
+    "createdBy": "user_2",
+    "cancelReason": null
+  }
+]

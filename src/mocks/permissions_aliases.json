@@ -1,0 +1,11 @@
+[
+  { "alias": "Ver métricas", "code": "metrics:read" },
+  { "alias": "Ver Pedidos", "code": "orders:read" },
+  { "alias": "Crear Pedidos", "code": "orders:create" },
+  { "alias": "Gestionar Roles", "code": "roles:update" },
+  { "alias": "Gestionar Permisos", "code": "permissions:manage" },
+  { "alias": "Invitar Usuarios", "code": "users:create" },
+  { "alias": "Administrar Usuarios", "code": "users:update" },
+  { "alias": "Editar Perfil", "code": "profile:update" },
+  { "alias": "Ver Auditoría", "code": "audit:read" }
+]

@@ -1,0 +1,47 @@
+[
+  {
+    "id": "orders",
+    "label": "Pedidos",
+    "permissions": ["orders:create", "orders:read", "orders:update", "orders:cancel"]
+  },
+  {
+    "id": "products",
+    "label": "Productos",
+    "permissions": ["products:create", "products:read", "products:update", "products:delete"]
+  },
+  {
+    "id": "categories",
+    "label": "Categorías",
+    "permissions": ["categories:create", "categories:read", "categories:update", "categories:delete"]
+  },
+  {
+    "id": "clients",
+    "label": "Clientes",
+    "permissions": ["clients:create", "clients:read", "clients:update", "clients:delete"]
+  },
+  {
+    "id": "shipments",
+    "label": "Envíos",
+    "permissions": ["shipments:create", "shipments:read", "shipments:update", "shipments:cancel"]
+  },
+  {
+    "id": "users",
+    "label": "Usuarios",
+    "permissions": ["users:read", "users:create", "users:update", "users:delete"]
+  },
+  {
+    "id": "roles",
+    "label": "Roles",
+    "permissions": ["roles:read", "roles:create", "roles:update", "roles:delete", "permissions:manage"]
+  },
+  {
+    "id": "blog",
+    "label": "Blog",
+    "permissions": ["blog:read", "blog:create", "blog:update", "blog:delete", "blog:publish"]
+  },
+  {
+    "id": "vacancies",
+    "label": "Vacantes",
+    "permissions": ["vacancies:read", "vacancies:create", "vacancies:update", "vacancies:delete", "vacancies:publish"]
+  }
+]

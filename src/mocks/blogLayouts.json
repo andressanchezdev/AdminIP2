@@ -1,0 +1,122 @@
+[
+  {
+    "id": "row_2",
+    "name": "2 · Horizontal",
+    "orientation": "row",
+    "gridTemplateAreas": "\"media body\"",
+    "gridTemplateColumns": "1.1fr 1fr",
+    "gridTemplateRows": "auto",
+    "slots": [
+      { "id": "media", "type": "image", "label": "Imagen", "area": "media" },
+      { "id": "body", "type": "text", "label": "Texto", "area": "body" }
+    ]
+  },
+  {
+    "id": "col_2",
+    "name": "2 · Vertical",
+    "orientation": "column",
+    "gridTemplateAreas": "\"heading\" \"body\"",
+    "gridTemplateColumns": "1fr",
+    "gridTemplateRows": "auto auto",
+    "slots": [
+      { "id": "heading", "type": "heading", "label": "Titular", "area": "heading" },
+      { "id": "body", "type": "text", "label": "Texto", "area": "body" }
+    ]
+  },
+  {
+    "id": "row_3",
+    "name": "3 · Horizontal",
+    "orientation": "row",
+    "gridTemplateAreas": "\"left center right\"",
+    "gridTemplateColumns": "1fr 1.2fr 1fr",
+    "gridTemplateRows": "auto",
+    "slots": [
+      { "id": "left", "type": "image", "label": "Imagen izq.", "area": "left" },
+      { "id": "center", "type": "text", "label": "Texto", "area": "center" },
+      { "id": "right", "type": "image", "label": "Imagen der.", "area": "right" }
+    ]
+  },
+  {
+    "id": "col_3",
+    "name": "3 · Vertical",
+    "orientation": "column",
+    "gridTemplateAreas": "\"heading\" \"media\" \"body\"",
+    "gridTemplateColumns": "1fr",
+    "gridTemplateRows": "auto auto auto",
+    "slots": [
+      { "id": "heading", "type": "heading", "label": "Titular", "area": "heading" },
+      { "id": "media", "type": "image", "label": "Imagen", "area": "media" },
+      { "id": "body", "type": "text", "label": "Texto", "area": "body" }
+    ]
+  },
+  {
+    "id": "row_4",
+    "name": "4 · Horizontal",
+    "orientation": "row",
+    "gridTemplateAreas": "\"a b c d\"",
+    "gridTemplateColumns": "1fr 1fr 1fr 1fr",
+    "gridTemplateRows": "auto",
+    "slots": [
+      { "id": "a", "type": "image", "label": "Bloque A", "area": "a" },
+      { "id": "b", "type": "text", "label": "Bloque B", "area": "b" },
+      { "id": "c", "type": "text", "label": "Bloque C", "area": "c" },
+      { "id": "d", "type": "image", "label": "Bloque D", "area": "d" }
+    ]
+  },
+  {
+    "id": "col_4",
+    "name": "4 · Vertical",
+    "orientation": "column",
+    "gridTemplateAreas": "\"heading\" \"media\" \"body\" \"footer\"",
+    "gridTemplateColumns": "1fr",
+    "gridTemplateRows": "auto auto auto auto",
+    "slots": [
+      { "id": "heading", "type": "heading", "label": "Titular", "area": "heading" },
+      { "id": "media", "type": "image", "label": "Imagen", "area": "media" },
+      { "id": "body", "type": "text", "label": "Texto", "area": "body" },
+      { "id": "footer", "type": "text", "label": "Cierre", "area": "footer" }
+    ]
+  },
+  {
+    "id": "mix_5_banner",
+    "name": "5 · Banner + fila",
+    "orientation": "column",
+    "gridTemplateAreas": "\"media media media\" \"a b c\" \"foot foot foot\"",
+    "gridTemplateColumns": "1fr 1fr 1fr",
+    "gridTemplateRows": "auto auto auto",
+    "slots": [
+      { "id": "media", "type": "image", "label": "Banner", "area": "media" },
+      { "id": "a", "type": "heading", "label": "Titular", "area": "a" },
+      { "id": "b", "type": "text", "label": "Texto", "area": "b" },
+      { "id": "c", "type": "text", "label": "Nota", "area": "c" },
+      { "id": "foot", "type": "text", "label": "Pie", "area": "foot" }
+    ]
+  },
+  {
+    "id": "mix_5_sidebar",
+    "name": "5 · Lateral + grid",
+    "orientation": "row",
+    "gridTemplateAreas": "\"side title title\" \"side body media\" \"side note media\"",
+    "gridTemplateColumns": "0.85fr 1.1fr 1fr",
+    "gridTemplateRows": "auto auto auto",
+    "slots": [
+      { "id": "side", "type": "image", "label": "Lateral", "area": "side" },
+      { "id": "title", "type": "heading", "label": "Titular", "area": "title" },
+      { "id": "body", "type": "text", "label": "Texto", "area": "body" },
+      { "id": "note", "type": "text", "label": "Nota", "area": "note" },
+      { "id": "media", "type": "image", "label": "Imagen", "area": "media" }
+    ]
+  },
+  {
+    "id": "post_ig",
+    "name": "Post IG",
+    "orientation": "column",
+    "gridTemplateAreas": "\"carousel\" \"caption\"",
+    "gridTemplateColumns": "1fr",
+    "gridTemplateRows": "auto auto",
+    "slots": [
+      { "id": "carousel", "type": "carousel", "label": "Carrusel", "area": "carousel" },
+      { "id": "caption", "type": "text", "label": "Pie de publicación", "area": "caption" }
+    ]
+  }
+]

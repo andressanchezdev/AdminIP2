@@ -1,0 +1,50 @@
+[
+    {
+      "id": "prod_001",
+      "sku": "GL-1001",
+      "name": "Ron Añejo 8 años",
+      "description": "Ron añejado en barricas de roble.",
+      "price": 12.5,
+      "currency": "USD",
+      "stock": 120,
+      "category": "Licores",
+      "attributes": {
+        "volume_ml": 750,
+        "abv": 40
+      },
+      "createdAt": "2026-06-01T08:00:00.000Z",
+      "updatedAt": "2026-08-10T09:30:00.000Z"
+    },
+    {
+      "id": "prod_002",
+      "sku": "GL-1002",
+      "name": "Vino Tinto Reserva",
+      "description": "Vino tinto reserva 2018.",
+      "price": 18.0,
+      "currency": "USD",
+      "stock": 60,
+      "category": "Vinos",
+      "attributes": {
+        "volume_ml": 750,
+        "abv": 13.5
+      },
+      "createdAt": "2026-05-15T10:00:00.000Z",
+      "updatedAt": "2026-07-12T11:00:00.000Z"
+    },
+    {
+      "id": "prod_003",
+      "sku": "GL-1003",
+      "name": "Whisky Single Malt",
+      "description": "Whisky escocés single malt 12 años.",
+      "price": 45.0,
+      "currency": "USD",
+      "stock": 30,
+      "category": "Licores",
+      "attributes": {
+        "volume_ml": 700,
+        "abv": 43
+      },
+      "createdAt": "2026-03-20T09:00:00.000Z",
+      "updatedAt": "2026-06-22T14:00:00.000Z"
+    }
+  ]

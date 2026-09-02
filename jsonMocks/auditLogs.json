@@ -1,0 +1,38 @@
+[
+  {
+    "id": "audit_1",
+    "action": "role.create",
+    "entity": "role",
+    "entityId": "role_manager",
+    "actorId": "user_1",
+    "actorRole": "ADMIN",
+    "details": "Creación del rol MANAGER con permisos iniciales.",
+    "timestamp": "2026-06-01T08:30:00.000Z",
+    "kind": "change"
+  },
+  {
+    "id": "audit_2",
+    "action": "product.update",
+    "entity": "product",
+    "entityId": "prod_001",
+    "actorId": "user_2",
+    "actorRole": "MANAGER",
+    "details": "Actualizó precio y stock del producto.",
+    "timestamp": "2026-08-10T09:35:00.000Z",
+    "kind": "change"
+  },
+  {
+    "id": "audit_3",
+    "action": "access.denied",
+    "entity": "route",
+    "entityId": "/ops/orders",
+    "actorId": "user_4",
+    "actorRole": "VIEWER",
+    "details": "Intento de acceso sin orders:read",
+    "timestamp": "2026-08-21T10:00:00.000Z",
+    "kind": "denial",
+    "route": "/ops/orders",
+    "requiredPermissions": ["orders:read"],
+    "userPermissions": ["metrics:view", "profile:edit"]
+  }
+]

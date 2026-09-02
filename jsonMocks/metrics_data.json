@@ -1,0 +1,17 @@
+{
+    "sales_over_time": [
+      { "date": "2026-08-01", "total": 1200 },
+      { "date": "2026-08-02", "total": 1500 },
+      { "date": "2026-08-03", "total": 900 },
+      { "date": "2026-08-04", "total": 2000 },
+      { "date": "2026-08-05", "total": 1750 }
+    ],
+    "top_products": [
+      { "productId": "prod_001", "name": "Ron Añejo 8 años", "sold": 120 },
+      { "productId": "prod_002", "name": "Vino Tinto Reserva", "sold": 60 },
+      { "productId": "prod_003", "name": "Whisky Single Malt", "sold": 30 }
+    ],
+    "inventory_alerts": [
+      { "productId": "prod_003", "name": "Whisky Single Malt", "stock": 30, "threshold": 50, "type": "low_stock" }
+    ]
+  }

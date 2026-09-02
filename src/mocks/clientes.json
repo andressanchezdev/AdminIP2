@@ -1,0 +1,44 @@
+[
+  {
+    "id": "C001",
+    "name": "Motos del Norte S.A.S.",
+    "clientType": "mayorista",
+    "contact": {
+      "name": "Carlos Pérez",
+      "email": "carlos.perez@motosdelnorte.com",
+      "phone": "300-123-4567"
+    },
+    "address": "Av. Autopista 123, Bogotá",
+    "createdAt": "2025-11-01T10:00:00.000Z",
+    "status": "activo",
+    "creditAvailable": 5000000
+  },
+  {
+    "id": "C002",
+    "name": "Taller Honda Express",
+    "clientType": "minorista",
+    "contact": {
+      "name": "Ana Gómez",
+      "email": "ana.gomez@hondaexpress.com",
+      "phone": "310-987-6543"
+    },
+    "address": "Calle 44 #12-90, Medellín",
+    "createdAt": "2026-02-15T09:00:00.000Z",
+    "status": "activo",
+    "creditAvailable": 1200000
+  },
+  {
+    "id": "C003",
+    "name": "Repuestos Yamaha Centro",
+    "clientType": "empresarial",
+    "contact": {
+      "name": "Luis Ramírez",
+      "email": "ventas@yamahacentro.com",
+      "phone": "315-555-0199"
+    },
+    "address": "Cra 7 #45-10, Cali",
+    "createdAt": "2026-04-20T11:00:00.000Z",
+    "status": "inactivo",
+    "creditAvailable": 0
+  }
+]

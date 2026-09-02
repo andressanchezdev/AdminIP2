@@ -1,0 +1,73 @@
+:root {
+  /* Escala única de grises (4) */
+  --color-gris-oscuro: #1a1a1a;
+  --color-gris-claro: #f7f7f7;
+  --color-gris: #757575; /* grisgis — texto/iconos secundarios */
+  --color-gris-casi-invisible: #e5e5e5; /* bordes y divisores */
+
+  /* Marca Importadora Premium (COLOR.md) */
+  --brand-gray-light: #E6E7E8;
+  --brand-dark: #2D3238;
+  --brand-logo-bg: #30363D;
+  --brand-gold: #FFC629;
+  --brand-text: #333333;
+  --brand-white: #FFFFFF;
+
+  /* Tipografía de blog (4 colores de fuente) */
+  --blog-font-1: #333333;
+  --blog-font-2: #2D3238;
+  --blog-font-3: #FFC629;
+  --blog-font-4: #757575;
+
+  /* Superficie (no es gris) */
+  --color-bg-surface: #ffffff;
+
+  /* Aliases de uso → solo los 4 grises */
+  --color-bg-page: var(--color-gris-claro);
+  --color-border: var(--color-gris-casi-invisible);
+  --color-text-primary: var(--color-gris-oscuro);
+  --color-text-secondary: var(--color-gris);
+  --color-text-muted: var(--color-gris);
+  --color-card-meta: var(--color-gris);
+  --color-card-reference: var(--color-gris);
+
+  /* Semánticos no-gris */
+  --color-agotado-bg: #ffcdd2;
+  --color-agotado-text: #d32f2f;
+  --color-filter: #ffb74d;
+  --color-new: #90caf9;
+  --color-promo: #a5d6a7;
+
+  --font-family: 'Inter', system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-size-lg: 20px;
+  --font-size-md: 14px;
+  --font-size-sm: 12px;
+  --header-height: 64px;
+  --radius-badge: 6px;
+  --radius-card: 12px;
+  --radius-input: 24px;
+  --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --sidebar-width: 222px;
+  --sidebar-min-width: 70px;
+  --drawer-width: 410px;
+  /* Contenedores / grid — misma lógica que clienteIP (StorePage + ProductCard) */
+  --content-pad: 10px;
+  --grid-gap: 24px;
+  --grid-card-min: 300px;
+  --brand-logo-size: 90px;
+  --spacing-lg: 24px;
+  --spacing-md: 16px;
+  --spacing-sm: 8px;
+  --spacing-xl: 32px;
+  --spacing-xs: 4px;
+
+  /*
+   * Breakpoints de referencia (documentación; @media no acepta var()).
+   * Admin: 1100 · 960 · 900 · 768 · 640 · 480 · 400 · 370
+   * Landing: 820 · 700 · 520 · 400
+   * Blog público: 640
+   *
+   * Movimiento: ver motion.css (--motion-duration-*, --motion-ease-*)
+   */
+}

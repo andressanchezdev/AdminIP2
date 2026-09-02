@@ -1,0 +1,17 @@
+.carousel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.carousel-field__hint {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  margin: 0;
+}
+
+.carousel-field__item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}

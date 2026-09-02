@@ -1,0 +1,15 @@
+{
+  "sales_over_time": [
+    { "date": "2026-08-01", "total": 16800000 },
+    { "date": "2026-08-02", "total": 15400000 },
+    { "date": "2026-08-03", "total": 20400000 },
+    { "date": "2026-08-04", "total": 18400000 },
+    { "date": "2026-08-05", "total": 21280000 }
+  ],
+  "top_products": [
+    { "productId": "PR001", "name": "Pastillas de freno delanteras CG125", "sold": 120 },
+    { "productId": "PR004", "name": "Casco integral LS2 Fast", "sold": 64 },
+    { "productId": "PR006", "name": "Kit transmisión Bajaj Pulsar 150", "sold": 48 },
+    { "productId": "PR003", "name": "Aceite Motul 5100 4T 15W50 1L", "sold": 95 }
+  ]
+}

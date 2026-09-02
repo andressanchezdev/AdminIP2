@@ -1,0 +1,137 @@
+[
+    {
+      "code": "metrics:view",
+      "management": "metrics",
+      "description": "Ver métricas y dashboards (solo lectura)"
+    },
+    {
+      "code": "metrics:export",
+      "management": "metrics",
+      "description": "Exportar datos de métricas"
+    },
+    {
+      "code": "orders:create",
+      "management": "orders",
+      "description": "Crear pedidos"
+    },
+    {
+      "code": "orders:read",
+      "management": "orders",
+      "description": "Leer/listar pedidos"
+    },
+    {
+      "code": "orders:update",
+      "management": "orders",
+      "description": "Actualizar pedidos"
+    },
+    {
+      "code": "orders:delete",
+      "management": "orders",
+      "description": "Eliminar pedidos"
+    },
+    {
+      "code": "products:create",
+      "management": "products",
+      "description": "Crear productos"
+    },
+    {
+      "code": "products:read",
+      "management": "products",
+      "description": "Leer/listar productos"
+    },
+    {
+      "code": "products:update",
+      "management": "products",
+      "description": "Actualizar productos"
+    },
+    {
+      "code": "products:delete",
+      "management": "products",
+      "description": "Eliminar productos"
+    },
+    {
+      "code": "clients:create",
+      "management": "clients",
+      "description": "Crear clientes"
+    },
+    {
+      "code": "clients:read",
+      "management": "clients",
+      "description": "Leer/listar clientes"
+    },
+    {
+      "code": "clients:update",
+      "management": "clients",
+      "description": "Actualizar clientes"
+    },
+    {
+      "code": "clients:delete",
+      "management": "clients",
+      "description": "Eliminar clientes"
+    },
+    {
+      "code": "shipments:create",
+      "management": "shipments",
+      "description": "Crear envíos"
+    },
+    {
+      "code": "shipments:read",
+      "management": "shipments",
+      "description": "Leer/listar envíos"
+    },
+    {
+      "code": "shipments:update",
+      "management": "shipments",
+      "description": "Actualizar envíos"
+    },
+    {
+      "code": "shipments:cancel",
+      "management": "shipments",
+      "description": "Cancelar envíos"
+    },
+    {
+      "code": "roles:manage",
+      "management": "access",
+      "description": "Gestionar roles"
+    },
+    {
+      "code": "permissions:manage",
+      "management": "access",
+      "description": "Gestionar permisos (asignar permisos a roles)"
+    },
+    {
+      "code": "users:invite",
+      "management": "access",
+      "description": "Invitar/crear usuarios"
+    },
+    {
+      "code": "users:manage",
+      "management": "access",
+      "description": "Editar/administrar usuarios"
+    },
+    {
+      "code": "profile:edit",
+      "management": "access",
+      "description": "Editar perfil propio"
+    },
+    {
+      "code": "audit:view",
+      "management": "access",
+      "description": "Ver registros de auditoría"
+    },
+    {
+      "code": "settings:manage",
+      "management": "system",
+      "description": "Gestionar configuración del sistema"
+    },
+    {
+      "code": "notifications:manage",
+      "management": "system",
+      "description": "Gestionar notificaciones y alertas"
+    },
+    {
+      "code": "reports:export",
+      "management": "reports",
+      "description": "Exportar reportes"
+    }
+  ]

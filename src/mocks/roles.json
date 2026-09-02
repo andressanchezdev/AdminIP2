@@ -1,0 +1,121 @@
+[
+  {
+    "id": "role_admin",
+    "name": "ADMIN",
+    "description": "Acceso total al panel AdminIP",
+    "permissions": [
+      "metrics:read",
+      "orders:read",
+      "orders:create",
+      "orders:update",
+      "orders:cancel",
+      "clients:read",
+      "clients:create",
+      "clients:update",
+      "clients:delete",
+      "shipments:read",
+      "shipments:create",
+      "shipments:update",
+      "shipments:cancel",
+      "products:read",
+      "products:create",
+      "products:update",
+      "products:delete",
+      "categories:read",
+      "categories:create",
+      "categories:update",
+      "categories:delete",
+      "users:read",
+      "users:create",
+      "users:update",
+      "users:delete",
+      "roles:read",
+      "roles:create",
+      "roles:update",
+      "roles:delete",
+      "permissions:manage",
+      "audit:read",
+      "settings:update",
+      "profile:update",
+      "blog:read",
+      "blog:create",
+      "blog:update",
+      "blog:delete",
+      "blog:publish",
+      "vacancies:read",
+      "vacancies:create",
+      "vacancies:update",
+      "vacancies:delete",
+      "vacancies:publish"
+    ]
+  },
+  {
+    "id": "role_asesor",
+    "name": "ASESOR",
+    "description": "Solo lectura operativa de ventas",
+    "permissions": [
+      "metrics:read",
+      "orders:read",
+      "products:read",
+      "categories:read",
+      "clients:read",
+      "shipments:read",
+      "profile:update"
+    ]
+  },
+  {
+    "id": "role_bodega",
+    "name": "BODEGA",
+    "description": "Lectura de productos, categorías, pedidos y envíos",
+    "permissions": [
+      "products:read",
+      "categories:read",
+      "shipments:read",
+      "orders:read",
+      "profile:update"
+    ]
+  },
+  {
+    "id": "role_cajero",
+    "name": "CAJERO",
+    "description": "Lectura de pedidos, productos y clientes",
+    "permissions": [
+      "orders:read",
+      "products:read",
+      "clients:read",
+      "profile:update"
+    ]
+  },
+  {
+    "id": "role_despachador",
+    "name": "DESPACHADOR",
+    "description": "Lectura de pedidos, envíos y productos",
+    "permissions": [
+      "orders:read",
+      "shipments:read",
+      "products:read",
+      "profile:update"
+    ]
+  },
+  {
+    "id": "role_domiciliario",
+    "name": "DOMICILIARIO",
+    "description": "Lectura de envíos y pedidos",
+    "permissions": [
+      "shipments:read",
+      "orders:read",
+      "profile:update"
+    ]
+  },
+  {
+    "id": "role_cliente",
+    "name": "CLIENTE",
+    "description": "Rol de dominio Cliente (no es usuario administrativo).",
+    "permissions": [
+      "orders:read",
+      "orders:create",
+      "products:read",
+      "profile:update"
+    ]
+  }
+]

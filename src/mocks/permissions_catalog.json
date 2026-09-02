@@ -1,0 +1,346 @@
+[
+  {
+    "code": "metrics:read",
+    "label": "Lectura — medición",
+    "management": "metrics",
+    "action": "read",
+    "description": "Ver dashboard / medición (muestra la opción en el menú)",
+    "aliases": ["metrics:view", "Ver métricas"]
+  },
+  {
+    "code": "orders:read",
+    "label": "Lectura — pedidos",
+    "management": "orders",
+    "action": "read",
+    "description": "Listar y ver pedidos (muestra la opción en el menú)",
+    "aliases": ["Ver Pedidos"]
+  },
+  {
+    "code": "orders:create",
+    "label": "Creación — pedidos",
+    "management": "orders",
+    "action": "create",
+    "description": "Crear pedidos",
+    "aliases": []
+  },
+  {
+    "code": "orders:update",
+    "label": "Edición — pedidos",
+    "management": "orders",
+    "action": "update",
+    "description": "Editar pedido (ventana 30 min) y cambiar estado",
+    "aliases": []
+  },
+  {
+    "code": "orders:cancel",
+    "label": "Cancelación — pedidos",
+    "management": "orders",
+    "action": "cancel",
+    "description": "Cancelar pedido con motivo (no hay eliminación)",
+    "aliases": []
+  },
+  {
+    "code": "clients:read",
+    "label": "Lectura — clientes",
+    "management": "clients",
+    "action": "read",
+    "description": "Listar y ver clientes (muestra la opción en el menú)",
+    "aliases": []
+  },
+  {
+    "code": "clients:create",
+    "label": "Creación — clientes",
+    "management": "clients",
+    "action": "create",
+    "description": "Crear clientes",
+    "aliases": []
+  },
+  {
+    "code": "clients:update",
+    "label": "Edición — clientes",
+    "management": "clients",
+    "action": "update",
+    "description": "Editar clientes y cambiar estado",
+    "aliases": []
+  },
+  {
+    "code": "clients:delete",
+    "label": "Eliminación — clientes",
+    "management": "clients",
+    "action": "delete",
+    "description": "Eliminar clientes",
+    "aliases": []
+  },
+  {
+    "code": "shipments:read",
+    "label": "Lectura — envíos",
+    "management": "shipments",
+    "action": "read",
+    "description": "Listar y ver envíos (muestra la opción en el menú)",
+    "aliases": []
+  },
+  {
+    "code": "shipments:create",
+    "label": "Creación — envíos",
+    "management": "shipments",
+    "action": "create",
+    "description": "Crear envíos",
+    "aliases": []
+  },
+  {
+    "code": "shipments:update",
+    "label": "Edición — envíos",
+    "management": "shipments",
+    "action": "update",
+    "description": "Actualizar estado de envíos",
+    "aliases": []
+  },
+  {
+    "code": "shipments:cancel",
+    "label": "Cancelación — envíos",
+    "management": "shipments",
+    "action": "cancel",
+    "description": "Cancelar envíos",
+    "aliases": []
+  },
+  {
+    "code": "products:read",
+    "label": "Lectura — productos",
+    "management": "products",
+    "action": "read",
+    "description": "Listar y ver productos (muestra la opción en el menú)",
+    "aliases": []
+  },
+  {
+    "code": "products:create",
+    "label": "Creación — productos",
+    "management": "products",
+    "action": "create",
+    "description": "Crear productos",
+    "aliases": []
+  },
+  {
+    "code": "products:update",
+    "label": "Edición — productos",
+    "management": "products",
+    "action": "update",
+    "description": "Editar productos y cambiar estado",
+    "aliases": []
+  },
+  {
+    "code": "products:delete",
+    "label": "Eliminación — productos",
+    "management": "products",
+    "action": "delete",
+    "description": "Eliminar productos con motivo",
+    "aliases": []
+  },
+  {
+    "code": "categories:read",
+    "label": "Lectura — categorías",
+    "management": "categories",
+    "action": "read",
+    "description": "Listar y ver categorías (muestra la opción en el menú)",
+    "aliases": []
+  },
+  {
+    "code": "categories:create",
+    "label": "Creación — categorías",
+    "management": "categories",
+    "action": "create",
+    "description": "Crear categorías",
+    "aliases": []
+  },
+  {
+    "code": "categories:update",
+    "label": "Edición — categorías",
+    "management": "categories",
+    "action": "update",
+    "description": "Editar y activar/desactivar categorías",
+    "aliases": []
+  },
+  {
+    "code": "categories:delete",
+    "label": "Eliminación — categorías",
+    "management": "categories",
+    "action": "delete",
+    "description": "Eliminar categorías migrando productos",
+    "aliases": []
+  },
+  {
+    "code": "users:read",
+    "label": "Lectura — usuarios",
+    "management": "users",
+    "action": "read",
+    "description": "Listar usuarios del panel (muestra la opción en el menú)",
+    "aliases": ["users:manage"]
+  },
+  {
+    "code": "users:create",
+    "label": "Creación — usuarios",
+    "management": "users",
+    "action": "create",
+    "description": "Crear usuarios administrativos",
+    "aliases": ["users:invite"]
+  },
+  {
+    "code": "users:update",
+    "label": "Edición — usuarios",
+    "management": "users",
+    "action": "update",
+    "description": "Editar usuarios y cambiar estado activo/inactivo",
+    "aliases": []
+  },
+  {
+    "code": "users:delete",
+    "label": "Eliminación — usuarios",
+    "management": "users",
+    "action": "delete",
+    "description": "Eliminar usuarios con motivo",
+    "aliases": []
+  },
+  {
+    "code": "roles:read",
+    "label": "Lectura — roles",
+    "management": "roles",
+    "action": "read",
+    "description": "Listar roles (muestra la opción en el menú)",
+    "aliases": ["roles:manage"]
+  },
+  {
+    "code": "roles:create",
+    "label": "Creación — roles",
+    "management": "roles",
+    "action": "create",
+    "description": "Crear roles",
+    "aliases": []
+  },
+  {
+    "code": "roles:update",
+    "label": "Edición — roles",
+    "management": "roles",
+    "action": "update",
+    "description": "Editar nombre y descripción del rol",
+    "aliases": []
+  },
+  {
+    "code": "roles:delete",
+    "label": "Eliminación — roles",
+    "management": "roles",
+    "action": "delete",
+    "description": "Eliminar roles",
+    "aliases": []
+  },
+  {
+    "code": "permissions:manage",
+    "label": "Gestionar permisos del rol",
+    "management": "roles",
+    "action": "permissions",
+    "description": "Asignar permisos desde Gestionar permisos",
+    "aliases": []
+  },
+  {
+    "code": "audit:read",
+    "label": "Lectura — auditoría",
+    "management": "audit",
+    "action": "read",
+    "description": "Ver logs de auditoría (muestra la opción en el menú)",
+    "aliases": ["audit:view"]
+  },
+  {
+    "code": "settings:update",
+    "label": "Edición — configuración",
+    "management": "settings",
+    "action": "update",
+    "description": "Gestionar configuración general",
+    "aliases": ["settings:manage"]
+  },
+  {
+    "code": "profile:update",
+    "label": "Edición — perfil propio",
+    "management": "profile",
+    "action": "update",
+    "description": "Editar datos del perfil propio",
+    "aliases": ["profile:edit"]
+  },
+  {
+    "code": "blog:read",
+    "label": "Lectura — blog",
+    "management": "blog",
+    "action": "read",
+    "description": "Ver gestión del blog (muestra la opción en el menú)",
+    "aliases": []
+  },
+  {
+    "code": "blog:create",
+    "label": "Creación — blog",
+    "management": "blog",
+    "action": "create",
+    "description": "Crear publicaciones del blog",
+    "aliases": []
+  },
+  {
+    "code": "blog:update",
+    "label": "Edición — blog",
+    "management": "blog",
+    "action": "update",
+    "description": "Editar contenido, maqueta y orden de publicaciones",
+    "aliases": []
+  },
+  {
+    "code": "blog:delete",
+    "label": "Eliminación — blog",
+    "management": "blog",
+    "action": "delete",
+    "description": "Eliminar o archivar publicaciones",
+    "aliases": []
+  },
+  {
+    "code": "blog:publish",
+    "label": "Publicación — blog",
+    "management": "blog",
+    "action": "publish",
+    "description": "Publicar o despublicar entradas del blog",
+    "aliases": []
+  },
+  {
+    "code": "vacancies:read",
+    "label": "Lectura — vacantes",
+    "management": "vacancies",
+    "action": "read",
+    "description": "Ver gestión de vacantes (muestra la opción en el menú)",
+    "aliases": []
+  },
+  {
+    "code": "vacancies:create",
+    "label": "Creación — vacantes",
+    "management": "vacancies",
+    "action": "create",
+    "description": "Crear vacantes",
+    "aliases": []
+  },
+  {
+    "code": "vacancies:update",
+    "label": "Edición — vacantes",
+    "management": "vacancies",
+    "action": "update",
+    "description": "Editar vacantes",
+    "aliases": []
+  },
+  {
+    "code": "vacancies:delete",
+    "label": "Eliminación — vacantes",
+    "management": "vacancies",
+    "action": "delete",
+    "description": "Eliminar vacantes",
+    "aliases": []
+  },
+  {
+    "code": "vacancies:publish",
+    "label": "Publicación — vacantes",
+    "management": "vacancies",
+    "action": "publish",
+    "description": "Publicar, cerrar o archivar vacantes",
+    "aliases": []
+  }
+]

@@ -1,0 +1,108 @@
+[
+  {
+    "id": "menu_dashboard",
+    "title": "Dashboard",
+    "path": "/dashboard/medicion",
+    "icon": "history",
+    "rolesAllowed": ["role_admin", "role_manager", "role_viewer"],
+    "children": [
+      {
+        "id": "menu_metrics_mgmt",
+        "title": "Gestión de medición",
+        "path": "/dashboard/medicion",
+        "icon": "history",
+        "routeKey": "dashboard/medicion",
+        "permissionsAllowed": ["dashboard/medicion"]
+      }
+    ]
+  },
+  {
+    "id": "menu_access",
+    "title": "Acceso",
+    "path": "/acceso",
+    "icon": "access",
+    "rolesAllowed": ["role_admin", "role_manager"],
+    "children": [
+      {
+        "id": "menu_roles",
+        "title": "Gestión de roles",
+        "path": "/acceso/roles",
+        "routeKey": "acceso/roles",
+        "permissionsAllowed": ["acceso/roles"]
+      },
+      {
+        "id": "menu_audit",
+        "title": "Auditoría / Logs",
+        "path": "/acceso/auditoria",
+        "icon": "audit",
+        "routeKey": "acceso/auditoria",
+        "permissionsAllowed": ["acceso/auditoria"]
+      }
+    ]
+  },
+  {
+    "id": "menu_operation",
+    "title": "Operación",
+    "path": "/operacion",
+    "icon": "operation",
+    "rolesAllowed": ["role_admin", "role_manager", "role_operator"],
+    "children": [
+      {
+        "id": "menu_orders",
+        "title": "Gestión pedidos",
+        "path": "/operacion/pedidos",
+        "icon": "orders",
+        "routeKey": "operacion/pedidos",
+        "permissionsAllowed": ["operacion/pedidos"]
+      },
+      {
+        "id": "menu_clients",
+        "title": "Gestión clientes",
+        "path": "/operacion/clientes",
+        "icon": "clients",
+        "routeKey": "operacion/clientes",
+        "permissionsAllowed": ["operacion/clientes"]
+      },
+      {
+        "id": "menu_shipments",
+        "title": "Gestión envíos",
+        "path": "/operacion/envios",
+        "icon": "shipments",
+        "routeKey": "operacion/envios",
+        "permissionsAllowed": ["operacion/envios"]
+      },
+      {
+        "id": "menu_products",
+        "title": "Gestión productos",
+        "path": "/operacion/productos",
+        "icon": "products",
+        "routeKey": "operacion/productos",
+        "permissionsAllowed": ["operacion/productos"]
+      }
+    ]
+  },
+  {
+    "id": "menu_settings",
+    "title": "Configuración",
+    "path": "/configuracion",
+    "icon": "settings",
+    "children": [
+      {
+        "id": "menu_settings_general",
+        "title": "Configuración general",
+        "path": "/configuracion/ajustes",
+        "icon": "settings",
+        "routeKey": "configuracion/ajustes",
+        "permissionsAllowed": ["configuracion/ajustes"]
+      },
+      {
+        "id": "menu_profile",
+        "title": "Gestión de perfil",
+        "path": "/configuracion/perfil",
+        "icon": "clients",
+        "routeKey": "configuracion/perfil",
+        "permissionsAllowed": ["configuracion/perfil"]
+      }
+    ]
+  }
+]

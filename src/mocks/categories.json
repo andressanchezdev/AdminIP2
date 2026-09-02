@@ -1,0 +1,50 @@
+[
+  {
+    "id": "CAT001",
+    "name": "Frenos",
+    "description": "Pastillas, discos y componentes de freno",
+    "status": "activo",
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "id": "CAT002",
+    "name": "Transmisión",
+    "description": "Cadenas, kits y componentes de transmisión",
+    "status": "activo",
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "id": "CAT003",
+    "name": "Lubricantes",
+    "description": "Aceites y lubricantes para motos",
+    "status": "activo",
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "id": "CAT004",
+    "name": "Accesorios",
+    "description": "Cascos, guantes y accesorios de protección",
+    "status": "activo",
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "id": "CAT005",
+    "name": "Carrocería",
+    "description": "Espejos, carenados y partes externas",
+    "status": "activo",
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-06-01T10:00:00.000Z"
+  },
+  {
+    "id": "CAT006",
+    "name": "Motor",
+    "description": "Filtros y componentes de motor",
+    "status": "activo",
+    "createdAt": "2026-01-10T10:00:00.000Z",
+    "updatedAt": "2026-06-01T10:00:00.000Z"
+  }
+]

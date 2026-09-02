@@ -1,0 +1,162 @@
+[
+  {
+    "id": "PR001",
+    "codigo": "FR-HON-CG125",
+    "nombre": "Pastillas de freno delanteras",
+    "descripcion": "Pastillas cerámicas Honda CG 125",
+    "modelo": "CG125",
+    "precios": [
+      {
+        "mayorista": 75000,
+        "minorista": 85000,
+        "empresarial": 95000
+      }
+    ],
+    "cantidad": 140,
+    "bodega": "Bodega 1",
+    "status": "activo",
+    "creado_en": "2026-06-01T08:00:00.000Z",
+    "actualizado_en": "2026-08-10T09:30:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR002",
+    "codigo": "CAD-DID-428",
+    "nombre": "Cadena DID 428H 120 eslabones",
+    "descripcion": "Cadena reforzada DID 428H",
+    "modelo": "428H",
+    "precios": [
+      {
+        "mayorista": 110000,
+        "minorista": 128000,
+        "empresarial": 145000
+      }
+    ],
+    "cantidad": 85,
+    "bodega": "Bodega 2",
+    "status": "activo",
+    "creado_en": "2026-05-15T10:00:00.000Z",
+    "actualizado_en": "2026-07-12T11:00:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR003",
+    "codigo": "ACE-MOT-4T",
+    "nombre": "Aceite Motul 5100 4T 15W50 1L",
+    "descripcion": "Aceite semisintético Motul 5100 4T",
+    "modelo": "5100 15W50",
+    "precios": [
+      {
+        "mayorista": 48000,
+        "minorista": 58000,
+        "empresarial": 65000
+      }
+    ],
+    "cantidad": 220,
+    "bodega": "Bodega 1",
+    "status": "activo",
+    "creado_en": "2026-03-20T09:00:00.000Z",
+    "actualizado_en": "2026-06-22T14:00:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR004",
+    "codigo": "CAS-LS2-FF",
+    "nombre": "Casco integral LS2 Fast",
+    "descripcion": "Casco integral LS2 Fast ECE",
+    "modelo": "Fast FF352",
+    "precios": [
+      {
+        "mayorista": 310000,
+        "minorista": 350000,
+        "empresarial": 390000
+      }
+    ],
+    "cantidad": 42,
+    "bodega": "Bodega 3",
+    "status": "activo",
+    "creado_en": "2026-04-02T12:00:00.000Z",
+    "actualizado_en": "2026-08-01T16:00:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR005",
+    "codigo": "ESP-YAM-YBR",
+    "nombre": "Par de espejos Yamaha YBR 125",
+    "descripcion": "Espejos cromados Yamaha YBR 125",
+    "modelo": "YBR 125",
+    "precios": [
+      {
+        "mayorista": 42000,
+        "minorista": 52000,
+        "empresarial": 60000
+      }
+    ],
+    "cantidad": 96,
+    "bodega": "Bodega 2",
+    "status": "activo",
+    "creado_en": "2026-05-01T08:30:00.000Z",
+    "actualizado_en": "2026-07-20T10:00:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR006",
+    "codigo": "KIT-BAJ-PUL150",
+    "nombre": "Kit transmisión Bajaj Pulsar 150",
+    "descripcion": "Kit transmisión Bajaj Pulsar 150",
+    "modelo": "Pulsar 150",
+    "precios": [
+      {
+        "mayorista": 165000,
+        "minorista": 189000,
+        "empresarial": 210000
+      }
+    ],
+    "cantidad": 38,
+    "bodega": "Bodega 3",
+    "status": "activo",
+    "creado_en": "2026-02-10T11:00:00.000Z",
+    "actualizado_en": "2026-08-05T09:15:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR007",
+    "codigo": "FIL-HON-CB190",
+    "nombre": "Filtro de aceite Honda CB190",
+    "descripcion": "Filtro de aceite Honda CB190",
+    "modelo": "CB190R",
+    "precios": [
+      {
+        "mayorista": 18000,
+        "minorista": 24000,
+        "empresarial": 28000
+      }
+    ],
+    "cantidad": 150,
+    "bodega": "Bodega 4",
+    "status": "activo",
+    "creado_en": "2026-01-18T07:45:00.000Z",
+    "actualizado_en": "2026-06-30T13:20:00.000Z",
+    "imagen": null
+  },
+  {
+    "id": "PR008",
+    "codigo": "BAT-YTX-7L",
+    "nombre": "Batería Yuasa YTX7L-BS",
+    "descripcion": "Batería sellada Yuasa YTX7L-BS",
+    "modelo": "YTX7L-BS",
+    "precios": [
+      {
+        "mayorista": 145000,
+        "minorista": 168000,
+        "empresarial": 185000
+      }
+    ],
+    "cantidad": 54,
+    "bodega": "Bodega 4",
+    "status": "inactivo",
+    "creado_en": "2026-03-05T15:00:00.000Z",
+    "actualizado_en": "2026-08-15T08:00:00.000Z",
+    "imagen": null
+  }
+]

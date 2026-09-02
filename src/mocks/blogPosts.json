@@ -1,0 +1,94 @@
+[
+  {
+    "id": "post_1",
+    "slug": "novedades-repuestos-2026",
+    "title": "Novedades en repuestos 2026",
+    "status": "publicado",
+    "sortOrder": 1,
+    "kind": "post",
+    "layoutId": "row_2",
+    "layoutSnapshot": {
+      "id": "row_2",
+      "name": "2 · Horizontal",
+      "orientation": "row",
+      "gridTemplateAreas": "\"media body\"",
+      "gridTemplateColumns": "1.1fr 1fr",
+      "gridTemplateRows": "auto",
+      "slots": [
+        { "id": "media", "type": "image", "label": "Imagen", "area": "media" },
+        { "id": "body", "type": "text", "label": "Texto", "area": "body" }
+      ]
+    },
+    "blocks": {
+      "media": {
+        "imageUrl": "https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=800&q=80"
+      },
+      "body": {
+        "text": "Llegaron referencias nuevas para frenos, cadenas y lubricantes. Revise el catálogo actualizado y las tarifas por tipo de cliente."
+      }
+    },
+    "createdAt": "2026-08-10T10:00:00.000Z",
+    "updatedAt": "2026-08-20T09:00:00.000Z",
+    "scheduledAt": null,
+    "unpublishAt": null
+  },
+  {
+    "id": "sep_demo_1",
+    "slug": "separador-demo-gold",
+    "title": "Separador · Línea dorada",
+    "status": "publicado",
+    "sortOrder": 2,
+    "kind": "separator",
+    "separatorVariant": "gold-line",
+    "layoutId": "separator",
+    "layoutSnapshot": {
+      "id": "separator",
+      "name": "Separador",
+      "orientation": "column",
+      "gridTemplateAreas": "\"body\"",
+      "gridTemplateColumns": "1fr",
+      "gridTemplateRows": "auto",
+      "slots": []
+    },
+    "blocks": {},
+    "createdAt": "2026-08-12T10:00:00.000Z",
+    "updatedAt": "2026-08-12T10:00:00.000Z",
+    "scheduledAt": null,
+    "unpublishAt": null
+  },
+  {
+    "id": "post_2",
+    "slug": "tips-mantenimiento-moto",
+    "title": "Tips de mantenimiento",
+    "status": "publicado",
+    "sortOrder": 3,
+    "kind": "post",
+    "layoutId": "col_3",
+    "layoutSnapshot": {
+      "id": "col_3",
+      "name": "3 · Vertical",
+      "orientation": "column",
+      "gridTemplateAreas": "\"heading\" \"media\" \"body\"",
+      "gridTemplateColumns": "1fr",
+      "gridTemplateRows": "auto auto auto",
+      "slots": [
+        { "id": "heading", "type": "heading", "label": "Titular", "area": "heading" },
+        { "id": "media", "type": "image", "label": "Imagen", "area": "media" },
+        { "id": "body", "type": "text", "label": "Texto", "area": "body" }
+      ]
+    },
+    "blocks": {
+      "heading": { "text": "Cuide su cadena cada 500 km" },
+      "media": {
+        "imageUrl": "https://images.unsplash.com/photo-1609630875171-b1321377ee65?w=800&q=80"
+      },
+      "body": {
+        "text": "Una lubricación correcta prolonga la vida útil del kit de transmisión y mejora la seguridad en ruta."
+      }
+    },
+    "createdAt": "2026-08-12T14:00:00.000Z",
+    "updatedAt": "2026-08-18T11:00:00.000Z",
+    "scheduledAt": null,
+    "unpublishAt": null
+  }
+]

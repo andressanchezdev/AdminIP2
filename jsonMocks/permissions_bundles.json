@@ -1,0 +1,49 @@
+[
+  {
+    "id": "metrics",
+    "label": "Métricas",
+    "permissions": ["metrics:view", "metrics:export"]
+  },
+  {
+    "id": "orders",
+    "label": "Pedidos",
+    "permissions": ["orders:create", "orders:read", "orders:update", "orders:delete"]
+  },
+  {
+    "id": "products",
+    "label": "Productos",
+    "permissions": ["products:create", "products:read", "products:update", "products:delete"]
+  },
+  {
+    "id": "clients",
+    "label": "Clientes",
+    "permissions": ["clients:create", "clients:read", "clients:update", "clients:delete"]
+  },
+  {
+    "id": "shipments",
+    "label": "Envíos",
+    "permissions": ["shipments:create", "shipments:read", "shipments:update", "shipments:cancel"]
+  },
+  {
+    "id": "access",
+    "label": "Acceso",
+    "permissions": [
+      "roles:manage",
+      "permissions:manage",
+      "users:invite",
+      "users:manage",
+      "profile:edit",
+      "audit:view"
+    ]
+  },
+  {
+    "id": "system",
+    "label": "Sistema",
+    "permissions": ["settings:manage", "notifications:manage"]
+  },
+  {
+    "id": "reports",
+    "label": "Reportes",
+    "permissions": ["reports:export"]
+  }
+]

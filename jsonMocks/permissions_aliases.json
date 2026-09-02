@@ -1,0 +1,7 @@
+[
+  { "alias": "Ver Pedidos", "code": "orders:read" },
+  { "alias": "Ver métricas", "code": "metrics:view" },
+  { "alias": "Crear Pedidos", "code": "orders:create" },
+  { "alias": "Gestionar Roles", "code": "roles:manage" },
+  { "alias": "Ver Auditoría", "code": "audit:view" }
+]

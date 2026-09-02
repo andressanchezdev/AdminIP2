@@ -1,0 +1,49 @@
+{
+  "_meta": {
+    "fuente": "GCS bucket importadorapremiumonline/dependencias/img/marcas",
+    "assetBase": "https://storage.googleapis.com/importadorapremiumonline",
+    "defaultLogo": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/IMPORTADOOoK-72-72.png",
+    "totalMarcasConNombre": 17,
+    "totalArchivos": 17,
+    "nota": "Lista filtrada según Marcas-Urls/lista.md — solo marcas activas en landing."
+  },
+  "defaultLogo": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/IMPORTADOOoK-72-72.png",
+  "marcas": {
+    "ADVANCE": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/37749159_marcas-64.png",
+    "AKT": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/10656650_marcas-09.png",
+    "BAJAJ": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/15060940_marcas-10.png",
+    "HAVOLINE": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/HAVOLINE-74.jpg",
+    "HERO": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/99540505_marcas-18.png",
+    "HONDA": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/22885058_marcas-12.png",
+    "IMPORTADO": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/IMPORTADO-72.jpg",
+    "KAWASAKI": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/28620734_marcas-11.png",
+    "KYMCO": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/63519402_marcas-03.png",
+    "LOGO PREMIUM": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/logo_premium.png",
+    "MOBIL": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/48568160_marcas-63.png",
+    "MOTUL": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/96259009_marcas-41.png",
+    "PREMIUM GENUINE": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/DISE%C3%91O%20DE%20MARCAS%20DE%20MOTOPJ-01.webp",
+    "SUZUKI": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/53118437_marcas-04.png",
+    "VICTORY": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/81797747_victory.png",
+    "YAMAHA": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/57432582_marcas-06.png",
+    "YAMALUBE ORIGINAL": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/42501267_marcas-61.png"
+  },
+  "porArchivo": {
+    "10656650_marcas-09.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/10656650_marcas-09.png",
+    "15060940_marcas-10.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/15060940_marcas-10.png",
+    "22885058_marcas-12.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/22885058_marcas-12.png",
+    "28620734_marcas-11.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/28620734_marcas-11.png",
+    "37749159_marcas-64.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/37749159_marcas-64.png",
+    "42501267_marcas-61.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/42501267_marcas-61.png",
+    "48568160_marcas-63.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/48568160_marcas-63.png",
+    "53118437_marcas-04.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/53118437_marcas-04.png",
+    "57432582_marcas-06.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/57432582_marcas-06.png",
+    "63519402_marcas-03.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/63519402_marcas-03.png",
+    "81797747_victory.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/81797747_victory.png",
+    "96259009_marcas-41.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/96259009_marcas-41.png",
+    "99540505_marcas-18.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/99540505_marcas-18.png",
+    "DISEÑO DE MARCAS DE MOTOPJ-01.webp": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/DISE%C3%91O%20DE%20MARCAS%20DE%20MOTOPJ-01.webp",
+    "HAVOLINE-74.jpg": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/HAVOLINE-74.jpg",
+    "IMPORTADO-72.jpg": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/IMPORTADO-72.jpg",
+    "logo_premium.png": "https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/logo_premium.png"
+  }
+}

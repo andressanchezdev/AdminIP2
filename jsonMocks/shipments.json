@@ -1,0 +1,22 @@
+[
+    {
+      "id": "shipment_5001",
+      "orderId": "order_1002",
+      "status": "delivered",
+      "carrier": "TransExpress",
+      "trackingNumber": "TRX-123456",
+      "address": "Calle Secundaria 44, Ciudad",
+      "estimatedDelivery": "2026-08-12T12:00:00.000Z",
+      "shippedAt": "2026-08-11T08:00:00.000Z"
+    },
+    {
+      "id": "shipment_5002",
+      "orderId": "order_1001",
+      "status": "in_transit",
+      "carrier": "LogiFast",
+      "trackingNumber": "LF-987654",
+      "address": "Av. Principal 123, Ciudad",
+      "estimatedDelivery": "2026-08-20T18:00:00.000Z",
+      "shippedAt": null
+    }
+  ]

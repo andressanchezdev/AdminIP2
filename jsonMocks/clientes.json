@@ -1,0 +1,26 @@
+[
+    {
+      "id": "client_001",
+      "name": "Distribuciones Sol S.A.",
+      "contact": {
+        "name": "Carlos Pérez",
+        "email": "carlos.perez@solsa.com",
+        "phone": "+1-555-123-4567"
+      },
+      "address": "Av. Principal 123, Ciudad",
+      "createdAt": "2025-11-01T10:00:00.000Z",
+      "status": "active"
+    },
+    {
+      "id": "client_002",
+      "name": "Tienda La Esquina",
+      "contact": {
+        "name": "Ana Gómez",
+        "email": "ana.gomez@laesquina.com",
+        "phone": "+1-555-987-6543"
+      },
+      "address": "Calle Secundaria 44, Ciudad",
+      "createdAt": "2026-02-15T09:00:00.000Z",
+      "status": "active"
+    }
+  ]

@@ -1,0 +1,260 @@
+/**
+ * Adaptación AdminIP: web / tablet / móvil (incl. ~370×660).
+ * Contenedores se ajustan al viewport sin romper la estructura desktop.
+ *
+ * Tablas (ver ResponsiveTable.css):
+ * - ≤768px: solo 3 columnas prioritarias + acciones
+ * - ≤640px ancho: filas como cards
+ */
+
+html,
+body,
+#root {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.landing {
+  max-width: 100%;
+  min-height: 100dvh;
+  position: relative;
+}
+
+.landing__main {
+  max-width: 100%;
+}
+
+.landing__nav-backdrop {
+  background: rgba(26, 26, 26, 0.42);
+  border: none;
+  cursor: pointer;
+  inset: 0;
+  position: fixed;
+  z-index: 40;
+}
+
+/* —— Tablet —— */
+@media (max-width: 900px) {
+  :root {
+    --sidebar-width: 200px;
+    --spacing-lg: 16px;
+    --header-height: 58px;
+  }
+
+  .landing__content {
+    padding: var(--spacing-md);
+  }
+
+  .admin-header {
+    gap: 10px;
+    padding: 8px 12px;
+  }
+
+  .admin-header__title {
+    font-size: 17px;
+  }
+
+  .admin-metrics-grid,
+  .admin-profile__grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  }
+}
+
+/* —— Móvil (incluye 370×660) —— */
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 0px;
+    --drawer-width: min(410px, 100vw);
+    --spacing-lg: 12px;
+    --spacing-md: 2px;
+    --header-height: 54px;
+    --font-size-lg: 17px;
+  }
+
+  .landing {
+    display: block;
+    min-height: 100dvh;
+  }
+
+  .landing__main {
+    min-height: 100dvh;
+    width: 100%;
+  }
+
+  .landing__content {
+    padding: 10px;
+  }
+
+  .admin-header {
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-height: var(--header-height);
+    padding: 8px 10px;
+  }
+
+  .admin-header__start {
+    flex: 1 1 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    max-width: none;
+    min-width: 0;
+  }
+
+  .admin-header__actions {
+    flex: 0 1 auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    margin-left: auto;
+    max-width: min(55%, 100%);
+    overflow: visible;
+  }
+
+  .admin-header__warehouse-filter {
+    max-width: 160px;
+    width: min(160px, 42vw);
+  }
+
+  .admin-page {
+    gap: 10px;
+  }
+
+  .admin-card {
+    padding: 12px;
+  }
+
+  .admin-table-wrap {
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+    margin: 0 -2px;
+    max-width: calc(100% + 4px);
+  }
+
+  .admin-table th,
+  .admin-table td {
+    padding: 10px 10px;
+  }
+
+  .admin-table--compact th,
+  .admin-table--compact td {
+    padding: 8px;
+  }
+
+  .admin-actions,
+  .admin-row-actions {
+    flex-wrap: wrap;
+  }
+
+  .admin-edit-items__row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-edit-items__add {
+    flex-direction: column;
+  }
+
+  .admin-image-field__row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-profile__hero {
+    padding: 14px;
+  }
+
+  .admin-profile__intro {
+    min-width: 0;
+  }
+
+  .admin-profile__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-audit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-audit-card {
+    min-height: 0;
+  }
+
+  .admin-pie {
+    justify-content: center;
+  }
+
+  .multi-select-filter {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .admin-toolbar .admin-input,
+  .admin-header__actions .admin-input {
+    flex: 1 1 120px;
+    max-width: 100%;
+    min-width: 0;
+  }
+}
+
+/* —— Móvil estrecho / bajo (370×660 y similares) —— */
+@media (max-width: 400px), (max-height: 700px) and (max-width: 480px) {
+  :root {
+    --header-height: 50px;
+    --spacing-lg: 10px;
+    --spacing-md: 10px;
+    --font-size-lg: 16px;
+  }
+
+  .landing__content {
+    padding: 8px;
+  }
+
+  .admin-header {
+    padding: 6px 8px;
+  }
+
+  .admin-header__menu-btn {
+    height: 36px;
+    width: 36px;
+  }
+
+  .admin-header__title {
+    font-size: 15px;
+  }
+
+  .admin-header__subtitle {
+    font-size: 11px;
+  }
+
+  .admin-card {
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .admin-btn {
+    padding: 8px 10px;
+  }
+
+  .detail-view__row {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+
+  .detail-view__media img,
+  .detail-view__thumb {
+    height: 48px;
+    width: 48px;
+  }
+}
+
+@media (max-width: 370px) {
+  .admin-table th,
+  .admin-table td {
+    font-size: 12px;
+    padding: 8px 8px;
+  }
+
+  .admin-row-actions {
+    gap: 4px;
+  }
+}

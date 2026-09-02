@@ -1,0 +1,88 @@
+[
+  {
+    "id": "role_admin",
+    "name": "ADMIN",
+    "description": "Acceso total al panel AdminIP",
+    "permissions": [
+      "metrics:view",
+      "metrics:export",
+      "orders:create",
+      "orders:read",
+      "orders:update",
+      "orders:delete",
+      "products:create",
+      "products:read",
+      "products:update",
+      "products:delete",
+      "clients:create",
+      "clients:read",
+      "clients:update",
+      "clients:delete",
+      "shipments:create",
+      "shipments:read",
+      "shipments:update",
+      "shipments:cancel",
+      "roles:manage",
+      "permissions:manage",
+      "users:invite",
+      "users:manage",
+      "profile:edit",
+      "audit:view",
+      "settings:manage",
+      "notifications:manage",
+      "reports:export"
+    ]
+  },
+  {
+    "id": "role_manager",
+    "name": "MANAGER",
+    "description": "Gestión operativa y métricas, sin administrar permisos",
+    "permissions": [
+      "metrics:view",
+      "metrics:export",
+      "orders:create",
+      "orders:read",
+      "orders:update",
+      "products:create",
+      "products:read",
+      "products:update",
+      "clients:create",
+      "clients:read",
+      "clients:update",
+      "shipments:create",
+      "shipments:read",
+      "shipments:update",
+      "profile:edit",
+      "audit:view",
+      "reports:export",
+      "notifications:manage"
+    ]
+  },
+  {
+    "id": "role_operator",
+    "name": "OPERATOR",
+    "description": "Operación diaria de pedidos, clientes, envíos y productos",
+    "permissions": [
+      "orders:create",
+      "orders:read",
+      "orders:update",
+      "products:read",
+      "products:update",
+      "clients:read",
+      "clients:update",
+      "shipments:create",
+      "shipments:read",
+      "shipments:update",
+      "profile:edit"
+    ]
+  },
+  {
+    "id": "role_viewer",
+    "name": "VIEWER",
+    "description": "Solo lectura de métricas y dashboard",
+    "permissions": [
+      "metrics:view",
+      "profile:edit"
+    ]
+  }
+]

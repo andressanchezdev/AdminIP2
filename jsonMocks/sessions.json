@@ -1,0 +1,18 @@
+[
+    {
+      "id": "sess_1",
+      "userId": "user_1",
+      "device": "Chrome on Windows",
+      "ip": "192.0.2.10",
+      "createdAt": "2026-08-21T08:10:00.000Z",
+      "lastSeenAt": "2026-08-21T08:20:00.000Z"
+    },
+    {
+      "id": "sess_2",
+      "userId": "user_2",
+      "device": "Firefox on Mac",
+      "ip": "198.51.100.22",
+      "createdAt": "2026-08-20T12:00:00.000Z",
+      "lastSeenAt": "2026-08-20T12:10:00.000Z"
+    }
+  ]

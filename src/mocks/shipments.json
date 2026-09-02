@@ -1,0 +1,41 @@
+[
+  {
+    "id": "E001",
+    "orderId": "P002",
+    "orderNumber": "P002",
+    "clientName": "Taller Honda Express",
+    "status": "entregado",
+    "carrier": "MotoLogística",
+    "trackingNumber": "ML-123456",
+    "address": "Calle 44 #12-90, Medellín",
+    "estimatedDelivery": "2026-08-12T12:00:00.000Z",
+    "shippedAt": "2026-08-11T08:00:00.000Z",
+    "driverId": "user_3"
+  },
+  {
+    "id": "E002",
+    "orderId": "P001",
+    "orderNumber": "P001",
+    "clientName": "Motos del Norte S.A.S.",
+    "status": "en_transito",
+    "carrier": "Rutas Andinas",
+    "trackingNumber": "RA-987654",
+    "address": "Av. Autopista 123, Bogotá",
+    "estimatedDelivery": "2026-08-20T18:00:00.000Z",
+    "shippedAt": "2026-08-19T07:30:00.000Z",
+    "driverId": "user_3"
+  },
+  {
+    "id": "E003",
+    "orderId": "P003",
+    "orderNumber": "P003",
+    "clientName": "Repuestos Yamaha Centro",
+    "status": "programado",
+    "carrier": "MotoLogística",
+    "trackingNumber": "ML-554433",
+    "address": "Cra 7 #45-10, Cali",
+    "estimatedDelivery": "2026-08-22T16:00:00.000Z",
+    "shippedAt": null,
+    "driverId": null
+  }
+]

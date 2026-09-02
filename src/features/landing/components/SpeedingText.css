@@ -1,0 +1,15 @@
+.speeding-text {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+.speeding-text__glyph {
+  display: inline-block;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  will-change: transform, filter;
+  white-space: nowrap;
+}

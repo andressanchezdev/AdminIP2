@@ -1,0 +1,17 @@
+[
+    {
+      "id": "notif_1",
+      "name": "Stock Bajo",
+      "enabled": true,
+      "channels": ["email"],
+      "threshold": 50,
+      "recipients": ["user_2", "user_1"]
+    },
+    {
+      "id": "notif_2",
+      "name": "Pedido Enviado",
+      "enabled": true,
+      "channels": ["email", "slack"],
+      "recipients": ["user_3"]
+    }
+  ]

@@ -1,0 +1,161 @@
+/* Ajustes responsive del modal de autenticación (solo login). */
+
+@media (max-width: 768px) {
+  .auth-modal {
+    --auth-mobile-width: min(95vw, 420px);
+    --auth-mobile-height: min(72dvh, calc(100dvh - 24px));
+    border-radius: 12px;
+    height: var(--auth-mobile-height);
+    max-height: var(--auth-mobile-height);
+    width: var(--auth-mobile-width);
+  }
+
+  .auth-modal__split {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .auth-modal__brand {
+    border-bottom: 1px solid var(--color-border);
+    border-right: none;
+    flex: 0 0 72px;
+    max-height: 18%;
+    min-height: 48px;
+  }
+
+  .auth-modal__form-col {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    padding: 14px 16px 12px;
+  }
+
+  .auth-modal__form-col > .auth-form {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: 100%;
+  }
+
+  .auth-form--login {
+    gap: 10px;
+    justify-content: center;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+
+  .auth-form--login .auth-form__title,
+  .auth-form--login .auth-form__subtitle,
+  .auth-form--login .auth-field,
+  .auth-form--login .auth-form__remember {
+    flex-shrink: 0;
+  }
+
+  .auth-form--login .auth-form__actions {
+    flex-shrink: 0;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .auth-form__title {
+    font-size: 18px;
+  }
+
+  .auth-form__subtitle {
+    font-size: 12px;
+    margin: 0;
+  }
+
+  .auth-field__input {
+    font-size: 16px;
+    padding: 9px 11px;
+  }
+
+  .auth-form__submit {
+    font-size: 13px;
+    padding: 10px 14px;
+  }
+
+  .auth-modal__close {
+    height: 30px;
+    right: 8px;
+    top: 8px;
+    width: 30px;
+  }
+}
+
+/* Teléfonos angostos / bajos (~370×660) */
+@media (max-width: 400px), (max-height: 700px) and (max-width: 480px) {
+  .auth-modal {
+    --auth-mobile-width: min(96vw, 100%);
+    --auth-mobile-height: min(84dvh, calc(100dvh - 12px));
+    border-radius: 12px;
+  }
+
+  .auth-modal__brand {
+    flex-basis: 56px;
+    max-height: 14%;
+    min-height: 40px;
+  }
+
+  .auth-modal__form-col {
+    padding: 10px 12px 10px;
+  }
+
+  .auth-form--login {
+    gap: 8px;
+    justify-content: flex-start;
+  }
+
+  .auth-form__title {
+    font-size: 16px;
+  }
+
+  .auth-form__subtitle {
+    font-size: 11px;
+  }
+
+  .auth-field__label {
+    font-size: 11px;
+  }
+
+  .auth-field__input {
+    padding: 8px 10px;
+  }
+
+  .auth-form__remember {
+    font-size: 12px;
+  }
+
+  .auth-form__submit {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .auth-modal__brand {
+    flex-basis: 40px;
+    min-height: 40px;
+  }
+
+  .auth-modal__form-col {
+    padding: 8px 10px 8px;
+  }
+
+  .auth-form--login {
+    gap: 6px;
+  }
+
+  .auth-form__title {
+    font-size: 15px;
+  }
+}
