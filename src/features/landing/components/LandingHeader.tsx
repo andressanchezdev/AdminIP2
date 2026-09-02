@@ -21,8 +21,7 @@ export function LandingHeader({ onLoginClick }: LandingHeaderProps) {
   const canOpenStaff = isAuthenticated && !client
 
   const handleBrandClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
-    const scrollRoutes = location.pathname === '/' || location.pathname.startsWith('/explorar/')
-    if (!scrollRoutes) return
+    if (location.pathname !== '/') return
     event.preventDefault()
     scrollToPageTop()
   }
