@@ -54,12 +54,9 @@ export function PublicBlogShell({
         </Link>
         <Link to="/" className="blog-shell__brand" aria-label="Importadora Premium — ir al inicio">
           <img src={ipLogo} alt="" width={28} height={28} />
-          <span>Importadora Premium</span>
+          <span>Blog Importadora Premium </span>
         </Link>
         <div className="blog-shell__header-actions">
-          <Link to="/blog" className="blog-shell__nav-link">
-            Blog
-          </Link>
           {allowSubmissionRequest ? (
             <button
               type="button"

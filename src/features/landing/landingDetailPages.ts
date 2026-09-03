@@ -44,7 +44,7 @@ const EXPLORE_DETAIL_COPY: Record<
     kind: 'vacancies',
     eyebrow: 'Talento Importadora Premium',
     title: 'Trabaja con nosotros',
-    lead: 'Conoce las vacantes abiertas y postúlate para sumarte a nuestro equipo.',
+    lead: 'Vacantes abiertas, postúlate a la vacante que más te guste.',
     images: [LANDING_IMAGES.nosotros, LANDING_IMAGES.vision],
     ctaLabel: 'Enviar postulación',
     ctaHref: `mailto:${LANDING_CONTACT.email}?subject=Postulaci%C3%B3n%20vacante`,

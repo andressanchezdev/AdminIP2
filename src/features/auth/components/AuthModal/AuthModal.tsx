@@ -1,4 +1,5 @@
 import brandImage from '@/assets/images/login-brand.png'
+import type { LoginAudience } from '@/app/providers/AuthProvider'
 import { OverlayModal } from '@/shared/ui/OverlayModal/OverlayModal'
 import { LoginForm } from '@/features/auth/components/AuthModal/LoginForm'
 import { namedControl } from '@/shared/lib/namedControl'
@@ -16,9 +17,16 @@ type AuthModalProps = {
   onClose?: () => void
   onLogin: (form: LoginFormValues) => void
   authError?: string
+  audience?: LoginAudience
 }
 
-export function AuthModal({ isOpen, onClose, onLogin, authError }: AuthModalProps) {
+export function AuthModal({
+  isOpen,
+  onClose,
+  onLogin,
+  authError,
+  audience = 'staff',
+}: AuthModalProps) {
   return (
     <OverlayModal
       isOpen={isOpen}
@@ -45,7 +53,7 @@ export function AuthModal({ isOpen, onClose, onLogin, authError }: AuthModalProp
         />
 
         <div className="auth-modal__form-col">
-          <LoginForm onSubmit={onLogin} authError={authError} />
+          <LoginForm onSubmit={onLogin} authError={authError} audience={audience} />
         </div>
       </div>
     </OverlayModal>

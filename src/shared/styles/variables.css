@@ -53,7 +53,7 @@
   --drawer-width: 410px;
   /* Contenedores / grid — misma lógica que clienteIP (StorePage + ProductCard) */
   --content-pad: 10px;
-  --grid-gap: 24px;
+  --grid-gap: 15px;
   --grid-card-min: 300px;
   --brand-logo-size: 90px;
   --spacing-lg: 24px;

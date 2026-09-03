@@ -15,7 +15,7 @@ export function getCircularOffset(index: number, activeIndex: number, count = SL
   return delta
 }
 
-export function useAdvisorCarousel() {
+export function useAdvisorCarousel(enabled = true) {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isPaused, setIsPaused] = useState(false)
   const [isStepping, setIsStepping] = useState(false)
@@ -45,7 +45,7 @@ export function useAdvisorCarousel() {
   }, [beginStepTransition])
 
   useEffect(() => {
-    if (isPaused || isStepping) return undefined
+    if (!enabled || isPaused || isStepping) return undefined
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (prefersReducedMotion) return undefined
@@ -55,7 +55,7 @@ export function useAdvisorCarousel() {
     }, AUTO_ADVANCE_MS)
 
     return () => window.clearTimeout(timer)
-  }, [isPaused, isStepping, slideNext])
+  }, [enabled, isPaused, isStepping, slideNext])
 
   useEffect(() => () => window.clearTimeout(stepTimerRef.current), [])
 

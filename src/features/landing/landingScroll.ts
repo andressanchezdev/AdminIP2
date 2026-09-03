@@ -19,6 +19,24 @@ export function parseLandingHash(href: string): LandingSectionId | null {
     : null
 }
 
+export function isDocumentReload() {
+  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+  return nav?.type === 'reload'
+}
+
+/** Recarga F5: ir al top y quitar hash (#equipo, etc.) para no restaurar la sección. */
+export function resetLandingScrollOnReload() {
+  if (typeof window === 'undefined' || !isDocumentReload()) return false
+  if ('scrollRestoration' in window.history) {
+    window.history.scrollRestoration = 'manual'
+  }
+  if (window.location.hash) {
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+  }
+  window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+  return true
+}
+
 /** Desplaza la sección al inicio visible, respetando el header fijo (scroll-margin-top en CSS). */
 export function scrollToLandingSection(
   sectionId: LandingSectionId,

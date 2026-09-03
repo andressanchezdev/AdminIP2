@@ -12,7 +12,7 @@ type SearchInputProps = {
 /** Búsqueda que solo aplica al presionar Enter. */
 export function SearchInput({
   placeholder = 'Escriba y pulse Enter para buscar',
-  className = 'admin-input',
+  className = 'admin-search',
   appliedValue = '',
   onSearch,
   'aria-label': ariaLabel = 'Buscar',

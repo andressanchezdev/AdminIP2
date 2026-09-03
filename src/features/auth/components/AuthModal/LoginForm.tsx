@@ -1,3 +1,4 @@
+import type { LoginAudience } from '@/app/providers/AuthProvider'
 import { useAuthForm } from '@/features/auth/hooks/useAuthForm'
 import { AuthField } from '@/features/auth/components/AuthModal/AuthField'
 import { namedControl } from '@/shared/lib/namedControl'
@@ -11,10 +12,23 @@ type LoginFormValues = {
 type LoginFormProps = {
   onSubmit: (form: LoginFormValues) => void
   authError?: string
+  audience?: LoginAudience
 }
 
-export function LoginForm({ onSubmit, authError }: LoginFormProps) {
+const AUDIENCE_COPY: Record<LoginAudience, { title: string; subtitle: string }> = {
+  client: {
+    title: 'Clientes premium',
+    subtitle: 'Accede a tu cuenta de cliente Importadora Premium',
+  },
+  staff: {
+    title: 'Administrativos premium',
+    subtitle: 'Accede al panel administrativo de Importadora Premium',
+  },
+}
+
+export function LoginForm({ onSubmit, authError, audience = 'staff' }: LoginFormProps) {
   const { form, setField, validateAll, getError } = useAuthForm()
+  const copy = AUDIENCE_COPY[audience]
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault()
@@ -26,8 +40,8 @@ export function LoginForm({ onSubmit, authError }: LoginFormProps) {
 
   return (
     <form className="auth-form auth-form--login" onSubmit={handleSubmit} noValidate>
-      <h2 id="auth-modal-title" className="auth-form__title">Ingresar</h2>
-      <p className="auth-form__subtitle">Accede a tu cuenta de Importadora Premium</p>
+      <h2 id="auth-modal-title" className="auth-form__title">{copy.title}</h2>
+      <p className="auth-form__subtitle">{copy.subtitle}</p>
 
       <AuthField
         id="auth-email"

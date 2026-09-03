@@ -18,16 +18,13 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import {
+  VACANCY_EMPLOYMENT_TYPES,
+  validateVacancyForm,
+  type VacancyFormInput,
+} from './vacancyValidation'
 
-type VacancyFormState = {
-  title: string
-  location: string
-  employmentType: string
-  summary: string
-  description: string
-  requirements: string
-  status: VacancyStatus
-}
+type VacancyFormState = VacancyFormInput
 
 const emptyForm: VacancyFormState = {
   title: '',
@@ -56,6 +53,7 @@ export function VacanciesAdminPage() {
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<VacancyRecord | null>(null)
   const [form, setForm] = useState<VacancyFormState>(emptyForm)
+  const [formErrors, setFormErrors] = useState<Partial<Record<keyof VacancyFormState, string>>>({})
 
   const vacancies = useMemo(
     () => listVacancies(statusFilter),
@@ -66,10 +64,11 @@ export function VacanciesAdminPage() {
   const openCreate = () => {
     setEditing(null)
     setForm(emptyForm)
+    setFormErrors({})
     setFormOpen(true)
   }
 
-  const openEdit = (vacancy: VacancyRecord) => {
+  const openEdit = (vacancy: VacancyRecord, errors: Partial<Record<keyof VacancyFormState, string>> = {}) => {
     setEditing(vacancy)
     setForm({
       title: vacancy.title,
@@ -80,15 +79,24 @@ export function VacanciesAdminPage() {
       requirements: vacancy.requirements,
       status: vacancy.status,
     })
+    setFormErrors(errors)
     setFormOpen(true)
+  }
+
+  const closeForm = () => {
+    setFormOpen(false)
+    setFormErrors({})
   }
 
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault()
-    if (form.title.trim().length < 3) {
-      notifyError('Revise el formulario', 'Indique un título válido')
+    const validation = validateVacancyForm(form)
+    if (!validation.isValid) {
+      setFormErrors(validation.errors)
+      notifyError('Revise el formulario', validation.firstError ?? 'Complete los campos obligatorios')
       return
     }
+    setFormErrors({})
 
     if (editing) {
       if (!canUpdate) return
@@ -127,11 +135,33 @@ export function VacanciesAdminPage() {
     }
 
     setFormOpen(false)
+    setFormErrors({})
     refresh()
   }
 
   const changeStatus = async (vacancy: VacancyRecord, status: VacancyStatus) => {
     if (!canPublish && !canUpdate) return
+
+    if (status === 'publicado') {
+      const validation = validateVacancyForm({
+        title: vacancy.title,
+        location: vacancy.location,
+        employmentType: vacancy.employmentType,
+        summary: vacancy.summary,
+        description: vacancy.description,
+        requirements: vacancy.requirements,
+        status,
+      })
+      if (!validation.isValid) {
+        notifyError(
+          'No se puede publicar',
+          validation.firstError ?? 'Complete todos los campos antes de publicar',
+        )
+        openEdit(vacancy, validation.errors)
+        return
+      }
+    }
+
     const updated = setVacancyStatus(vacancy.id, status)
     if (!updated) return
     appendAuditLog({
@@ -170,6 +200,21 @@ export function VacanciesAdminPage() {
     refresh()
   }
 
+  const renderStatusSelect = (vacancy: VacancyRecord) => (
+    <select
+      className="admin-input"
+      aria-label={`Estado de ${vacancy.title}`}
+      value={vacancy.status}
+      disabled={!canPublish && !canUpdate}
+      onChange={(event) => void changeStatus(vacancy, event.target.value as VacancyStatus)}
+    >
+      <option value="borrador">borrador</option>
+      <option value="publicado">publicado</option>
+      <option value="cerrado">cerrado</option>
+      <option value="archivado">archivado</option>
+    </select>
+  )
+
   return (
     <div className="admin-page">
       <div className="admin-toolbar">
@@ -206,23 +251,13 @@ export function VacanciesAdminPage() {
             fields={[
               { label: 'Ubicación', value: vacancy.location, primary: true },
               { label: 'Tipo', value: vacancy.employmentType, primary: true },
-              { label: 'Estado', value: vacancy.status, primary: true },
+              { label: 'Estado', value: renderStatusSelect(vacancy), primary: true },
               { label: 'Resumen', value: vacancy.summary },
             ]}
             actions={(
               <>
                 {canUpdate ? (
                   <IconAction label="Editar" variant="edit" onClick={() => openEdit(vacancy)} />
-                ) : null}
-                {canPublish || canUpdate ? (
-                  <IconAction
-                    label={vacancy.status === 'publicado' ? 'Cerrar' : 'Publicar'}
-                    variant={vacancy.status === 'publicado' ? 'toggle-off' : 'toggle-on'}
-                    onClick={() => void changeStatus(
-                      vacancy,
-                      vacancy.status === 'publicado' ? 'cerrado' : 'publicado',
-                    )}
-                  />
                 ) : null}
                 {canDelete ? (
                   <IconAction label="Eliminar" variant="delete" onClick={() => void handleDelete(vacancy)} />
@@ -248,21 +283,11 @@ export function VacanciesAdminPage() {
                 <td>{vacancy.title}</td>
                 <td>{vacancy.location}</td>
                 <td>{vacancy.employmentType}</td>
-                <td>{vacancy.status}</td>
+                <td>{renderStatusSelect(vacancy)}</td>
                 <td>
                   <div className="admin-table__actions">
                     {canUpdate ? (
                       <IconAction label="Editar" variant="edit" onClick={() => openEdit(vacancy)} />
-                    ) : null}
-                    {canPublish || canUpdate ? (
-                      <IconAction
-                        label={vacancy.status === 'publicado' ? 'Cerrar' : 'Publicar'}
-                        variant={vacancy.status === 'publicado' ? 'toggle-off' : 'toggle-on'}
-                        onClick={() => void changeStatus(
-                          vacancy,
-                          vacancy.status === 'publicado' ? 'cerrado' : 'publicado',
-                        )}
-                      />
                     ) : null}
                     {canDelete ? (
                       <IconAction label="Eliminar" variant="delete" onClick={() => void handleDelete(vacancy)} />
@@ -278,61 +303,101 @@ export function VacanciesAdminPage() {
       <Modal
         isOpen={formOpen}
         title={editing ? 'Editar vacante' : 'Nueva vacante'}
-        onClose={() => setFormOpen(false)}
+        onClose={closeForm}
       >
-        <form className="admin-form" onSubmit={handleSubmit}>
+        <form className="admin-form" onSubmit={handleSubmit} noValidate>
+          <p className="admin-form__hint">
+            Complete todos los campos que se muestran en la vista pública de vacantes.
+          </p>
+
           <label className="admin-form__field">
             Título
             <input
               className="admin-input"
               value={form.title}
+              maxLength={80}
+              placeholder="Ej. Asesor comercial"
               onChange={(event) => setForm((current) => ({ ...current, title: event.target.value }))}
             />
+            <span className="admin-form__hint">Se muestra como título principal en el listado.</span>
+            {formErrors.title ? <span className="admin-form__error">{formErrors.title}</span> : null}
           </label>
-          <label className="admin-form__field">
-            Ubicación
-            <input
-              className="admin-input"
-              value={form.location}
-              onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))}
-            />
-          </label>
-          <label className="admin-form__field">
-            Tipo de contrato
-            <input
-              className="admin-input"
-              value={form.employmentType}
-              onChange={(event) => setForm((current) => ({ ...current, employmentType: event.target.value }))}
-            />
-          </label>
+
           <label className="admin-form__field">
             Resumen
             <textarea
               className="admin-input admin-textarea"
               rows={2}
+              maxLength={180}
+              placeholder="Breve descripción visible en el listado"
               value={form.summary}
               onChange={(event) => setForm((current) => ({ ...current, summary: event.target.value }))}
             />
+            <span className="admin-form__hint">Texto corto bajo el título en la vista pública.</span>
+            {formErrors.summary ? <span className="admin-form__error">{formErrors.summary}</span> : null}
           </label>
+
+          <label className="admin-form__field">
+            Ubicación
+            <input
+              className="admin-input"
+              value={form.location}
+              maxLength={80}
+              placeholder="Ej. Medellín, Colombia"
+              onChange={(event) => setForm((current) => ({ ...current, location: event.target.value }))}
+            />
+            <span className="admin-form__hint">Aparece con el icono de ubicación en cada vacante.</span>
+            {formErrors.location ? <span className="admin-form__error">{formErrors.location}</span> : null}
+          </label>
+
+          <label className="admin-form__field">
+            Tipo de contrato
+            <select
+              className="admin-input"
+              value={form.employmentType}
+              onChange={(event) => setForm((current) => ({ ...current, employmentType: event.target.value }))}
+            >
+              {!(VACANCY_EMPLOYMENT_TYPES as readonly string[]).includes(form.employmentType) ? (
+                <option value={form.employmentType}>{form.employmentType}</option>
+              ) : null}
+              {VACANCY_EMPLOYMENT_TYPES.map((type) => (
+                <option key={type} value={type}>{type}</option>
+              ))}
+            </select>
+            <span className="admin-form__hint">Aparece con el icono de maletín en cada vacante.</span>
+            {formErrors.employmentType ? <span className="admin-form__error">{formErrors.employmentType}</span> : null}
+          </label>
+
           <label className="admin-form__field">
             Descripción
             <textarea
               className="admin-input admin-textarea"
               rows={4}
+              maxLength={2000}
+              placeholder="Detalle de funciones y responsabilidades del cargo"
               value={form.description}
               onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))}
             />
+            <span className="admin-form__hint">Se muestra al expandir el detalle de la vacante.</span>
+            {formErrors.description ? <span className="admin-form__error">{formErrors.description}</span> : null}
           </label>
+
           <label className="admin-form__field">
             Requisitos
             <textarea
               className="admin-input admin-textarea"
               rows={3}
+              maxLength={2000}
+              placeholder="Experiencia, habilidades y requisitos del perfil"
               value={form.requirements}
               onChange={(event) => setForm((current) => ({ ...current, requirements: event.target.value }))}
             />
+            <span className="admin-form__hint">Se muestra en la sección de requisitos al ver el detalle.</span>
+            {formErrors.requirements ? <span className="admin-form__error">{formErrors.requirements}</span> : null}
           </label>
-          <label className="admin-form__field"> 
+
+          <label className="admin-form__field">
+            Estado
             <select
               className="admin-input"
               value={form.status}
@@ -346,9 +411,12 @@ export function VacanciesAdminPage() {
               <option value="cerrado">cerrado</option>
               <option value="archivado">archivado</option>
             </select>
+            <span className="admin-form__hint">Solo las vacantes en estado publicado se muestran en /explorar/vacantes.</span>
+            {formErrors.status ? <span className="admin-form__error">{formErrors.status}</span> : null}
           </label>
+
           <div className="admin-form__actions">
-            <button type="button" className="admin-btn admin-btn--ghost" onClick={() => setFormOpen(false)}>
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={closeForm}>
               Cancelar
             </button>
             <button type="submit" className="admin-btn">

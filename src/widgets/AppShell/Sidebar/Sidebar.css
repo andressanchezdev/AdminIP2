@@ -133,7 +133,6 @@
 }
 
 .sidebar__logo-btn:hover {
-  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
   transform: translateY(-1px);
 }
 

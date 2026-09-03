@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ipLogo from '@/assets/logos/icon.ico'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
+import { consumePostLogoutLanding } from '@/shared/lib/logoutSession'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import {
   CATALOG_CAROUSEL_MS,
@@ -10,16 +11,16 @@ import {
   CATALOG_OPTIONS,
   HERO_BG_MS,
   MARCA_ENTRIES,
-  QUAD_LINKS,
 } from './content'
 import { getLandingDetailPath } from './landingDetailPages'
-import { handleLandingHashClick } from './landingScroll'
+import { handleLandingHashClick, resetLandingScrollOnReload } from './landingScroll'
 import { LANDING_IMAGES } from './media'
 import { AdvisorCarousel } from './components/AdvisorCarousel'
 import { LandingCareersBar } from './components/LandingCareersBar'
 import { LandingHeader } from './components/LandingHeader'
 import { LandingStats } from './components/LandingStats'
 import { LandingFooter, LandingLocationMap } from './components/LandingFooter'
+import { useNearViewport } from './hooks/useNearViewport'
 import './LandingPage.css'
 
 function BrandMarqueeRow({
@@ -110,6 +111,7 @@ export function LandingPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [loginOpen, setLoginOpen] = useState(false)
+  const [loginAudience, setLoginAudience] = useState<'client' | 'staff'>('staff')
   const [authError, setAuthError] = useState('')
   const [heroBg, setHeroBg] = useState(0)
   const [catalogCarouselTurn, setCatalogCarouselTurn] = useState(0)
@@ -118,25 +120,48 @@ export function LandingPage() {
     ? -1
     : CATALOG_MULTI_INDICES[(catalogCarouselTurn - 1) % catalogMultiCount]
 
+  const { ref: heroRef, isActive: heroLive } = useNearViewport<HTMLDivElement>('80px 0px')
+  const { ref: catalogRef, isActive: catalogLive } = useNearViewport<HTMLElement>()
+  const { ref: brandsRef, isActive: brandsLive } = useNearViewport<HTMLElement>()
+
+  useLayoutEffect(() => {
+    const fromLogout = consumePostLogoutLanding()
+    if (fromLogout) {
+      if ('scrollRestoration' in window.history) {
+        window.history.scrollRestoration = 'manual'
+      }
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      return
+    }
+    resetLandingScrollOnReload()
+  }, [])
+
   useEffect(() => {
-    if (CATALOG_MULTI_INDICES.length === 0) return undefined
+    if (sessionStorage.getItem('adminip.postLogoutToast') === '1') {
+      sessionStorage.removeItem('adminip.postLogoutToast')
+      notifySuccess('Sesión cerrada')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!catalogLive || CATALOG_MULTI_INDICES.length === 0) return undefined
     const timer = window.setInterval(() => {
       setCatalogCarouselTurn((current) => current + 1)
     }, CATALOG_CAROUSEL_MS)
     return () => window.clearInterval(timer)
-  }, [])
+  }, [catalogLive])
 
   useEffect(() => {
-    if (LANDING_IMAGES.heroBg.length < 2) return undefined
+    if (!heroLive || LANDING_IMAGES.heroBg.length < 2) return undefined
     const timer = window.setInterval(() => {
       setHeroBg((current) => (current + 1) % LANDING_IMAGES.heroBg.length)
     }, HERO_BG_MS)
     return () => window.clearInterval(timer)
-  }, [])
+  }, [heroLive])
 
   return (
     <div className="landing-page">
-      <div className="landing-hero">
+      <div className="landing-hero" ref={heroRef}>
         <div className="landing-hero__media" aria-hidden>
           {LANDING_IMAGES.heroBg.map((src, index) => (
             <div
@@ -163,8 +188,9 @@ export function LandingPage() {
         </div>
       </div>
 
-      <LandingHeader onLoginClick={() => {
+      <LandingHeader onLoginClick={(audience) => {
         setAuthError('')
+        setLoginAudience(audience)
         setLoginOpen(true)
       }} />
 
@@ -200,20 +226,15 @@ export function LandingPage() {
           </section>
         </div>
         <section
+          ref={catalogRef}
           className="catalog-productos"
           id="catalogo"
           aria-label="Catálogo de productos"
         >
           <h2 className="catalog-productos__title">
-             <span>Productos Premium</span>
-            <img
-              className="catalog-productos__title-logo"
-              src={ipLogo}
-              alt=""
-              width={48}
-              height={48}
-            />
+             <span>Catálogo Premium</span> 
           </h2>
+          <span className="landing-careers-bar__rule2" aria-hidden />
           <div className="catalog-productos__grid">
             {CATALOG_OPTIONS.map((option, index) => (
               <Link
@@ -240,7 +261,8 @@ export function LandingPage() {
           </a>
         </section>
         <section
-          className="our-brands"
+          ref={brandsRef}
+          className={`our-brands${brandsLive ? ' is-live' : ''}`}
           id="marcas"
           aria-label="Nuestras marcas"
           style={{ backgroundImage: `url(${LANDING_IMAGES.brandsBg})` }}
@@ -253,37 +275,12 @@ export function LandingPage() {
             <BrandMarqueeRow logos={MARCA_ENTRIES} />
           </div>
         </section>
-        <section className="landing-quad" aria-label="Accesos rápidos">
-          {QUAD_LINKS.map((link) => {
-            if (link.kind === 'anchor') {
-              return (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="landing-quad__item"
-                  onClick={(event) => handleLandingHashClick(event, link.href)}
-                >
-                  <span className="landing-quad__label">{link.label}</span>
-                </a>
-              )
-            }
-            return (
-              <Link
-                key={link.slug}
-                to={getLandingDetailPath(link.slug)}
-                className="landing-quad__item"
-              >
-                <span className="landing-quad__label">{link.label}</span>
-              </Link>
-            )
-          })}
-        </section>
         <section className="our-employes" id="equipo" aria-label="Nuestro equipo">
           <header className="our-employes__header">
-            <p className="our-employes__eyebrow">ASESORES</p>
-            <h2 className="our-employes__title">Nuestro equipo</h2>
+            <h2 className="our-employes__title">Equipo Premium</h2>
+            <span className="landing-careers-bar__rule" aria-hidden />
             <p className="our-employes__lead">
-              Conoce y contacta a nuestros asesores, estan a tu disposición para resolver tus dudas y necesidades.
+              Conoce nuestro equipo de trabajo. Estamos disponibles para conocerte y resolver tus dudas.
             </p>
           </header>
           <AdvisorCarousel />
@@ -315,11 +312,12 @@ export function LandingPage() {
 
       <AuthModal
         isOpen={loginOpen}
+        audience={loginAudience}
         onClose={() => setLoginOpen(false)}
         authError={authError}
         onLogin={(form) => {
           setAuthError('')
-          const result = login(form.email, form.password)
+          const result = login(form.email, form.password, loginAudience)
           if (!result.ok) {
             setAuthError(result.error || 'Credenciales inválidas')
             notifyError('No se pudo iniciar sesión', result.error)

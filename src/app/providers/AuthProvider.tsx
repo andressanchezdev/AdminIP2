@@ -23,6 +23,8 @@ import { firstPermittedStaffPath } from '@/shared/permissions/firstPermittedStaf
 import { isStorefrontClient } from '@/shared/permissions/isStorefrontClient'
 import { toRouteKey } from '@/shared/routing/routeKey'
 
+export type LoginAudience = 'client' | 'staff'
+
 type AuthSession = {
   user: AdminUser
   permissions: string[]
@@ -33,7 +35,11 @@ type AuthContextValue = {
   permissions: string[]
   isAuthenticated: boolean
   staffHome: string
-  login: (email: string, password: string) => { ok: boolean; error?: string; home?: string }
+  login: (
+    email: string,
+    password: string,
+    audience?: LoginAudience,
+  ) => { ok: boolean; error?: string; home?: string }
   logout: () => void
   /**
    * Acepta:
@@ -82,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next))
   }, [])
 
-  const login = useCallback((email: string, password: string) => {
+  const login = useCallback((email: string, password: string, audience: LoginAudience = 'staff') => {
     const normalized = email.trim().toLowerCase()
     const found = mockUsers.find(
       (entry) => entry.email.toLowerCase() === normalized && entry.password === password,
@@ -96,6 +102,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { ok: false, error: 'Usuario deshabilitado' }
     }
 
+    const isClient = isStorefrontClient(found.roles, mockRoles)
+    if (audience === 'client' && !isClient) {
+      return { ok: false, error: 'Use el acceso administrativos premium' }
+    }
+    if (audience === 'staff' && isClient) {
+      return { ok: false, error: 'Use el acceso clientes premium' }
+    }
+
     const permissions = derivePermissionsFromRoles(found.roles, mockRoles)
     const next: AuthSession = { user: found, permissions }
     persist(next)
@@ -106,11 +120,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       entityId: found.id,
       actorId: found.id,
       actorRole: mockRoles.find((role) => role.id === found.roles[0])?.name ?? 'UNKNOWN',
-      details: `Login mock de ${found.email}`,
+      details: `Login mock (${audience}) de ${found.email}`,
       kind: 'auth',
     })
 
-    const home = isStorefrontClient(found.roles, mockRoles)
+    const home = isClient
       ? '/'
       : firstPermittedStaffPath(permissions, found.roles, mockRoles)
     return { ok: true, home }

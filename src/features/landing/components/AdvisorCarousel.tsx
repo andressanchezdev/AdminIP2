@@ -3,6 +3,7 @@ import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import { CAROUSEL_ITEMS } from '../content'
 import { LANDING_IMAGES } from '../media'
 import { getCircularOffset, useAdvisorCarousel } from '../hooks/useAdvisorCarousel'
+import { useNearViewport } from '../hooks/useNearViewport'
 
 function advisorOffsetClass(offset: number) {
   if (offset === 0) return 'is-center'
@@ -36,6 +37,7 @@ const EMPTY_METRICS: CarouselMetrics = {
 }
 
 export function AdvisorCarousel() {
+  const { ref: sectionRef, isActive } = useNearViewport<HTMLElement>()
   const viewportRef = useRef<HTMLDivElement>(null)
   const [metrics, setMetrics] = useState<CarouselMetrics>(EMPTY_METRICS)
   const [visibleSlides, setVisibleSlides] = useState(5)
@@ -46,7 +48,7 @@ export function AdvisorCarousel() {
     setIsPaused,
     slideNext,
     slidePrev,
-  } = useAdvisorCarousel()
+  } = useAdvisorCarousel(isActive)
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current
@@ -80,6 +82,7 @@ export function AdvisorCarousel() {
 
   return (
     <section
+      ref={sectionRef}
       className="landing-carousel"
       aria-label="Asesores Importadora Premium"
       onMouseEnter={() => setIsPaused(true)}

@@ -17,14 +17,23 @@
   width: 100%;
 }
 
+html {
+  -webkit-overflow-scrolling: touch;
+  overflow-x: clip;
+  scroll-behavior: auto;
+}
+
 body {
   -webkit-font-smoothing: antialiased;
+  -webkit-overflow-scrolling: touch;
   background: var(--color-bg-page);
   color: var(--color-text-primary);
   font-family: var(--font-family);
   font-size: 14px;
   line-height: 1.5;
   margin: 0;
+  overflow-x: clip;
+  overscroll-behavior-y: auto;
 }
 
 button {
@@ -53,8 +62,10 @@ a {
 }
 
 .landing__content {
+  -webkit-overflow-scrolling: touch;
   flex: 1;
   overflow: auto;
+  overscroll-behavior-y: contain;
   padding: var(--spacing-lg);
 }
 
@@ -155,13 +166,14 @@ a {
 .admin-table th,
 .admin-table td {
   border-bottom: 1px solid var(--color-border);
-  padding: 12px 14px;
+  font-size: var(--font-size-md);
+  padding: 10px 25px;
   text-align: left;
   vertical-align: middle;
 }
 
 .admin-table th {
-  background: #fafafa;
+  background: var(--color-gris-claro);
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
   font-weight: 700;
@@ -202,13 +214,13 @@ a {
   color: var(--color-text-secondary);
   cursor: pointer;
   display: inline-flex;
-  height: 32px;
+  height: 34px;
   justify-content: center;
   padding: 0;
   transition:
     background var(--motion-duration-fast) var(--motion-ease-soft),
     color var(--motion-duration-fast) var(--motion-ease-soft);
-  width: 32px;
+  width: 34px;
 }
 
 .admin-icon-btn:hover:not(:disabled) {
@@ -345,18 +357,45 @@ a {
 }
 
 .admin-toolbar__filters {
+  align-items: center;
   display: flex;
   flex-wrap: wrap;
   gap: var(--spacing-sm);
+}
+
+.admin-toolbar__filters .admin-input,
+.admin-toolbar__filters select.admin-input {
+  border-radius: 8px;
+  font-size: 13px;
+  height: 36px;
+  min-height: 36px;
+  padding: 8px 14px;
 }
 
 .admin-input {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: 8px;
+  box-sizing: border-box;
   font: inherit;
+  font-size: var(--font-size-md);
   min-width: 160px;
   padding: 8px 10px;
+}
+
+/* Búsqueda toolbar — medidas SearchBar clienteIP */
+.admin-search {
+  background: var(--color-bg-page);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-input);
+  box-sizing: border-box;
+  font: inherit;
+  font-size: var(--font-size-md);
+  height: 40px;
+  max-width: 480px;
+  min-width: 160px;
+  padding: 0 16px;
+  width: 100%;
 }
 
 .admin-badge {
@@ -883,9 +922,11 @@ a {
 
 .admin-btn {
   background: var(--color-gris-oscuro);
-  border-radius: 8px;
+  border-radius: 10px;
   color: #fff;
-  padding: 8px 12px;
+  font-size: var(--font-size-md);
+  font-weight: 600;
+  padding: 12px 14px;
 }
 
 select.admin-btn {

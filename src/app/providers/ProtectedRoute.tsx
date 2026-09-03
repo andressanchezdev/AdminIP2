@@ -4,6 +4,7 @@ import { useAuth } from '@/app/providers/AuthProvider'
 import { appendAuditLog, mockRoles } from '@/mocks/data'
 import { resolveRoutePermissions } from '@/shared/permissions/routePermissions'
 import { isStorefrontClient } from '@/shared/permissions/isStorefrontClient'
+import { POST_LOGOUT_LANDING_KEY } from '@/shared/lib/logoutSession'
 import { toRouteKey } from '@/shared/routing/routeKey'
 
 type ProtectedRouteProps = {
@@ -58,6 +59,9 @@ export function ProtectedRoute({
   }, [allowed, isAuthenticated, user, storefrontClient, location.pathname, routeKey, requiredPermissions, permissions])
 
   if (!isAuthenticated) {
+    if (sessionStorage.getItem(POST_LOGOUT_LANDING_KEY) === '1') {
+      return <Navigate to="/" replace />
+    }
     return <Navigate to="/login" replace state={{ from: location.pathname }} />
   }
 

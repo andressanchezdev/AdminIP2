@@ -116,7 +116,7 @@ export function LandingFooter() {
         </div>
 
         <div className="landing-footer__col">
-          <h3 className="landing-footer__heading">Contactanos</h3>
+          <h3 className="landing-footer__heading">Contáctanos</h3>
           <dl className="landing-footer__list">
             <FooterField
               label="WhatsApp"

@@ -750,11 +750,12 @@ export function LoginPage() {
     <div className="login-page login-page--auth-modal">
       <AuthModal
         isOpen
+        audience="staff"
         onClose={() => navigate('/')}
         authError={authError}
         onLogin={(form) => {
           setAuthError('')
-          const result = login(form.email, form.password)
+          const result = login(form.email, form.password, 'staff')
           if (!result.ok) {
             setAuthError(result.error || 'Credenciales inválidas')
             notifyError('No se pudo iniciar sesión', result.error)

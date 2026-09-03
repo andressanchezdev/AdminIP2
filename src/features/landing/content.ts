@@ -138,12 +138,14 @@ export const QUAD_EXPLORE_LINKS = [
   { slug: 'catalogo', label: 'Catálogo de productos' },
 ] as const
 
-/** Orden visual del grid 2×2 (explorar + anclas). */
-export const QUAD_LINKS = [
-  { kind: 'explore' as const, slug: 'catalogo', label: 'Catálogo completo' },
+/** Barra del header público: secciones, blog y sesión (un solo bloque). */
+export const LANDING_HEADER_ITEMS = [
+  { kind: 'explore' as const, slug: 'catalogo', label: 'Catálogo' },
   { kind: 'anchor' as const, href: '#equipo', label: 'Nuestro equipo' },
-  { kind: 'anchor' as const, href: '#marcas', label: 'Nuestras marcas' },
-  { kind: 'anchor' as const, href: '#nosotros', label: 'Nosotros' },
+  { kind: 'anchor' as const, href: '#nosotros', label: '¿Nosotros?' },
+  { kind: 'anchor' as const, href: '#marcas', label: 'Marcas' },
+  { kind: 'route' as const, to: '/blog', label: 'Ver blog' },
+  { kind: 'session' as const, label: 'Iniciar sesión' },
 ] as const
 
 export const MARCA_ENTRIES = Object.entries(marcasLogosData.marcas).map(([name, url]) => ({

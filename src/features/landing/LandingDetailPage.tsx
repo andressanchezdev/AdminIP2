@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Briefcase } from 'lucide-react'
+import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Briefcase, Phone } from 'lucide-react'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
+import cloudDownloadIcon from '@/assets/icons/cloud-download.svg'
 import { getPublishedVacancies, type VacancyRecord } from '@/mocks/data'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
-import { CATALOG_PRODUCTS, catalogHeroImageFitVars, catalogImageFitVars, resolveInitialCatalogIndex } from './catalogProducts'
+import { downloadCatalogPdf } from '@/features/landing/lib/downloadCatalogPdf'
+import { LANDING_CONTACT } from './content'
+import { CATALOG_PRODUCTS, catalogHeroImageFitVars, catalogImageFitVars, resolveInitialCatalogIndex, type CatalogProduct } from './catalogProducts'
 import { DetailHighlights } from './components/DetailHighlights'
 import { LandingHeader } from './components/LandingHeader'
-import { LandingFooter, LandingLocationMap } from './components/LandingFooter'
+import { LandingFooter } from './components/LandingFooter'
 import { resolveLandingDetailPage, type LandingDetailPage } from './landingDetailPages'
 import './LandingPage.css'
 
@@ -33,6 +36,58 @@ function LandingDetailBack() {
   )
 }
 
+function CatalogHeroImages({ product }: { product: CatalogProduct }) {
+  const [incoming, setIncoming] = useState(product)
+  const [outgoing, setOutgoing] = useState<CatalogProduct | null>(null)
+  const [crossfadeOn, setCrossfadeOn] = useState(true)
+  const incomingRef = useRef(product)
+  incomingRef.current = incoming
+
+  useEffect(() => {
+    if (product.id === incomingRef.current.id) return
+    setOutgoing(incomingRef.current)
+    setIncoming(product)
+    setCrossfadeOn(false)
+  }, [product])
+
+  useLayoutEffect(() => {
+    if (!outgoing) {
+      setCrossfadeOn(true)
+      return
+    }
+    const frame = window.requestAnimationFrame(() => setCrossfadeOn(true))
+    return () => window.cancelAnimationFrame(frame)
+  }, [outgoing, incoming.id])
+
+  useEffect(() => {
+    if (!outgoing) return undefined
+    const timeout = window.setTimeout(() => setOutgoing(null), 1300)
+    return () => window.clearTimeout(timeout)
+  }, [outgoing, incoming.id])
+
+  return (
+    <>
+      {outgoing ? (
+        <img
+          key={`out-${outgoing.id}`}
+          className={`landing-detail__hero-img${crossfadeOn ? '' : ' is-active'}`}
+          src={outgoing.src}
+          alt=""
+          aria-hidden
+          style={catalogHeroImageFitVars(outgoing)}
+        />
+      ) : null}
+      <img
+        key={`in-${incoming.id}`}
+        className={`landing-detail__hero-img${outgoing && !crossfadeOn ? '' : ' is-active'}`}
+        src={incoming.src}
+        alt={incoming.label}
+        style={catalogHeroImageFitVars(incoming)}
+      />
+    </>
+  )
+}
+
 function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
   const [activeProductIndex, setActiveProductIndex] = useState(() =>
     resolveInitialCatalogIndex(page.slug, page.images),
@@ -46,6 +101,14 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
 
   const showProduct = (index: number) => {
     setActiveProductIndex(((index % productCount) + productCount) % productCount)
+  }
+
+  const showProductFromGallery = (index: number) => {
+    showProduct(index)
+    document.getElementById('landing-detail-hero')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
   }
 
   useEffect(() => {
@@ -67,10 +130,13 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
 
   return (
     <>
-      <LandingDetailBack />
-
-      <section className="landing-detail__hero" aria-labelledby="landing-detail-title">
-        <div className="landing-detail__hero-media" style={catalogHeroImageFitVars(activeProduct)}>
+      <section
+        className="landing-detail__hero"
+        id="landing-detail-hero"
+        aria-labelledby="landing-detail-title"
+      >
+        <LandingDetailBack />
+        <div className="landing-detail__hero-media">
           <button
             type="button"
             className="landing-detail__hero-nav landing-detail__hero-nav--prev"
@@ -79,7 +145,7 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
           >
             <ChevronLeft size={24} strokeWidth={2} aria-hidden />
           </button>
-          <img src={activeProduct.src} alt={activeProduct.label} />
+          <CatalogHeroImages product={activeProduct} />
           <button
             type="button"
             className="landing-detail__hero-nav landing-detail__hero-nav--next"
@@ -130,7 +196,7 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
               className={`landing-detail__gallery-item${index === activeProductIndex ? ' is-active' : ''}`}
               aria-label={`Ver ${product.label}. ${product.description}`}
               aria-pressed={index === activeProductIndex}
-              onClick={() => showProduct(index)}
+              onClick={() => showProductFromGallery(index)}
             >
               <div className="landing-detail__gallery-media" style={catalogImageFitVars(product)}>
                 <img src={product.src} alt="" loading="lazy" />
@@ -146,11 +212,29 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
       <section className="landing-detail__cta-bar" aria-label="Acción principal">
         <div className="landing-detail__cta-inner">
           <p className="landing-detail__cta-text">
-            ¿Listo para cotizar o recibir asesoría sobre {activeProduct.label.toLowerCase()}?
+            Descarga nuestro catálogo o contacta a uno de nuestros asesores.
           </p>
-          <a className="landing-hero__cta landing-detail__cta-btn" href={page.ctaHref}>
-            {page.ctaLabel}
-          </a>
+          <div className="landing-detail__cta-actions">
+            <button
+              type="button"
+              className="landing-hero__cta landing-detail__cta-btn"
+              onClick={() => {
+                void downloadCatalogPdf()
+              }}
+            >
+              <span>Descargar catálogo</span>
+              <img src={cloudDownloadIcon} width={20} height={20} alt="" aria-hidden />
+            </button>
+            <a
+              className="landing-hero__cta landing-detail__cta-btn landing-detail__cta-btn--whatsapp"
+              href={LANDING_CONTACT.whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Phone size={18} strokeWidth={2} aria-hidden />
+              <span>Contactar con un asesor</span>
+            </a>
+          </div>
         </div>
       </section>
     </>
@@ -169,7 +253,6 @@ function VacanciesDetailBody({ page }: { page: LandingDetailPage }) {
 
   return (
     <section className="vacancies-board" aria-labelledby="vacancies-board-title">
-      <LandingDetailBack />
       <header className="vacancies-board__intro">
         <p className="vacancies-board__eyebrow">{page.eyebrow}</p>
         <h1 className="vacancies-board__title" id="vacancies-board-title">{page.title}</h1>
@@ -234,6 +317,7 @@ export function LandingDetailPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [loginOpen, setLoginOpen] = useState(false)
+  const [loginAudience, setLoginAudience] = useState<'client' | 'staff'>('staff')
   const [authError, setAuthError] = useState('')
 
   if (!page) {
@@ -246,8 +330,10 @@ export function LandingDetailPage() {
     <div className={`landing-page landing-page--detail${isVacancies ? ' landing-page--vacancies' : ''}`}>
       {isVacancies ? (
         <LandingHeader
-          onLoginClick={() => {
+          showBack
+          onLoginClick={(audience) => {
             setAuthError('')
+            setLoginAudience(audience)
             setLoginOpen(true)
           }}
         />
@@ -261,17 +347,17 @@ export function LandingDetailPage() {
         )}
       </main>
 
-      <LandingLocationMap />
       <LandingFooter />
 
       {isVacancies ? (
         <AuthModal
           isOpen={loginOpen}
+          audience={loginAudience}
           onClose={() => setLoginOpen(false)}
           authError={authError}
           onLogin={(form) => {
             setAuthError('')
-            const result = login(form.email, form.password)
+            const result = login(form.email, form.password, loginAudience)
             if (!result.ok) {
               setAuthError(result.error || 'Credenciales inválidas')
               notifyError('No se pudo iniciar sesión', result.error)
