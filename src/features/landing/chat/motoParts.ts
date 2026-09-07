@@ -1,0 +1,157 @@
+/** Piezas publicadas en el catálogo del landing. */
+export const CATALOG_PART_TERMS = [
+  'aceite',
+  'amortiguador',
+  'barras',
+  'correa',
+  'corona',
+  'disco',
+  'eje',
+  'freno',
+  'llanta',
+  'mordaza',
+  'pastilla',
+  'pastillas',
+  'pinon',
+  'ramal',
+  'rin',
+  'rinaspa',
+  'suspension',
+  'transmision',
+] as const
+
+/** Repuestos habituales de moto que no tienen ficha en el catálogo publicado. */
+export const OTHER_PART_TERMS = [
+  'alternador',
+  'arbol',
+  'arrastre',
+  'asiento',
+  'balata',
+  'bateria',
+  'biela',
+  'bobina',
+  'bomba',
+  'bujia',
+  'cable',
+  'cadena',
+  'carburador',
+  'carenado',
+  'cdi',
+  'chicote',
+  'ciguenal',
+  'cilindro',
+  'clutch',
+  'culata',
+  'direccional',
+  'embrague',
+  'empaque',
+  'escape',
+  'espejo',
+  'estribo',
+  'estator',
+  'faro',
+  'filtro',
+  'fusible',
+  'guardafango',
+  'horquilla',
+  'inyector',
+  'junta',
+  'leva',
+  'liquido',
+  'manillar',
+  'motor',
+  'pedal',
+  'piston',
+  'radiador',
+  'refrigerante',
+  'regulador',
+  'relay',
+  'reten',
+  'rodamiento',
+  'silenciador',
+  'sillin',
+  'sprocket',
+  'switch',
+  'tanque',
+  'telescopio',
+  'tensor',
+  'valvula',
+  'zapata',
+] as const
+
+export const ACCESSORY_TERMS = [
+  'accesorio',
+  'accesorios',
+  'alforja',
+  'antirrobo',
+  'baul',
+  'botas',
+  'candado',
+  'casco',
+  'chamarra',
+  'coderas',
+  'funda',
+  'grip',
+  'guante',
+  'guantes',
+  'impermeable',
+  'intercom',
+  'intercomunicador',
+  'llavero',
+  'maletero',
+  'parabrisas',
+  'rodillera',
+  'sliders',
+  'soporte',
+] as const
+
+const GENERIC = new Set(['repuesto', 'repuestos', 'pieza', 'piezas', 'accesorio', 'accesorios'])
+
+export const PART_ALIASES: Record<string, string> = {
+  acesorio: 'accesorio',
+  accesorio: 'accesorio',
+  accesorios: 'accesorio',
+  acsesorio: 'accesorio',
+  amortiguadores: 'amortiguador',
+  baterias: 'bateria',
+  bujias: 'bujia',
+  cadenas: 'cadena',
+  candados: 'candado',
+  casci: 'casco',
+  cascos: 'casco',
+  casko: 'casco',
+  coronas: 'corona',
+  ejes: 'eje',
+  filtros: 'filtro',
+  frenos: 'freno',
+  guantes: 'guante',
+  llantas: 'llanta',
+  pastiya: 'pastilla',
+  pastiyas: 'pastilla',
+  pinhon: 'pinon',
+  pignon: 'pinon',
+  pinones: 'pinon',
+  ramales: 'ramal',
+  repuesto: 'repuesto',
+  repuestos: 'repuesto',
+  ripuesto: 'repuesto',
+  rines: 'rin',
+  suspencion: 'suspension',
+  yanta: 'llanta',
+  yantas: 'llanta',
+}
+
+export const MOTO_TERMS = [...CATALOG_PART_TERMS, ...OTHER_PART_TERMS, ...ACCESSORY_TERMS, 'repuesto']
+
+function matchesTerm(token: string, term: string) {
+  return token === term || token.startsWith(term) || term.startsWith(token)
+}
+
+export function findTerm(tokens: readonly string[], terms: readonly string[]) {
+  for (const token of tokens) {
+    if (GENERIC.has(token)) continue
+    const hit = terms.find((term) => matchesTerm(token, term))
+    if (hit) return hit
+  }
+  return ''
+}

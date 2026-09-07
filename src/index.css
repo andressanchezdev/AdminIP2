@@ -257,6 +257,14 @@ a {
   gap: 14px;
 }
 
+.admin-form__actions {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
 .admin-form__field {
   display: flex;
   flex-direction: column;

@@ -1,5 +1,4 @@
 import { useCallback, useRef, useState } from 'react'
-import { Search } from 'lucide-react'
 import ReactImageMagnify from 'react-image-magnify-lib'
 
 type CatalogHeroMagnifyProps = {
@@ -77,6 +76,7 @@ export function CatalogHeroMagnify({
   zoomLevel = 2.4,
 }: CatalogHeroMagnifyProps) {
   const hostRef = useRef<HTMLDivElement>(null)
+  const [armed, setArmed] = useState(false)
   const [lens, setLens] = useState<LensView | null>(null)
 
   const placeLens = useCallback(
@@ -91,11 +91,27 @@ export function CatalogHeroMagnify({
   )
 
   const stopLens = useCallback(() => {
+    setArmed(false)
     setLens(null)
   }, [])
 
+  const armFromMedia = (event: { clientX: number; clientY: number; target: EventTarget | null }) => {
+    if (event.target instanceof Element && event.target.closest('.landing-detail__hero-zoom')) return
+    setArmed(true)
+    placeLens(event.clientX, event.clientY)
+  }
+
   return (
-    <div ref={hostRef} className="landing-detail__hero-magnify-host">
+    <div
+      ref={hostRef}
+      className={`landing-detail__hero-magnify-host${armed ? ' is-armed' : ''}`}
+      onClick={armFromMedia}
+      onPointerMove={(event) => {
+        if (!armed) return
+        placeLens(event.clientX, event.clientY)
+      }}
+      onPointerLeave={stopLens}
+    >
       <ReactImageMagnify
         className="landing-detail__hero-magnify"
         smallImageSrc={src}
@@ -121,26 +137,16 @@ export function CatalogHeroMagnify({
           }}
         />
       ) : null}
-      <button
-        type="button"
-        className="landing-detail__hero-zoom"
-        aria-label="Mantener para ampliar la imagen"
-        aria-pressed={false}
-        onPointerDown={(event) => {
-          event.preventDefault()
-          event.currentTarget.setPointerCapture(event.pointerId)
-          placeLens(event.clientX, event.clientY)
-        }}
-        onPointerMove={(event) => {
-          if (!event.currentTarget.hasPointerCapture(event.pointerId)) return
-          placeLens(event.clientX, event.clientY)
-        }}
-        onPointerUp={stopLens}
-        onPointerCancel={stopLens}
-        onLostPointerCapture={stopLens}
+      <span
+        className={`landing-detail__hero-zoom${armed ? ' is-on' : ''}`}
+        aria-hidden
+        onClick={(event) => event.stopPropagation()}
       >
-        <Search size={20} strokeWidth={2.2} aria-hidden />
-      </button>
+        <span className="landing-detail__hero-zoom-mark" aria-hidden>
+          <span>+</span>
+          <span>−</span>
+        </span>
+      </span>
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
-import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Briefcase, Phone } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MapPin, Briefcase, Phone } from 'lucide-react'
 import { CatalogHeroMagnify } from './components/CatalogHeroMagnify'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
@@ -10,32 +10,12 @@ import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import { downloadCatalogPdf } from '@/features/landing/lib/downloadCatalogPdf'
 import { CATALOG_PRODUCTS, catalogImageFitVars, resolveInitialCatalogIndex } from './catalogProducts'
 import { DetailHighlights } from './components/DetailHighlights'
+import { LandingChatWidget } from './chat/LandingChatWidget'
 import { LandingHeader } from './components/LandingHeader'
 import { LandingFooter, LandingLocationMap } from './components/LandingFooter'
 import { LANDING_CONTACT } from './content'
 import { resolveLandingDetailPage, type LandingDetailPage } from './landingDetailPages'
 import './LandingPage.css'
-
-function LandingDetailBack() {
-  const navigate = useNavigate()
-
-  return (
-    <button
-      type="button"
-      className="landing-detail__back"
-      onClick={() => {
-        if (window.history.length > 1) {
-          navigate(-1)
-          return
-        }
-        navigate('/')
-      }}
-      aria-label="Volver a la página anterior"
-    >
-      <ArrowLeft size={22} strokeWidth={2.25} aria-hidden />
-    </button>
-  )
-}
 
 function productWhatsappUrl(label: string) {
   const text = encodeURIComponent(`Hola, quiero obtener el producto: ${label}`)
@@ -90,7 +70,6 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
         id="landing-detail-hero"
         aria-labelledby="landing-detail-title"
       >
-        <LandingDetailBack />
         <div className="landing-detail__hero-media">
           {CATALOG_PRODUCTS.map((product, index) => (
             <img
@@ -295,17 +274,16 @@ export function LandingDetailPage() {
   const isVacancies = page.kind === 'vacancies'
 
   return (
-    <div className={`landing-page landing-page--detail${isVacancies ? ' landing-page--vacancies' : ''}`}>
-      {isVacancies ? (
-        <LandingHeader
-          showBack
-          onLoginClick={(audience) => {
-            setAuthError('')
-            setLoginAudience(audience)
-            setLoginOpen(true)
-          }}
-        />
-      ) : null}
+    <div className={`landing-page landing-page--detail${isVacancies ? ' landing-page--vacancies' : ' landing-page--catalog'}`}>
+      <LandingHeader
+        brandOnly={!isVacancies}
+        showBack={isVacancies}
+        onLoginClick={(audience) => {
+          setAuthError('')
+          setLoginAudience(audience)
+          setLoginOpen(true)
+        }}
+      />
 
       <main className="landing-main landing-detail">
         {isVacancies ? (
@@ -318,8 +296,9 @@ export function LandingDetailPage() {
       <LandingLocationMap />
       <LandingFooter />
 
-      {isVacancies ? (
-        <AuthModal
+      <LandingChatWidget />
+
+      <AuthModal
           isOpen={loginOpen}
           audience={loginAudience}
           onClose={() => setLoginOpen(false)}
@@ -337,7 +316,6 @@ export function LandingDetailPage() {
             navigate(result.home || '/')
           }}
         />
-      ) : null}
     </div>
   )
 }

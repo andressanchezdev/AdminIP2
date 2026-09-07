@@ -327,8 +327,18 @@ export function VacanciesAdminPage() {
         isOpen={formOpen}
         title={editing ? 'Editar vacante' : 'Nueva vacante'}
         onClose={closeForm}
+        footer={(
+          <>
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={closeForm}>
+              Cancelar
+            </button>
+            <button type="submit" form="vacancy-form" className="admin-btn">
+              Guardar
+            </button>
+          </>
+        )}
       >
-        <form className="admin-form" onSubmit={handleSubmit} noValidate>
+        <form id="vacancy-form" className="admin-form" onSubmit={handleSubmit} noValidate>
           <p className="admin-form__hint">
             Complete todos los campos que se muestran en la vista pública de vacantes.
           </p>
@@ -437,15 +447,6 @@ export function VacanciesAdminPage() {
             <span className="admin-form__hint">Solo las vacantes en estado publicado se muestran en /explorar/vacantes.</span>
             {formErrors.status ? <span className="admin-form__error">{formErrors.status}</span> : null}
           </label>
-
-          <div className="admin-form__actions">
-            <button type="button" className="admin-btn admin-btn--ghost" onClick={closeForm}>
-              Cancelar
-            </button>
-            <button type="submit" className="admin-btn">
-              Guardar
-            </button>
-          </div>
         </form>
       </Modal>
     </div>

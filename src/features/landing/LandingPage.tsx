@@ -15,6 +15,7 @@ import {
 import { getLandingDetailPath } from './landingDetailPages'
 import { handleLandingHashClick, resetLandingScrollOnReload } from './landingScroll'
 import { LANDING_IMAGES } from './media'
+import { LandingChatWidget } from './chat/LandingChatWidget'
 import { AdvisorCarousel } from './components/AdvisorCarousel'
 import { LandingCareersBar } from './components/LandingCareersBar'
 import { LandingHeader } from './components/LandingHeader'
@@ -319,6 +320,8 @@ export function LandingPage() {
       </main>
       <LandingLocationMap />
       <LandingFooter />
+
+      <LandingChatWidget />
 
       <AuthModal
         isOpen={loginOpen}

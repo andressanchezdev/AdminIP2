@@ -15,6 +15,7 @@ import { handleLandingHashClick, isDocumentReload, parseLandingHash, scrollToLan
 type LandingHeaderProps = {
   onLoginClick?: (audience: LoginAudience) => void
   showBack?: boolean
+  brandOnly?: boolean
 }
 
 type MenuCoords = {
@@ -28,7 +29,7 @@ function scrollToPageTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
+export function LandingHeader({ onLoginClick, showBack, brandOnly = false }: LandingHeaderProps) {
   const { isAuthenticated, user, logout, staffHome } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -121,24 +122,31 @@ export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
   }, [])
 
   useEffect(() => {
+    if (brandOnly) {
+      setPastHero(false)
+      return undefined
+    }
+
+    const scrollTop = () =>
+      window.scrollY
+      || document.documentElement.scrollTop
+      || document.body.scrollTop
+      || 0
+
     const syncPastHero = () => {
-      const hero = document.querySelector<HTMLElement>('.landing-hero, .landing-detail__hero')
-      if (!hero) {
-        setPastHero(true)
-        return
-      }
-      const headerHeight = headerRef.current?.offsetHeight ?? 56
-      setPastHero(hero.getBoundingClientRect().bottom <= headerHeight)
+      setPastHero(scrollTop() > 8)
     }
 
     syncPastHero()
     window.addEventListener('scroll', syncPastHero, { passive: true })
+    document.addEventListener('scroll', syncPastHero, { passive: true, capture: true })
     window.addEventListener('resize', syncPastHero)
     return () => {
       window.removeEventListener('scroll', syncPastHero)
+      document.removeEventListener('scroll', syncPastHero, true)
       window.removeEventListener('resize', syncPastHero)
     }
-  }, [location.pathname])
+  }, [brandOnly, location.pathname])
 
   useEffect(() => {
     if (!mobileNavOpen) return undefined
@@ -337,7 +345,7 @@ export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
   return (
     <header
       ref={headerRef}
-      className={`landing-header${pastHero ? ' is-past-hero' : ''}`}
+      className={`landing-header${brandOnly || !pastHero ? '' : ' is-past-hero'}`}
     >
       {showBack ? (
         <button
@@ -364,27 +372,31 @@ export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
         <img src={ipLogo} alt="" width={64} height={64} />
       </Link>
 
-      <div className="landing-header__actions landing-header__actions--desktop">
-        <nav className="landing-header__nav" aria-label="Accesos del sitio">
-          {headerBar('desktop')}
-        </nav>
-      </div>
+      {brandOnly ? null : (
+        <div className="landing-header__actions landing-header__actions--desktop">
+          <nav className="landing-header__nav" aria-label="Accesos del sitio">
+            {headerBar('desktop')}
+          </nav>
+        </div>
+      )}
 
-      <button
-        type="button"
-        className="landing-header__menu-btn"
-        aria-expanded={mobileNavOpen}
-        aria-controls={mobileNavId}
-        aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
-        onClick={() => {
-          setLoginMenuOpen(false)
-          setMobileNavOpen((open) => !open)
-        }}
-      >
-        {mobileNavOpen ? <X size={22} strokeWidth={2.25} aria-hidden /> : <Menu size={22} strokeWidth={2.25} aria-hidden />}
-      </button>
-      {loginMenu}
-      {mobileDrawer}
+      {brandOnly ? null : (
+        <button
+          type="button"
+          className="landing-header__menu-btn"
+          aria-expanded={mobileNavOpen}
+          aria-controls={mobileNavId}
+          aria-label={mobileNavOpen ? 'Cerrar menú' : 'Abrir menú'}
+          onClick={() => {
+            setLoginMenuOpen(false)
+            setMobileNavOpen((open) => !open)
+          }}
+        >
+          {mobileNavOpen ? <X size={22} strokeWidth={2.25} aria-hidden /> : <Menu size={22} strokeWidth={2.25} aria-hidden />}
+        </button>
+      )}
+      {brandOnly ? null : loginMenu}
+      {brandOnly ? null : mobileDrawer}
     </header>
   )
 }
