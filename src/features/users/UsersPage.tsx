@@ -19,6 +19,8 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { useEnterConfirm } from '@/shared/lib/useEnterConfirm'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import {
@@ -288,6 +290,17 @@ export function UsersPage() {
     ))
   }, [query, mockUsers.length, mockUsers.map((u) => u.status).join()])
 
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(filteredUsers, { resetKey: query })
+
   return (
     <section className="admin-page">
       <p className="admin-meta admin-page__hint">
@@ -310,7 +323,7 @@ export function UsersPage() {
 
       <ResponsiveTableShell
         empty={filteredUsers.length === 0}
-        cards={filteredUsers.map((entry) => {
+        cards={pageItems.map((entry) => {
           const inactive = entry.status === 'inactivo'
           const statusCell = (
             <select
@@ -388,7 +401,7 @@ export function UsersPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((entry) => {
+            {pageItems.map((entry) => {
               const inactive = entry.status === 'inactivo'
               return (
               <tr key={entry.id}>
@@ -450,6 +463,16 @@ export function UsersPage() {
           </tbody>
         </table>
       </ResponsiveTableShell>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Modal
         isOpen={formOpen}

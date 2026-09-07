@@ -39,6 +39,8 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 
 function userLabel(userId: string | null | undefined) {
   if (!userId) return 'Sin asignar'
@@ -125,6 +127,17 @@ export function OrdersPage() {
       )
     })
   }, [listQuery, mockOrders.length, mockOrders.map((o) => o.status).join()])
+
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(filteredOrders, { resetKey: listQuery })
 
   const visibleProducts = useMemo(() => {
     const q = productQuery.trim().toLowerCase()
@@ -381,7 +394,7 @@ export function OrdersPage() {
 
       <ResponsiveTableShell
         empty={filteredOrders.length === 0}
-        cards={filteredOrders.map((order) => {
+        cards={pageItems.map((order) => {
           const client = clientById(order.clientId)
           const editBlocked = orderEditBlockedReason(order, canUpdate)
           const statusCell = order.status === 'cancelado' ? (
@@ -472,7 +485,7 @@ export function OrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredOrders.map((order) => {
+            {pageItems.map((order) => {
               const client = clientById(order.clientId)
               const editBlocked = orderEditBlockedReason(order, canUpdate)
               return (
@@ -548,6 +561,16 @@ export function OrdersPage() {
           </tbody>
         </table>
       </ResponsiveTableShell>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Modal
         isOpen={Boolean(viewOrder)}

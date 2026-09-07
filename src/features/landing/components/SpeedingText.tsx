@@ -27,8 +27,8 @@ export type SpeedingTextProps = {
   onComplete?: () => void
 }
 
-function easeOutCubic(t: number) {
-  return 1 - (1 - t) ** 3
+function easeInOutCubic(t: number) {
+  return t < 0.5 ? 4 * t * t * t : 1 - ((-2 * t + 2) ** 3) / 2
 }
 
 function formatValue(n: number, decimals: number, locale: string, showSeparator: boolean) {
@@ -108,9 +108,9 @@ export function SpeedingText({
     const tick = (now: number) => {
       const elapsed = now - start
       const t = Math.min(1, elapsed / duration)
-      const e = easeOutCubic(t)
+      const e = easeInOutCubic(t)
       const prevT = Math.min(1, Math.max(0, (elapsed - 16) / duration))
-      const speed = Math.abs(easeOutCubic(t) - easeOutCubic(prevT)) * Math.abs(delta)
+      const speed = Math.abs(easeInOutCubic(t) - easeInOutCubic(prevT)) * Math.abs(delta)
       setDisplay(from + delta * e)
       setBlur(Math.min(maxBlur, speed * 0.012 * blurStrength))
       setSkew((1 - e) * 8 * Math.sign(delta || 1))

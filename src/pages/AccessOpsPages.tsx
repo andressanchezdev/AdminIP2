@@ -10,6 +10,8 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { clearRolesCache } from '@/shared/permissions/permissionEvaluator'
 import { useEnterConfirm } from '@/shared/lib/useEnterConfirm'
 import {
@@ -100,6 +102,17 @@ export function RolesPage() {
       || role.id.toLowerCase().includes(normalized)
     ))
   }, [query, mockRoles.length, mockRoles.map((r) => r.name).join()])
+
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(filteredRoles, { resetKey: query })
 
   const openCreate = () => {
     setEditing(null)
@@ -280,7 +293,7 @@ export function RolesPage() {
 
       <ResponsiveTableShell
         empty={filteredRoles.length === 0}
-        cards={filteredRoles.map((role) => {
+        cards={pageItems.map((role) => {
           const assignedUsers = mockUsers.filter((entry) => entry.roles.includes(role.id)).length
           const actions = (
             <div className="admin-row-actions">
@@ -343,7 +356,7 @@ export function RolesPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredRoles.map((role) => {
+            {pageItems.map((role) => {
               const assignedUsers = mockUsers.filter((entry) => entry.roles.includes(role.id)).length
               return (
                 <tr key={role.id}>
@@ -388,6 +401,16 @@ export function RolesPage() {
           </tbody>
         </table>
       </ResponsiveTableShell>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Modal
         isOpen={formOpen}

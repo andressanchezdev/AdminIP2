@@ -1,17 +1,18 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ChevronLeft, ChevronRight, MapPin, Briefcase, Phone } from 'lucide-react'
+import { CatalogHeroMagnify } from './components/CatalogHeroMagnify'
 import { useAuth } from '@/app/providers/AuthProvider'
 import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
 import cloudDownloadIcon from '@/assets/icons/cloud-download.svg'
 import { getPublishedVacancies, type VacancyRecord } from '@/mocks/data'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import { downloadCatalogPdf } from '@/features/landing/lib/downloadCatalogPdf'
-import { LANDING_CONTACT } from './content'
-import { CATALOG_PRODUCTS, catalogHeroImageFitVars, catalogImageFitVars, resolveInitialCatalogIndex, type CatalogProduct } from './catalogProducts'
+import { CATALOG_PRODUCTS, catalogImageFitVars, resolveInitialCatalogIndex } from './catalogProducts'
 import { DetailHighlights } from './components/DetailHighlights'
 import { LandingHeader } from './components/LandingHeader'
-import { LandingFooter } from './components/LandingFooter'
+import { LandingFooter, LandingLocationMap } from './components/LandingFooter'
+import { LANDING_CONTACT } from './content'
 import { resolveLandingDetailPage, type LandingDetailPage } from './landingDetailPages'
 import './LandingPage.css'
 
@@ -36,56 +37,10 @@ function LandingDetailBack() {
   )
 }
 
-function CatalogHeroImages({ product }: { product: CatalogProduct }) {
-  const [incoming, setIncoming] = useState(product)
-  const [outgoing, setOutgoing] = useState<CatalogProduct | null>(null)
-  const [crossfadeOn, setCrossfadeOn] = useState(true)
-  const incomingRef = useRef(product)
-  incomingRef.current = incoming
-
-  useEffect(() => {
-    if (product.id === incomingRef.current.id) return
-    setOutgoing(incomingRef.current)
-    setIncoming(product)
-    setCrossfadeOn(false)
-  }, [product])
-
-  useLayoutEffect(() => {
-    if (!outgoing) {
-      setCrossfadeOn(true)
-      return
-    }
-    const frame = window.requestAnimationFrame(() => setCrossfadeOn(true))
-    return () => window.cancelAnimationFrame(frame)
-  }, [outgoing, incoming.id])
-
-  useEffect(() => {
-    if (!outgoing) return undefined
-    const timeout = window.setTimeout(() => setOutgoing(null), 1300)
-    return () => window.clearTimeout(timeout)
-  }, [outgoing, incoming.id])
-
-  return (
-    <>
-      {outgoing ? (
-        <img
-          key={`out-${outgoing.id}`}
-          className={`landing-detail__hero-img${crossfadeOn ? '' : ' is-active'}`}
-          src={outgoing.src}
-          alt=""
-          aria-hidden
-          style={catalogHeroImageFitVars(outgoing)}
-        />
-      ) : null}
-      <img
-        key={`in-${incoming.id}`}
-        className={`landing-detail__hero-img${outgoing && !crossfadeOn ? '' : ' is-active'}`}
-        src={incoming.src}
-        alt={incoming.label}
-        style={catalogHeroImageFitVars(incoming)}
-      />
-    </>
-  )
+function productWhatsappUrl(label: string) {
+  const text = encodeURIComponent(`Hola, quiero obtener el producto: ${label}`)
+  const base = LANDING_CONTACT.whatsappUrl
+  return `${base}${base.includes('?') ? '&' : '?'}text=${text}`
 }
 
 function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
@@ -137,6 +92,15 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
       >
         <LandingDetailBack />
         <div className="landing-detail__hero-media">
+          {CATALOG_PRODUCTS.map((product, index) => (
+            <img
+              key={product.id}
+              className={`landing-detail__hero-fade${index === activeProductIndex ? ' is-active' : ''}`}
+              src={product.src}
+              alt=""
+              aria-hidden
+            />
+          ))}
           <button
             type="button"
             className="landing-detail__hero-nav landing-detail__hero-nav--prev"
@@ -145,7 +109,10 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
           >
             <ChevronLeft size={24} strokeWidth={2} aria-hidden />
           </button>
-          <CatalogHeroImages product={activeProduct} />
+          <CatalogHeroMagnify
+            src={activeProduct.src}
+            alt={activeProduct.label}
+          />
           <button
             type="button"
             className="landing-detail__hero-nav landing-detail__hero-nav--next"
@@ -170,10 +137,16 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
         </div>
         <div className="landing-detail__hero-copy">
           <p className="landing-detail__eyebrow">{page.eyebrow}</p>
-          <h1 className="landing-detail__title" id="landing-detail-title">{page.title}</h1>
-          <p className="landing-detail__lead">{page.lead}</p>
-          <p className="landing-detail__product-name">{activeProduct.label}</p>
+          <h1 className="landing-detail__title" id="landing-detail-title">{activeProduct.label}</h1>
           <p className="landing-detail__product-desc">{activeProduct.description}</p>
+          <a
+            className="landing-hero__cta landing-detail__cta-btn"
+            href={productWhatsappUrl(activeProduct.label)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Obtener producto
+          </a>
         </div>
       </section>
 
@@ -184,9 +157,6 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
       </section>
 
       <section className="landing-detail__gallery-wrap" aria-label="Catálogo de productos">
-        <h2 className="landing-detail__section-title landing-detail__section-title--center">
-          Demás productos
-        </h2>
         <div className="landing-detail__gallery" role="list">
           {CATALOG_PRODUCTS.map((product, index) => (
             <button
@@ -212,7 +182,7 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
       <section className="landing-detail__cta-bar" aria-label="Acción principal">
         <div className="landing-detail__cta-inner">
           <p className="landing-detail__cta-text">
-            Descarga nuestro catálogo o contacta a uno de nuestros asesores.
+            Descarga nuestro catálogo completo o contacta a uno de nuestros asesores.
           </p>
           <div className="landing-detail__cta-actions">
             <button
@@ -227,9 +197,7 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
             </button>
             <a
               className="landing-hero__cta landing-detail__cta-btn landing-detail__cta-btn--whatsapp"
-              href={LANDING_CONTACT.whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/#equipo"
             >
               <Phone size={18} strokeWidth={2} aria-hidden />
               <span>Contactar con un asesor</span>
@@ -347,6 +315,7 @@ export function LandingDetailPage() {
         )}
       </main>
 
+      <LandingLocationMap />
       <LandingFooter />
 
       {isVacancies ? (

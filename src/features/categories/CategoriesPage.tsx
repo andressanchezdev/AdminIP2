@@ -18,6 +18,8 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { useEnterConfirm } from '@/shared/lib/useEnterConfirm'
 import { notifyError, notifySuccess, confirmAction } from '@/shared/lib/notify'
 import {
@@ -164,6 +166,17 @@ export function CategoriesPage() {
     ))
   }, [query, mockCategories.length, mockCategories.map((c) => `${c.status}:${c.name}`).join()])
 
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(filteredCategories, { resetKey: query })
+
   const migrateOptions = mockCategories.filter((entry) => {
     if (!migrateTarget) return false
     if (entry.id === migrateTarget.id) return false
@@ -190,7 +203,7 @@ export function CategoriesPage() {
 
       <ResponsiveTableShell
         empty={filteredCategories.length === 0}
-        cards={filteredCategories.map((category) => {
+        cards={pageItems.map((category) => {
           const count = productsInCategory(category.id).length
           const inactive = category.status === 'inactivo'
           const statusCell = (
@@ -289,7 +302,7 @@ export function CategoriesPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredCategories.map((category) => {
+            {pageItems.map((category) => {
               const count = productsInCategory(category.id).length
               const inactive = category.status === 'inactivo'
               return (
@@ -372,6 +385,16 @@ export function CategoriesPage() {
           </tbody>
         </table>
       </ResponsiveTableShell>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Modal
         isOpen={formOpen}

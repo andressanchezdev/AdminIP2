@@ -29,6 +29,8 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { PageHeaderActions } from '@/widgets/AppShell/Header/PageHeaderActions'
 import { BlogPostRenderer } from '@/features/blog/components/BlogPostRenderer'
 import { SeparatorMenu } from '@/features/blog/components/SeparatorMenu'
@@ -70,6 +72,17 @@ export function BlogAdminPage() {
     () => listBlogSubmissions('all'),
     [mockBlogSubmissions.length, mockBlogSubmissions.map((s) => `${s.id}:${s.status}`).join()],
   )
+
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(posts, { resetKey: statusFilter })
 
   const openCreate = () => {
     setEditing(null)
@@ -389,7 +402,7 @@ export function BlogAdminPage() {
 
           <ResponsiveTableShell
             empty={posts.length === 0}
-            cards={posts.map((post) => (
+            cards={pageItems.map((post) => (
               <div
                 key={post.id}
                 className={[
@@ -447,7 +460,7 @@ export function BlogAdminPage() {
                 </tr>
               </thead>
               <tbody>
-                {posts.map((post) => (
+                {pageItems.map((post) => (
                   <tr
                     key={post.id}
                     className={[
@@ -481,6 +494,16 @@ export function BlogAdminPage() {
               </tbody>
             </table>
           </ResponsiveTableShell>
+
+          <TablePagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            rangeStart={rangeStart}
+            rangeEnd={rangeEnd}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
         </div>
       </div>
 

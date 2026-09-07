@@ -342,5 +342,45 @@
     "action": "publish",
     "description": "Publicar, cerrar o archivar vacantes",
     "aliases": []
+  },
+  {
+    "code": "landing:read",
+    "label": "Lectura — landing",
+    "management": "landing",
+    "action": "read",
+    "description": "Ver gestión landing / equipo del carrusel",
+    "aliases": []
+  },
+  {
+    "code": "landing:create",
+    "label": "Creación — landing",
+    "management": "landing",
+    "action": "create",
+    "description": "Crear colaboradores del carrusel",
+    "aliases": []
+  },
+  {
+    "code": "landing:update",
+    "label": "Edición — landing",
+    "management": "landing",
+    "action": "update",
+    "description": "Editar colaboradores del carrusel",
+    "aliases": []
+  },
+  {
+    "code": "landing:delete",
+    "label": "Eliminación — landing",
+    "management": "landing",
+    "action": "delete",
+    "description": "Eliminar colaboradores del carrusel",
+    "aliases": []
+  },
+  {
+    "code": "landing:publish",
+    "label": "Publicación — landing",
+    "management": "landing",
+    "action": "publish",
+    "description": "Publicar o archivar colaboradores del carrusel",
+    "aliases": []
   }
 ]

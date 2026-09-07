@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { usePermissions } from '@/app/providers/AuthProvider'
 import { confirmAction } from '@/shared/lib/notify'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
 import { DetailView } from '@/shared/ui/DetailView/DetailView'
 import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
 import {
   AdminRowCard,
   ResponsiveTableShell,
@@ -153,6 +155,17 @@ export function ResourcePage({
     })
   }, [rows, query, status, statusFilterKey, searchKeys, columns])
 
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(filteredRows, { resetKey: `${query}|${status}` })
+
   const handleStatusChange = async (row: ResourceRow, nextStatus: string, key: string) => {
     const current = String(row[key] ?? '')
     if (current === nextStatus) return
@@ -260,7 +273,7 @@ export function ResourcePage({
 
       <ResponsiveTableShell
         empty={filteredRows.length === 0}
-        cards={filteredRows.map((row, index) => {
+        cards={pageItems.map((row, index) => {
           const title = String(
             row.nombre
             ?? row.name
@@ -298,7 +311,7 @@ export function ResourcePage({
             </tr>
           </thead>
           <tbody>
-            {filteredRows.map((row, index) => (
+            {pageItems.map((row, index) => (
               <tr key={String(row.id ?? index)}>
                 {prioritizedColumns.map((col) => (
                   <td
@@ -316,6 +329,16 @@ export function ResourcePage({
           </tbody>
         </table>
       </ResponsiveTableShell>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Modal
         isOpen={Boolean(selected)}

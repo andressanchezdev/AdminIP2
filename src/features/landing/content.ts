@@ -26,7 +26,7 @@ export const STATS_SLIDES = [
     id: 'referencias',
     lead: 'Más de',
     value: 35100,
-    trail: 'Referencias para moto',
+    trail: 'Referencias',
     duration: 1300,
     blurStrength: 1.15,
     maxBlur: 14,
@@ -72,67 +72,6 @@ export const CATALOG_MULTI_INDICES = CATALOG_OPTIONS
   .map((option, index) => (option.images.length > 1 ? index : -1))
   .filter((index) => index >= 0)
 
-const ADVISOR_WHATSAPP = '5731261495527'
-
-export const CAROUSEL_ITEMS = [
-  {
-    id: 'aleja',
-    title: 'Asesora',
-    name: 'Aleja',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.aleja,
-  },
-  {
-    id: 'lina',
-    title: 'Asesora',
-    name: 'Lina',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.lina,
-  },
-  {
-    id: 'monica',
-    title: 'Asesora',
-    name: 'Mónica',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.monica,
-  },
-  {
-    id: 'naya',
-    title: 'Asesora',
-    name: 'Naya',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.naya,
-  },
-  {
-    id: 'rafa',
-    title: 'Asesor',
-    name: 'Rafa',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.rafa,
-  },
-  {
-    id: 'rosio',
-    title: 'Asesora',
-    name: 'Rocío',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.rosio,
-  },
-  {
-    id: 'santiago',
-    title: 'Asesor',
-    name: 'Santiago',
-    phoneDisplay: '+57 312 614 95527',
-    whatsappUrl: `https://wa.me/${ADVISOR_WHATSAPP}`,
-    image: LANDING_IMAGES.employees.santiago,
-  },
-] as const
-
 /** Acceso del quad que abre la vista secundaria `/explorar/:slug`. */
 export const QUAD_EXPLORE_LINKS = [
   { slug: 'catalogo', label: 'Catálogo de productos' },
@@ -141,6 +80,7 @@ export const QUAD_EXPLORE_LINKS = [
 /** Barra del header público: secciones, blog y sesión (un solo bloque). */
 export const LANDING_HEADER_ITEMS = [
   { kind: 'explore' as const, slug: 'catalogo', label: 'Catálogo' },
+  { kind: 'explore' as const, slug: 'vacantes', label: 'Trabaja con nosotros' },
   { kind: 'anchor' as const, href: '#equipo', label: 'Nuestro equipo' },
   { kind: 'anchor' as const, href: '#nosotros', label: '¿Nosotros?' },
   { kind: 'anchor' as const, href: '#marcas', label: 'Marcas' },

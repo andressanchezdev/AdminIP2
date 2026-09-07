@@ -29,6 +29,11 @@ const VacanciesAdminPage = lazy(async () => {
   return { default: mod.VacanciesAdminPage }
 })
 
+const LandingTeamAdminPage = lazy(async () => {
+  const mod = await import('@/features/landing/LandingTeamAdminPage')
+  return { default: mod.LandingTeamAdminPage }
+})
+
 const BlogPublicPage = lazy(async () => {
   const mod = await import('@/features/blog/BlogPublicPage')
   return { default: mod.BlogPublicPage }
@@ -176,6 +181,7 @@ export function App() {
             <Route path="/dashboard/medicion" element={withGuard('dashboard/medicion', <MetricsPage />)} />
             <Route path="/contenido/blog" element={withGuard('contenido/blog', <BlogAdminPage />)} />
             <Route path="/contenido/vacantes" element={withGuard('contenido/vacantes', <VacanciesAdminPage />)} />
+            <Route path="/contenido/landing" element={withGuard('contenido/landing', <LandingTeamAdminPage />)} />
             <Route path="/dashboard/blog" element={<Navigate to="/contenido/blog" replace />} />
             <Route path="/acceso/usuarios" element={withGuard('acceso/usuarios', <UsersPage />)} />
             <Route path="/acceso/roles" element={withGuard('acceso/roles', <RolesPage />)} />

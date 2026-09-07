@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import ipLogo from '@/assets/logos/icon.ico'
 import { useAuth } from '@/app/providers/AuthProvider'
+import { LandingLocationMap } from './components/LandingFooter'
 import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
 import { consumePostLogoutLanding } from '@/shared/lib/logoutSession'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
@@ -19,7 +19,7 @@ import { AdvisorCarousel } from './components/AdvisorCarousel'
 import { LandingCareersBar } from './components/LandingCareersBar'
 import { LandingHeader } from './components/LandingHeader'
 import { LandingStats } from './components/LandingStats'
-import { LandingFooter, LandingLocationMap } from './components/LandingFooter'
+import { LandingFooter } from './components/LandingFooter'
 import { useNearViewport } from './hooks/useNearViewport'
 import './LandingPage.css'
 
@@ -196,69 +196,72 @@ export function LandingPage() {
 
       <main className="landing-main">
         <LandingStats />
-        <div className="landing-split-block">
-          <section className="landing-split" id="vision">
-            <div className="landing-split__media">
-              <img src={LANDING_IMAGES.nosotros} alt="Equipo y operación de Importadora Premium" />
+        <section className="landing-split-block-container">
+          <section className="landing-split-block" aria-label="Visión y misión">
+            <div className="landing-split" id="vision">
+              <div className="landing-split__media">
+                <img src={LANDING_IMAGES.nosotros} alt="Equipo y operación de Importadora Premium" />
+              </div>
+              <div className="landing-split__copy">
+                <p className="landing-split__eyebrow">Empresa</p>
+                <h2 className="landing-split__title">Visión</h2>
+                <p className="landing-split__text">
+                  Ser el referente nacional en importación premium: bodega confiable,
+                  surtido amplio y un servicio ágil para cada cliente del país.
+                </p>
+              </div>
             </div>
-            <div className="landing-split__copy">
-              <p className="landing-split__eyebrow">Empresa</p>
-              <h2 className="landing-split__title">Visión</h2>
-              <p className="landing-split__text">
-                Ser el referente nacional en importación premium: bodega confiable,
-                surtido amplio y un servicio ágil para cada cliente del país.
-              </p>
+            <div className="landing-split landing-split--reverse" id="mission">
+              <div className="landing-split__media">
+                <img src={LANDING_IMAGES.mission} alt="Local y servicio Importadora Premium" />
+              </div>
+              <div className="landing-split__copy">
+                <p className="landing-split__eyebrow">Empresa</p>
+                <h2 className="landing-split__title">Misión</h2>
+                <p className="landing-split__text">
+                  Conectar demanda y suministro con procesos claros, inventario real
+                  y acompañamiento cercano en cada pedido bajo la marca IP.
+                </p>
+              </div>
             </div>
           </section>
-
-          <section className="landing-split landing-split--reverse" id="mission">
-            <div className="landing-split__media">
-              <img src={LANDING_IMAGES.mission} alt="Local y servicio Importadora Premium" />
-            </div>
-            <div className="landing-split__copy">
-              <p className="landing-split__eyebrow">Empresa</p>
-              <h2 className="landing-split__title">Misión</h2>
-              <p className="landing-split__text">
-                Conectar demanda y suministro con procesos claros, inventario real
-                y acompañamiento cercano en cada pedido bajo la marca IP.
-              </p>
-            </div>
-          </section>
-        </div>
+        </section>
         <section
           ref={catalogRef}
-          className="catalog-productos"
+          className="catalog-productos-container"
           id="catalogo"
           aria-label="Catálogo de productos"
         >
-          <h2 className="catalog-productos__title">
-             <span>Catálogo Premium</span> 
-          </h2>
-          <span className="landing-careers-bar__rule2" aria-hidden />
-          <div className="catalog-productos__grid">
-            {CATALOG_OPTIONS.map((option, index) => (
-              <Link
-                key={option.id}
-                to={getLandingDetailPath(option.id)}
-                className="catalog-productos__item-link"
-                aria-label={`Ver detalle de ${option.label}`}
-              >
-                <CatalogProductCard
-                  label={option.label}
-                  images={option.images}
-                  autoPlay={index === catalogActiveOptionIndex}
-                  advanceToken={catalogCarouselTurn}
-                />
-              </Link>
-            ))}
-          </div>
-          <a
-            className="catalog-productos__cta"
-            href="#marcas"
-            onClick={(event) => handleLandingHashClick(event, '#marcas')}
-          >
-            Catálogo completo
-          </a>
+          <section className="catalog-productos">
+            <h2 className="catalog-productos__title">
+               <span>Catálogo Premium</span>
+            </h2>
+            <span className="landing-careers-bar__rule2" aria-hidden />
+            <div className="catalog-productos__grid">
+              {CATALOG_OPTIONS.map((option, index) => (
+                <Link
+                  key={option.id}
+                  to={getLandingDetailPath(option.id)}
+                  className="catalog-productos__item-link"
+                  aria-label={`Ver detalle de ${option.label}`}
+                >
+                  <CatalogProductCard
+                    label={option.label}
+                    images={option.images}
+                    autoPlay={index === catalogActiveOptionIndex}
+                    advanceToken={catalogCarouselTurn}
+                  />
+                </Link>
+              ))}
+            </div>
+            <a
+              className="catalog-productos__cta"
+              href="#marcas"
+              onClick={(event) => handleLandingHashClick(event, '#marcas')}
+            >
+              Catálogo completo
+            </a>
+          </section>
         </section>
         <section
           ref={brandsRef}
@@ -275,38 +278,45 @@ export function LandingPage() {
             <BrandMarqueeRow logos={MARCA_ENTRIES} />
           </div>
         </section>
-        <section className="our-employes" id="equipo" aria-label="Nuestro equipo">
-          <header className="our-employes__header">
+        <section
+          className="our-employes__header-container"
+          id="equipo"
+          aria-label="Nuestro equipo"
+        >
+          <section className="our-employes__header">
             <h2 className="our-employes__title">Equipo Premium</h2>
             <span className="landing-careers-bar__rule" aria-hidden />
             <p className="our-employes__lead">
               Conoce nuestro equipo de trabajo. Estamos disponibles para conocerte y resolver tus dudas.
             </p>
-          </header>
-          <AdvisorCarousel />
+          </section>
         </section>
-
-
-        <section className="our-company" id="nosotros" aria-label="Nosotros como empresa">
-          <div className="our-company__media">
-            <img src={LANDING_IMAGES.vision} alt="Operación de Importadora Premium" />
-          </div>
-          <div className="our-company__copy">
-            <p className="our-company__eyebrow">La compañía</p>
-            <h2 className="our-company__title">Nosotros como empresa</h2>
-            <p className="our-company__text">
-              Importadora Premium conecta marcas globales con el mercado local.
-              Centralizamos compra, bodega y distribución para que tu negocio
-              reciba productos verificados, trazabilidad y un servicio comercial cercano.
-            </p>
-            <a className="our-company__cta" href="#catalogo">
-              Catálogo completo
-            </a>
-          </div>
+        <AdvisorCarousel />
+        <section
+          className="our-company-container"
+          id="nosotros"
+          aria-label="Nosotros como empresa"
+        >
+          <section className="our-company">
+            <div className="our-company__media">
+              <img src={LANDING_IMAGES.vision} alt="Operación de Importadora Premium" />
+            </div>
+            <div className="our-company__copy">
+              <p className="our-company__eyebrow">La compañía</p>
+              <h2 className="our-company__title">Nosotros como empresa</h2>
+              <p className="our-company__text">
+                Importadora Premium conecta marcas globales con el mercado local.
+                Centralizamos compra, bodega y distribución para que tu negocio
+                reciba productos verificados, trazabilidad y un servicio comercial cercano.
+              </p>
+              <a className="our-company__cta" href="#catalogo">
+                Catálogo completo
+              </a>
+            </div>
+          </section>
+          <LandingCareersBar />
         </section>
       </main>
-
-      <LandingCareersBar />
       <LandingLocationMap />
       <LandingFooter />
 

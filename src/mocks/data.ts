@@ -13,6 +13,7 @@ import categoriesJson from './categories.json'
 import blogLayoutsJson from './blogLayouts.json'
 import blogPostsJson from './blogPosts.json'
 import vacanciesJson from './vacancies.json'
+import landingTeamJson from './landingTeam.json'
 
 export type AdminUser = {
   id: string
@@ -1483,4 +1484,140 @@ export function deleteVacancy(id: string) {
   if (index < 0) return false
   mockVacancies.splice(index, 1)
   return true
+}
+
+export type LandingTeamGroup = 'asesor' | 'administrativo'
+export type LandingTeamStatus = 'borrador' | 'publicado' | 'archivado'
+
+export type LandingTeamMember = {
+  id: string
+  fullName: string
+  role: string
+  phoneDisplay: string
+  whatsappDigits: string
+  imageUrl: string
+  group: LandingTeamGroup
+  status: LandingTeamStatus
+  sortOrder: number
+  createdAt: string
+  updatedAt: string
+}
+
+export const mockLandingTeam: LandingTeamMember[] = (landingTeamJson as LandingTeamMember[]).map((item) => ({
+  ...item,
+}))
+
+function normalizeWhatsappDigits(phone: string) {
+  const digits = phone.replace(/\D/g, '')
+  if (!digits) return ''
+  if (digits.startsWith('57')) return digits
+  if (digits.length === 10) return `57${digits}`
+  return digits
+}
+
+export function listLandingTeam(filters?: {
+  status?: LandingTeamStatus | 'all'
+  group?: LandingTeamGroup | 'all'
+}) {
+  const status = filters?.status ?? 'all'
+  const group = filters?.group ?? 'all'
+  return [...mockLandingTeam]
+    .filter((item) => (status === 'all' ? true : item.status === status))
+    .filter((item) => (group === 'all' ? true : item.group === group))
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.fullName.localeCompare(b.fullName))
+}
+
+export function getPublishedLandingTeam(group: LandingTeamGroup) {
+  return listLandingTeam({ status: 'publicado', group })
+}
+
+export function getLandingTeamMemberById(id: string) {
+  return mockLandingTeam.find((item) => item.id === id) ?? null
+}
+
+export function createLandingTeamMember(input: {
+  fullName: string
+  role: string
+  phoneDisplay: string
+  imageUrl: string
+  group: LandingTeamGroup
+  status?: LandingTeamStatus
+}) {
+  const fullName = input.fullName.trim()
+  const role = input.role.trim()
+  const phoneDisplay = input.phoneDisplay.trim()
+  const imageUrl = input.imageUrl.trim()
+  if (!imageUrl) return { ok: false as const, error: 'Suba la imagen del colaborador' }
+  if (fullName.length < 2) return { ok: false as const, error: 'Indique el nombre completo' }
+  if (role.length < 2) return { ok: false as const, error: 'Indique el cargo' }
+  if (phoneDisplay.length < 7) return { ok: false as const, error: 'Indique un teléfono válido' }
+  if (input.group !== 'asesor' && input.group !== 'administrativo') {
+    return { ok: false as const, error: 'Seleccione el grupo' }
+  }
+
+  const whatsappDigits = normalizeWhatsappDigits(phoneDisplay)
+  const now = new Date().toISOString()
+  const maxOrder = mockLandingTeam.reduce((max, item) => Math.max(max, item.sortOrder), 0)
+  const member: LandingTeamMember = {
+    id: `team_${Date.now()}`,
+    fullName,
+    role,
+    phoneDisplay,
+    whatsappDigits,
+    imageUrl,
+    group: input.group,
+    status: input.status ?? 'borrador',
+    sortOrder: maxOrder + 1,
+    createdAt: now,
+    updatedAt: now,
+  }
+  mockLandingTeam.unshift(member)
+  return { ok: true as const, member }
+}
+
+export function updateLandingTeamMember(
+  id: string,
+  patch: Partial<Omit<LandingTeamMember, 'id' | 'createdAt'>>,
+) {
+  const index = mockLandingTeam.findIndex((item) => item.id === id)
+  if (index < 0) return null
+  const nextPhone = patch.phoneDisplay?.trim() ?? mockLandingTeam[index].phoneDisplay
+  const nextWhatsapp = patch.whatsappDigits
+    ?? normalizeWhatsappDigits(nextPhone)
+  mockLandingTeam[index] = {
+    ...mockLandingTeam[index],
+    ...patch,
+    fullName: patch.fullName?.trim() ?? mockLandingTeam[index].fullName,
+    role: patch.role?.trim() ?? mockLandingTeam[index].role,
+    phoneDisplay: nextPhone,
+    whatsappDigits: nextWhatsapp || mockLandingTeam[index].whatsappDigits,
+    imageUrl: patch.imageUrl?.trim() ?? mockLandingTeam[index].imageUrl,
+    updatedAt: new Date().toISOString(),
+  }
+  return mockLandingTeam[index]
+}
+
+export function setLandingTeamStatus(id: string, status: LandingTeamStatus) {
+  return updateLandingTeamMember(id, { status })
+}
+
+export function deleteLandingTeamMember(id: string) {
+  const index = mockLandingTeam.findIndex((item) => item.id === id)
+  if (index < 0) return false
+  mockLandingTeam.splice(index, 1)
+  return true
+}
+
+/** Reordena jerarquía del equipo landing (mismo patrón que `reorderBlogPosts`). */
+export function reorderLandingTeamMembers(orderedIds: string[]) {
+  const byId = new Map(mockLandingTeam.map((member) => [member.id, member]))
+  orderedIds.forEach((id, index) => {
+    const member = byId.get(id)
+    if (member) {
+      member.sortOrder = index + 1
+      member.updatedAt = new Date().toISOString()
+    }
+  })
+  mockLandingTeam.sort((a, b) => a.sortOrder - b.sortOrder || a.fullName.localeCompare(b.fullName))
+  return listLandingTeam()
 }

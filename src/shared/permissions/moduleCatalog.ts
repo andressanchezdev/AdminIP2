@@ -27,6 +27,7 @@ export const STAFF_MODULE_CATALOG: StaffModuleEntry[] = [
     routes: [
       { routeKey: 'contenido/blog', label: 'Gestión Blog', permission: 'blog:read' },
       { routeKey: 'contenido/vacantes', label: 'Gestión Vacantes', permission: 'vacancies:read' },
+      { routeKey: 'contenido/landing', label: 'Gestión Landing', permission: 'landing:read' },
     ],
   },
   {

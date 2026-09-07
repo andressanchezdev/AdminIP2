@@ -43,5 +43,10 @@
     "id": "vacancies",
     "label": "Vacantes",
     "permissions": ["vacancies:read", "vacancies:create", "vacancies:update", "vacancies:delete", "vacancies:publish"]
+  },
+  {
+    "id": "landing",
+    "label": "Landing",
+    "permissions": ["landing:read", "landing:create", "landing:update", "landing:delete", "landing:publish"]
   }
 ]

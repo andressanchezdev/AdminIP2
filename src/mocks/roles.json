@@ -46,7 +46,12 @@
       "vacancies:create",
       "vacancies:update",
       "vacancies:delete",
-      "vacancies:publish"
+      "vacancies:publish",
+      "landing:read",
+      "landing:create",
+      "landing:update",
+      "landing:delete",
+      "landing:publish"
     ]
   },
   {

@@ -34,7 +34,7 @@ const EXPLORE_DETAIL_COPY: Record<
   catalogo: {
     kind: 'catalog',
     eyebrow: 'Importadora Premium',
-    title: 'Catálogo de productos',
+    title: 'Catálogo',
     lead: 'Explora nuestro surtido por categorías y encuentra la referencia que necesitas.',
     images: CATALOG_OPTIONS.flatMap((option) => option.images).slice(0, 4),
     ctaLabel: 'Volver al inicio',

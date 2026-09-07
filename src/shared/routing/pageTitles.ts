@@ -3,6 +3,7 @@ export const pageTitles: Record<string, string> = {
   '/dashboard/medicion': 'Gestión de medición',
   '/contenido/blog': 'Gestión Blog',
   '/contenido/vacantes': 'Gestión Vacantes',
+  '/contenido/landing': 'Gestión Landing',
   '/acceso/usuarios': 'Gestión de usuarios',
   '/acceso/roles': 'Gestión de roles',
   '/acceso/auditoria': 'Auditoría / Logs',

@@ -36,9 +36,11 @@ export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
   const canOpenStaff = isAuthenticated && !client
   const [loginMenuOpen, setLoginMenuOpen] = useState(false)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [pastHero, setPastHero] = useState(false)
   const [menuCoords, setMenuCoords] = useState<MenuCoords | null>(null)
   const loginTriggerRef = useRef<HTMLDivElement>(null)
   const loginMenuRef = useRef<HTMLDivElement>(null)
+  const headerRef = useRef<HTMLElement>(null)
   const loginMenuId = useId()
   const mobileNavId = useId()
 
@@ -117,6 +119,26 @@ export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
     mq.addEventListener('change', onChange)
     return () => mq.removeEventListener('change', onChange)
   }, [])
+
+  useEffect(() => {
+    const syncPastHero = () => {
+      const hero = document.querySelector<HTMLElement>('.landing-hero, .landing-detail__hero')
+      if (!hero) {
+        setPastHero(true)
+        return
+      }
+      const headerHeight = headerRef.current?.offsetHeight ?? 56
+      setPastHero(hero.getBoundingClientRect().bottom <= headerHeight)
+    }
+
+    syncPastHero()
+    window.addEventListener('scroll', syncPastHero, { passive: true })
+    window.addEventListener('resize', syncPastHero)
+    return () => {
+      window.removeEventListener('scroll', syncPastHero)
+      window.removeEventListener('resize', syncPastHero)
+    }
+  }, [location.pathname])
 
   useEffect(() => {
     if (!mobileNavOpen) return undefined
@@ -313,7 +335,10 @@ export function LandingHeader({ onLoginClick, showBack }: LandingHeaderProps) {
     : null
 
   return (
-    <header className="landing-header">
+    <header
+      ref={headerRef}
+      className={`landing-header${pastHero ? ' is-past-hero' : ''}`}
+    >
       {showBack ? (
         <button
           type="button"

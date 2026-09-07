@@ -18,6 +18,8 @@ import {
   AdminRowCard,
   ResponsiveTableShell,
 } from '@/shared/ui/ResponsiveTable/ResponsiveTable'
+import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
+import { useTablePagination } from '@/shared/lib/useTablePagination'
 import {
   VACANCY_EMPLOYMENT_TYPES,
   validateVacancyForm,
@@ -60,6 +62,17 @@ export function VacanciesAdminPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mock array mutates in place
     [statusFilter, mockVacancies.length, mockVacancies.map((v) => `${v.status}:${v.updatedAt}`).join()],
   )
+
+  const {
+    page,
+    setPage,
+    pageItems,
+    total,
+    totalPages,
+    rangeStart,
+    rangeEnd,
+    pageSize,
+  } = useTablePagination(vacancies, { resetKey: statusFilter })
 
   const openCreate = () => {
     setEditing(null)
@@ -244,7 +257,7 @@ export function VacanciesAdminPage() {
       <ResponsiveTableShell
         empty={vacancies.length === 0}
         emptyMessage="No hay vacantes para mostrar"
-        cards={vacancies.map((vacancy) => (
+        cards={pageItems.map((vacancy) => (
           <AdminRowCard
             key={vacancy.id}
             title={vacancy.title}
@@ -278,7 +291,7 @@ export function VacanciesAdminPage() {
             </tr>
           </thead>
           <tbody>
-            {vacancies.map((vacancy) => (
+            {pageItems.map((vacancy) => (
               <tr key={vacancy.id}>
                 <td>{vacancy.title}</td>
                 <td>{vacancy.location}</td>
@@ -299,6 +312,16 @@ export function VacanciesAdminPage() {
           </tbody>
         </table>
       </ResponsiveTableShell>
+
+      <TablePagination
+        page={page}
+        totalPages={totalPages}
+        total={total}
+        rangeStart={rangeStart}
+        rangeEnd={rangeEnd}
+        pageSize={pageSize}
+        onPageChange={setPage}
+      />
 
       <Modal
         isOpen={formOpen}

@@ -1,0 +1,33 @@
+.admin-pagination {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 12px;
+  width: 100%;
+}
+
+.admin-pagination__summary {
+  color: var(--color-text-muted, #6b7280);
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.admin-pagination__size {
+  opacity: 0.85;
+}
+
+.admin-pagination__controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-pagination__page {
+  font-size: 0.875rem;
+  font-weight: 650;
+  min-width: 7.5rem;
+  text-align: center;
+}

@@ -41,5 +41,10 @@
   { "code": "vacancies:create", "management": "vacancies", "description": "Crear vacantes" },
   { "code": "vacancies:update", "management": "vacancies", "description": "Editar vacantes" },
   { "code": "vacancies:delete", "management": "vacancies", "description": "Eliminar vacantes" },
-  { "code": "vacancies:publish", "management": "vacancies", "description": "Publicar / cerrar vacantes" }
+  { "code": "vacancies:publish", "management": "vacancies", "description": "Publicar / cerrar vacantes" },
+  { "code": "landing:read", "management": "landing", "description": "Ver gestión landing" },
+  { "code": "landing:create", "management": "landing", "description": "Crear colaboradores landing" },
+  { "code": "landing:update", "management": "landing", "description": "Editar colaboradores landing" },
+  { "code": "landing:delete", "management": "landing", "description": "Eliminar colaboradores landing" },
+  { "code": "landing:publish", "management": "landing", "description": "Publicar / archivar colaboradores landing" }
 ]

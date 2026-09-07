@@ -11,7 +11,7 @@ export function BlogPublicPage() {
     <PublicBlogShell>
       <section className="blog-public">
         <header className="blog-public__intro">
-          <h1>Blog Importadora Premium</h1>
+          <h1>Novedades Semanales</h1>
         </header>
 
         {posts.length === 0 ? (

@@ -36,6 +36,14 @@
         "icon": "vacancies",
         "routeKey": "contenido/vacantes",
         "permissionsAllowed": ["contenido/vacantes"]
+      },
+      {
+        "id": "menu_landing_mgmt",
+        "title": "Gestión Landing",
+        "path": "/contenido/landing",
+        "icon": "content",
+        "routeKey": "contenido/landing",
+        "permissionsAllowed": ["contenido/landing"]
       }
     ]
   },

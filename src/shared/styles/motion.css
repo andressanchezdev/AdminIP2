@@ -55,7 +55,7 @@
   transition: transform var(--motion-duration-base) var(--motion-ease-out);
 }
 
-/* Landing — CTAs, navegación y cards */
+/* Landing — CTAs, navegación y cards (ease-in-out para ida/vuelta simétrica) */
 .landing-hero__cta,
 .catalog-productos__cta,
 .catalog-productos__dot,
@@ -67,13 +67,13 @@
 .landing-carousel__dot,
 .catalog-productos__item-link {
   transition:
-    background-color var(--motion-duration-fast) var(--motion-ease-soft),
-    border-color var(--motion-duration-fast) var(--motion-ease-soft),
-    color var(--motion-duration-fast) var(--motion-ease-soft),
-    opacity var(--motion-duration-fast) var(--motion-ease-soft),
-    transform var(--motion-duration-base) var(--motion-ease-out),
-    box-shadow var(--motion-duration-base) var(--motion-ease-soft),
-    visibility var(--motion-duration-base) var(--motion-ease-soft),
+    background-color var(--motion-duration-fast) var(--motion-ease-in-out),
+    border-color var(--motion-duration-fast) var(--motion-ease-in-out),
+    color var(--motion-duration-fast) var(--motion-ease-in-out),
+    opacity var(--motion-duration-fast) var(--motion-ease-in-out),
+    transform var(--motion-duration-base) var(--motion-ease-in-out),
+    box-shadow var(--motion-duration-base) var(--motion-ease-in-out),
+    visibility var(--motion-duration-base) var(--motion-ease-in-out),
     width var(--motion-duration-base) var(--motion-ease-in-out);
 }
 

@@ -50,11 +50,11 @@ export function PublicBlogShell({
     <div className="blog-shell">
       <header className="blog-shell__header">
         <Link to="/" className="blog-shell__back" aria-label="Volver al inicio">
-          <ArrowLeft size={22} strokeWidth={2} aria-hidden />
+          <ArrowLeft size={18} strokeWidth={2.25} aria-hidden />
         </Link>
         <Link to="/" className="blog-shell__brand" aria-label="Importadora Premium — ir al inicio">
-          <img src={ipLogo} alt="" width={28} height={28} />
-          <span>Blog Importadora Premium </span>
+          <img src={ipLogo} alt="" width={33} height={33} />
+          <span>Blog Importadora Premium</span>
         </Link>
         <div className="blog-shell__header-actions">
           {allowSubmissionRequest ? (

@@ -10,6 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
+      'react-image-magnify-lib': path.resolve(__dirname, 'src/features/landing/lib/reactImageMagnifyLib.ts'),
     },
   },
   css: {
