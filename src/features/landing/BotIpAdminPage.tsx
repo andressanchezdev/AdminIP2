@@ -84,7 +84,6 @@ export function BotIpAdminPage() {
       <details className="content-accordion">
         <summary className="content-accordion__trigger">Límites del chat</summary>
         <div className="content-accordion__panel">
-          <p className="content-card__subtitle content-accordion__hint">Bienvenida, largo del mensaje y bloqueo por ráfaga.</p>
           <label>
             Mensaje de bienvenida
             <textarea className="admin-input" value={form.welcome} onChange={(event) => setForm({ ...form, welcome: event.target.value })} />

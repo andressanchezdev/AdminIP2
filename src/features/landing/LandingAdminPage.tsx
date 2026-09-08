@@ -237,7 +237,6 @@ export function LandingAdminPage() {
     return shell(
       <EditorShell onSave={() => save('hero')} onReset={() => reset('hero')} canUpdate={canUpdate}>
         <section className="landing-admin__block">
-          <h3>Fondo</h3>
           {draft.hero.backgrounds.map((src, index) => (
             <ImageSourceField
               key={`hero-bg-${index}`}
@@ -252,7 +251,6 @@ export function LandingAdminPage() {
           ))}
         </section>
         <section className="landing-admin__block">
-          <h3>Título, subtítulo y botón</h3>
           <Field label="Título" value={draft.hero.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, hero: { ...draft.hero, title } })} />
           <Field label="Subtítulo" value={draft.hero.subtitle} disabled={!canUpdate} multiline onChange={(subtitle) => setDraft({ ...draft, hero: { ...draft.hero, subtitle } })} />
           <Field label="Botón" value={draft.hero.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, hero: { ...draft.hero, cta } })} />

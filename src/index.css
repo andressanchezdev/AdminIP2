@@ -281,7 +281,7 @@ a {
   display: flex;
   flex-direction: column;
   font-size: var(--font-size-sm);
-  gap: 6px;
+  gap: 5px;
   padding: 5px;
   width: 100%;
 }
