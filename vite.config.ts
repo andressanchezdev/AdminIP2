@@ -8,10 +8,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': path.resolve(__dirname, 'src'),
-      'react-image-magnify-lib': path.resolve(__dirname, 'src/features/landing/lib/reactImageMagnifyLib.ts'),
-    },
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, 'src') },
+      { find: /^react-image-magnify-lib$/, replacement: path.resolve(__dirname, 'src/features/landing/lib/reactImageMagnifyLib.ts') },
+    ],
   },
   css: {
     // Lightning CSS (Rust): transform más rápido que el pipeline PostCSS por defecto

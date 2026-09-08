@@ -1,0 +1,77 @@
+.landing-admin__grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: min(100%, 920px);
+}
+
+.landing-admin__card {
+  background: #fff;
+  border: 1px solid var(--color-border, #e5e5e5);
+  border-radius: 12px;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  text-align: left;
+}
+
+.landing-admin__card:hover {
+  border-color: #2d3238;
+}
+
+.landing-admin__card strong {
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.landing-admin__card span {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.landing-admin__block {
+  align-items: center;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+  padding: 16px;
+  width: 100%;
+}
+
+.landing-admin__block h3,
+.landing-admin__block .landing-admin__row {
+  color: var(--color-text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  grid-column: 1 / -1;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.landing-admin__row {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.landing-admin__actions {
+  display: flex;
+  gap: 8px;
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+  .landing-admin__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

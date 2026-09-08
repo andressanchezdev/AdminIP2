@@ -303,9 +303,6 @@ export function UsersPage() {
 
   return (
     <section className="admin-page">
-      <p className="admin-meta admin-page__hint">
-        Usuarios del panel administrativo. Los clientes de venta se gestionan en Gestión de clientes.
-      </p>
       <div className="admin-toolbar">
         <div className="admin-toolbar__filters">
           <SearchInput

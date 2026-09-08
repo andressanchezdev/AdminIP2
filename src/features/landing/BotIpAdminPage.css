@@ -1,0 +1,30 @@
+.content-accordion__hint {
+  grid-column: 1 / -1;
+}
+
+.content-accordion__name {
+  font-size: 14px;
+}
+
+.content-studio textarea.admin-input {
+  min-height: 72px;
+}
+
+.content-accordion summary {
+  list-style: none;
+}
+
+.content-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.content-accordion summary::after {
+  color: var(--color-text-secondary);
+  content: '▾';
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.content-accordion:not([open]) summary::after {
+  content: '▸';
+}

@@ -7,7 +7,7 @@ import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
 import cloudDownloadIcon from '@/assets/icons/cloud-download.svg'
 import { getPublishedVacancies, type VacancyRecord } from '@/mocks/data'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
-import { downloadCatalogPdf } from '@/features/landing/lib/downloadCatalogPdf'
+import { downloadLandingCatalog } from '@/features/landing/lib/downloadLandingCatalog'
 import { CATALOG_PRODUCTS, catalogImageFitVars, resolveInitialCatalogIndex } from './catalogProducts'
 import { DetailHighlights } from './components/DetailHighlights'
 import { LandingChatWidget } from './chat/LandingChatWidget'
@@ -168,7 +168,7 @@ function CatalogDetailBody({ page }: { page: LandingDetailPage }) {
               type="button"
               className="landing-hero__cta landing-detail__cta-btn"
               onClick={() => {
-                void downloadCatalogPdf()
+                void downloadLandingCatalog()
               }}
             >
               <span>Descargar catálogo</span>

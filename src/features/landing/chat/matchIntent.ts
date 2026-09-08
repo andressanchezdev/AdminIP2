@@ -1,5 +1,6 @@
 import { stripAccents } from './normalizeText'
 import { PART_ALIASES } from './motoParts'
+import { PROTECTED_TOKENS } from './unmatchedKind'
 
 const ALIASES: Record<string, string> = {
   wasap: 'whatsapp',
@@ -62,6 +63,7 @@ function maxDistance(token: string) {
 export function correctToken(token: string, dictionary: readonly string[]) {
   const plain = stripAccents(token.toLowerCase())
   if (ALIASES[plain]) return ALIASES[plain]
+  if (PROTECTED_TOKENS.has(plain)) return plain
   if (plain.length < 3) return plain
 
   let best = plain
@@ -86,6 +88,7 @@ export function scoreKeywords(tokens: readonly string[], keywords: readonly stri
       score += 3
       continue
     }
+    if (PROTECTED_TOKENS.has(token)) continue
     const near = keywords.some((keyword) => {
       if (Math.abs(keyword.length - token.length) > maxDistance(token)) return false
       return editDistance(token, keyword) <= maxDistance(token)

@@ -1,4 +1,5 @@
 import { CATALOG_OPTIONS, LANDING_CONTACT, QUAD_EXPLORE_LINKS } from './content'
+import { getLandingContent } from './landingContentStore'
 import { LANDING_IMAGES } from './media'
 
 export type LandingDetailKind = 'catalog' | 'vacancies'
@@ -80,5 +81,25 @@ export function getLandingDetailPath(slug: string) {
 
 export function resolveLandingDetailPage(slug: string | undefined): LandingDetailPage | null {
   if (!slug) return null
+  const option = getLandingContent().catalog.options.find((item) => item.id === slug)
+  if (option) {
+    return {
+      slug: option.id,
+      kind: 'catalog',
+      eyebrow: 'Catálogo',
+      title: 'Catálogo de productos',
+      lead: `Repuestos y accesorios premium en la línea de ${option.label.toLowerCase()}.`,
+      images: option.images,
+      ctaLabel: 'Contactar asesor',
+      ctaHref: '/#equipo',
+    }
+  }
+  if (slug === 'catalogo') {
+    const options = getLandingContent().catalog.options
+    return {
+      ...LANDING_DETAIL_PAGES.catalogo,
+      images: options.flatMap((item) => item.images).slice(0, 4),
+    }
+  }
   return LANDING_DETAIL_PAGES[slug] ?? null
 }

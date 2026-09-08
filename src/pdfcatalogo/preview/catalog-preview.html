@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Plantilla Catálogo PDF — Preview</title>
+  <style>
+    :root {
+      --c-white: #ffffff;
+      --c-soft-gray: #e6e7e8;
+      --c-base: #2d3238;
+      --c-panel: #30363d;
+      --c-ink: #333333;
+      --c-accent: #ffc629;
+      --page-w: 794px;
+      --page-h: 1123px;
+      --header-h: 72px;
+      --footer-h: 48px;
+      --margin-x: 38px;
+      --cell-w: 263px;
+      --cell-h: 341px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: #c5c8cc;
+      font-family: Helvetica, Arial, sans-serif;
+      color: var(--c-ink);
+    }
+
+    .toolbar {
+      width: var(--page-w);
+      margin: 0 auto 16px;
+      padding: 12px 14px;
+      background: var(--c-base);
+      color: var(--c-white);
+      border-radius: 8px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .toolbar strong { color: var(--c-accent); }
+
+    /* Página A4 fija (sin reflujo) */
+    .page {
+      width: var(--page-w);
+      height: var(--page-h);
+      margin: 0 auto 28px;
+      background: var(--c-white);
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .page-header {
+      height: var(--header-h);
+      background: var(--c-base);
+      color: var(--c-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--margin-x);
+      border-bottom: 3px solid var(--c-accent);
+    }
+
+    .page-header__left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-header__icon {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .page-header__title {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .page-header__meta {
+      margin: 2px 0 0;
+      font-size: 10px;
+      color: var(--c-soft-gray);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 420px;
+    }
+
+    .page-header__page {
+      color: var(--c-accent);
+      font-weight: 700;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .grid {
+      width: 789px;
+      height: 1023px;
+      margin: 10px auto 8px;
+      display: grid;
+      grid-template-columns: repeat(3, var(--cell-w));
+      grid-template-rows: repeat(3, var(--cell-h));
+      border-top: 1px solid var(--c-soft-gray);
+    }
+
+    .cell {
+      position: relative;
+      width: var(--cell-w);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .cell:nth-child(3n + 1),
+    .cell:nth-child(3n + 2) {
+      border-right: 1px solid var(--c-base);
+    }
+
+    .cell:nth-child(n + 4)::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 57px;
+      width: 147px;
+      height: 0;
+      border-top: 1px solid var(--c-base);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .cell__image-content {
+      left: 0;
+      right: 0;
+      bottom: 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      background-color: transparent;
+      pointer-events: none;
+    }
+
+    .cell__image-content .pill {
+      background: transparent;
+      background-color: transparent;
+    }
+
+    .pill--codigo {
+      background: var(--c-base);
+      color: var(--c-white);
+      font-size: 12px;
+      width: 250px;
+      height: 32px;
+      font-weight: 700;
+    }
+
+    .pill--categoria {
+      margin-top: -5px;
+      background: transparent;
+      color: var(--c-base);
+      font-size: 10px;
+      font-weight: 900;
+      padding: 6px 17px;
+      width: 110px;
+      text-transform: uppercase;
+    }
+
+    .cell__image {
+      position: relative;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: visible;
+    }
+
+    .cell__image img {
+      width: 250px;
+      height: 222px;
+    }
+
+    .cell__image-fallback {
+      font-size: 15px;
+      color: var(--c-panel);
+    }
+
+    .pill--marca {
+      width: 99px;
+      background: var(--c-white);
+      align-items: center;
+    }
+
+    .pill--marca img {
+      width: 125px;
+    }
+
+    .brand-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--c-base);
+      display: inline-block;
+    }
+
+    .page-footer {
+      height: var(--footer-h);
+      background: var(--c-base);
+      color: var(--c-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--margin-x);
+      font-size: 11px;
+    }
+
+    .page-footer__center,
+    .page-footer__right {
+      color: var(--c-accent);
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <strong>Fuente de verdad del catálogo PDF</strong> —
+    <code>src/pdfcatalogo/preview/catalog-preview.html</code>.
+    El PDF v2 (<code>lib/buildCatalogDocument.js</code> → descarga y
+    <code>npm run catalog:sample</code>) toma el CSS de este archivo.<br />
+    Abre con el dev server:
+    <strong>http://localhost:3001/catalog-preview.html</strong>
+    (puerto de <code>npm run dev</code>). Edita aquí y regenera/descarga.
+  </div>
+
+  <article class="page" id="page-1" aria-label="Página 1 del catálogo"></article>
+
+  <script>
+    const STORAGE_PREFIX = 'https://storage.googleapis.com/importadorapremiumonline/'
+    const FILTER_SUMMARY = 'Marca: Yamaha, AKT, Honda  |  Categoria: Todas  |  Modelo: Todas'
+
+    const BRAND_LOGO_MAP = {
+      bajaj: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/15060940_marcas-10.png',
+      yamaha: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/57432582_marcas-06.png',
+      honda: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/22885058_marcas-12.png',
+      akt: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/10656650_marcas-09.png',
+      kawasaki: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/marcas/28620734_marcas-11.png',
+    }
+
+    const DEFAULT_BRAND_LOGO = `${STORAGE_PREFIX}dependencias/img/marcas/IMPORTADOOoK-72-72.png`
+
+    const SAMPLE_PRODUCTS = [
+      { id: 7903, codigo: '270100099', categoria: 'MARRANA DE ENCENDIDO', descripcion: 'Marrana de encendido KLX', modelo: 'KLX 150', marca: 'kawasaki original', imagen: 'dependencias/img/marcas/28620734_marcas-11.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7904, codigo: '270100101', categoria: 'FILTROS', descripcion: 'Filtro de aire KLX', modelo: 'KLX 150', marca: 'kawasaki original', imagen: 'dependencias/img/marcas/28620734_marcas-11.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7905, codigo: '270100102', categoria: 'FRENOS', descripcion: 'Pastilla delantera KLX', modelo: 'KLX 150', marca: 'kawasaki original', imagen: 'dependencias/img/marcas/28620734_marcas-11.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7906, codigo: 'YZ-FR-001', categoria: 'FRENOS', descripcion: 'Pastilla delantera FZ', modelo: 'FZ 2.0', marca: 'Yamaha', imagen: 'dependencias/img/marcas/yamaha.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7907, codigo: 'YZ-FR-002', categoria: 'FRENOS', descripcion: 'Pastilla trasera FZ', modelo: 'FZ 2.0', marca: 'Yamaha', imagen: 'dependencias/img/marcas/yamaha.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7908, codigo: 'YZ-FA-125', categoria: 'FILTROS', descripcion: 'Filtro de aire XTZ', modelo: 'XTZ 125', marca: 'Yamaha', imagen: 'dependencias/img/marcas/yamaha.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7909, codigo: 'YZ-LL-140', categoria: 'LLANTAS', descripcion: 'Llanta trasera 140/70', modelo: 'FZ 2.0', marca: 'Yamaha', imagen: 'dependencias/img/marcas/yamaha.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7910, codigo: 'YZ-EL-011', categoria: 'ELECTRICOS', descripcion: 'Bateria 12V 5Ah', modelo: 'XTZ 125', marca: 'Yamaha', imagen: 'dependencias/img/marcas/yamaha.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+      { id: 7911, codigo: 'AK-AC-020', categoria: 'ACEITES', descripcion: 'Aceite 20W50', modelo: 'NKD 125', marca: 'AKT', imagen: 'dependencias/img/marcas/akt.png', imagen_producto: 'https://storage.googleapis.com/importadorapremiumonline/dependencias/img/productos/270100099/2%20(1).jpg' },
+    ]
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+    }
+
+    /** Misma lógica que src/shared/lib/productMedia.js → parseProductImage */
+    function resolveMediaUrl(raw) {
+      const value = String(raw ?? '').trim()
+      if (!value) return ''
+      if (/^https?:\/\//i.test(value) || value.startsWith('data:') || value.startsWith('blob:') || value.startsWith('/')) {
+        return value
+      }
+      return STORAGE_PREFIX + value.replace(/^\//, '').split('/').map(encodeURIComponent).join('/')
+    }
+
+    function normalizeBrandName(brand) {
+      return String(brand || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+original$/, '')
+    }
+
+    function resolveBrandUrl(product) {
+      const key = normalizeBrandName(product.marca)
+      return BRAND_LOGO_MAP[key] || DEFAULT_BRAND_LOGO
+    }
+
+    function renderImg(src, kind = 'product') {
+      if (!src) {
+        return kind === 'brand'
+          ? `<span class="brand-dot" aria-hidden="true"></span>`
+          : `<span class="cell__image-fallback">Sin imagen</span>`
+      }
+      const fallback = kind === 'brand'
+        ? `this.onerror=null;this.src='${DEFAULT_BRAND_LOGO}'`
+        : `this.outerHTML='<span class=\\'cell__image-fallback\\'>Sin imagen</span>'`
+      return `<img src="${escapeHtml(src)}" alt="" loading="lazy" onerror="${fallback}" />`
+    }
+
+    function renderCell(product) {
+      const productSrc = resolveMediaUrl(product.imagen_producto)
+      const brandSrc = resolveBrandUrl(product)
+
+      return `
+        <div class="cell">
+          <span class="pill pill--codigo">${escapeHtml(product.categoria)}</span>
+          <figure class="cell__image">
+            ${renderImg(productSrc, 'product')}
+            <figcaption class="cell__image-content">
+              <span class="pill pill--categoria">${escapeHtml(product.codigo)}</span>
+              <span class="pill pill--categoria">${escapeHtml(product.modelo)}</span>
+            </figcaption>
+          </figure>
+          <span class="pill pill--marca">
+            ${renderImg(brandSrc, 'brand')}
+          </span>
+        </div>
+      `
+    }
+
+    function renderPage(products, pageIndex, totalPages, totalProducts) {
+      return `
+        <header class="page-header">
+          <div class="page-header__left">
+            <img class="page-header__icon" src="../assets/icon-BYLBN25J.ico" alt="iP" />
+            <div>
+              <p class="page-header__title">Catalogo de productos</p>
+              <p class="page-header__meta">${totalProducts} productos  ·  ${escapeHtml(FILTER_SUMMARY)}</p>
+            </div>
+          </div>
+          <div class="page-header__page">Pagina ${pageIndex} / ${totalPages}</div>
+        </header>
+        <div class="grid">
+          ${products.map(renderCell).join('')}
+        </div>
+        <footer class="page-footer">
+          <span>Importadora Premium</span>
+          <span class="page-footer__center">Catalogo iP</span>
+          <span class="page-footer__right">Pagina ${pageIndex} / ${totalPages}</span>
+        </footer>
+      `
+    }
+
+    const page = document.getElementById('page-1')
+    page.innerHTML = renderPage(SAMPLE_PRODUCTS, 1, 1, SAMPLE_PRODUCTS.length)
+
+    console.table(
+      SAMPLE_PRODUCTS.map((item) => ({
+        codigo: item.codigo,
+        imagen_producto: resolveMediaUrl(item.imagen_producto),
+        imagen_marca: resolveBrandUrl(item),
+      })),
+    )
+  </script>
+</body>
+</html>

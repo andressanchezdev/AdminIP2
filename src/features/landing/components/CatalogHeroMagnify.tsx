@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import ReactImageMagnify from 'react-image-magnify-lib'
+import {ReactImageMagnify} from 'react-image-magnify-lib'
 
 type CatalogHeroMagnifyProps = {
   alt: string

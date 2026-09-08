@@ -49,7 +49,7 @@ const GROUP_LABEL: Record<LandingTeamGroup, string> = {
 }
 
 /** Administración tipo WordPress del equipo del carrusel landing. */
-export function LandingTeamAdminPage() {
+export function LandingTeamAdminPage({ onBack }: { onBack?: () => void }) {
   const { user } = useAuth()
   const { hasPermission } = usePermissions()
   const canCreate = hasPermission('landing:create')
@@ -252,6 +252,11 @@ export function LandingTeamAdminPage() {
 
   return (
     <div className="admin-page">
+      {onBack ? (
+        <button type="button" className="admin-btn admin-btn--ghost" onClick={onBack}>
+          Volver a secciones
+        </button>
+      ) : null}
       <div className="admin-toolbar">
         <div className="admin-toolbar__filters">
           <select

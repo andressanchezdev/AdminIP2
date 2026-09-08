@@ -58,14 +58,13 @@ type SidebarProps = {
 }
 
 function pathMatches(activePath: string, path: string) {
-  return activePath === path
+  if (activePath === path) return true
+  return path === '/contenido/landing' && activePath.startsWith('/contenido/landing/')
 }
 
 function isGroupActive(item: MenuNode, activePath: string) {
-  if (activePath === item.path) {
-    return true
-  }
-  return (item.children ?? []).some((child) => activePath === child.path)
+  if (pathMatches(activePath, item.path)) return true
+  return (item.children ?? []).some((child) => pathMatches(activePath, child.path))
 }
 
 export function Sidebar({

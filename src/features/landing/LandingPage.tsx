@@ -5,16 +5,10 @@ import { LandingLocationMap } from './components/LandingFooter'
 import { AuthModal } from '@/features/auth/components/AuthModal/AuthModal'
 import { consumePostLogoutLanding } from '@/shared/lib/logoutSession'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
-import {
-  CATALOG_CAROUSEL_MS,
-  CATALOG_MULTI_INDICES,
-  CATALOG_OPTIONS,
-  HERO_BG_MS,
-  MARCA_ENTRIES,
-} from './content'
+import { CATALOG_CAROUSEL_MS, HERO_BG_MS } from './content'
+import { catalogMultiIndices, getLandingContent, visibleBrands } from './landingContentStore'
 import { getLandingDetailPath } from './landingDetailPages'
 import { handleLandingHashClick, resetLandingScrollOnReload } from './landingScroll'
-import { LANDING_IMAGES } from './media'
 import { LandingChatWidget } from './chat/LandingChatWidget'
 import { AdvisorCarousel } from './components/AdvisorCarousel'
 import { LandingCareersBar } from './components/LandingCareersBar'
@@ -116,10 +110,13 @@ export function LandingPage() {
   const [authError, setAuthError] = useState('')
   const [heroBg, setHeroBg] = useState(0)
   const [catalogCarouselTurn, setCatalogCarouselTurn] = useState(0)
-  const catalogMultiCount = CATALOG_MULTI_INDICES.length
+  const content = getLandingContent()
+  const catalogOptions = content.catalog.options
+  const catalogIndices = catalogMultiIndices(catalogOptions)
+  const catalogMultiCount = catalogIndices.length
   const catalogActiveOptionIndex = catalogMultiCount === 0 || catalogCarouselTurn === 0
     ? -1
-    : CATALOG_MULTI_INDICES[(catalogCarouselTurn - 1) % catalogMultiCount]
+    : catalogIndices[(catalogCarouselTurn - 1) % catalogMultiCount]
 
   const { ref: heroRef, isActive: heroLive } = useNearViewport<HTMLDivElement>('80px 0px')
   const { ref: catalogRef, isActive: catalogLive } = useNearViewport<HTMLElement>()
@@ -145,28 +142,28 @@ export function LandingPage() {
   }, [])
 
   useEffect(() => {
-    if (!catalogLive || CATALOG_MULTI_INDICES.length === 0) return undefined
+    if (!catalogLive || catalogIndices.length === 0) return undefined
     const timer = window.setInterval(() => {
       setCatalogCarouselTurn((current) => current + 1)
     }, CATALOG_CAROUSEL_MS)
     return () => window.clearInterval(timer)
-  }, [catalogLive])
+  }, [catalogLive, catalogIndices.length])
 
   useEffect(() => {
-    if (!heroLive || LANDING_IMAGES.heroBg.length < 2) return undefined
+    if (!heroLive || content.hero.backgrounds.length < 2) return undefined
     const timer = window.setInterval(() => {
-      setHeroBg((current) => (current + 1) % LANDING_IMAGES.heroBg.length)
+      setHeroBg((current) => (current + 1) % content.hero.backgrounds.length)
     }, HERO_BG_MS)
     return () => window.clearInterval(timer)
-  }, [heroLive])
+  }, [heroLive, content.hero.backgrounds.length])
 
   return (
     <div className="landing-page">
       <div className="landing-hero" ref={heroRef}>
         <div className="landing-hero__media" aria-hidden>
-          {LANDING_IMAGES.heroBg.map((src, index) => (
+          {content.hero.backgrounds.map((src, index) => (
             <div
-              key={src}
+              key={`${src}-${index}`}
               className={`landing-hero__bg${heroBg === index ? ' is-active' : ''}`}
               style={{ backgroundImage: `url(${src})` }}
             />
@@ -174,16 +171,14 @@ export function LandingPage() {
         </div>
         <div className="landing-hero__layout">
           <div className="landing-hero__content">
-            <h1 className="landing-hero__title">Importadora Premium</h1>
-            <p className="landing-hero__subtitle">
-              Importación, inventario y distribución con estándar premium para todo el país.
-            </p>
+            <h1 className="landing-hero__title">{content.hero.title}</h1>
+            <p className="landing-hero__subtitle">{content.hero.subtitle}</p>
             <a
               className="landing-hero__cta"
               href="#vision"
               onClick={(event) => handleLandingHashClick(event, '#vision')}
             >
-              Conocer más
+              {content.hero.cta}
             </a>
           </div>
         </div>
@@ -201,28 +196,22 @@ export function LandingPage() {
           <section className="landing-split-block" aria-label="Visión y misión">
             <div className="landing-split" id="vision">
               <div className="landing-split__media">
-                <img src={LANDING_IMAGES.nosotros} alt="Equipo y operación de Importadora Premium" />
+                <img src={content.split.vision.image} alt={content.split.vision.alt} />
               </div>
               <div className="landing-split__copy">
-                <p className="landing-split__eyebrow">Empresa</p>
-                <h2 className="landing-split__title">Visión</h2>
-                <p className="landing-split__text">
-                  Ser el referente nacional en importación premium: bodega confiable,
-                  surtido amplio y un servicio ágil para cada cliente del país.
-                </p>
+                <p className="landing-split__eyebrow">{content.split.vision.eyebrow}</p>
+                <h2 className="landing-split__title">{content.split.vision.title}</h2>
+                <p className="landing-split__text">{content.split.vision.text}</p>
               </div>
             </div>
             <div className="landing-split landing-split--reverse" id="mission">
               <div className="landing-split__media">
-                <img src={LANDING_IMAGES.mission} alt="Local y servicio Importadora Premium" />
+                <img src={content.split.mission.image} alt={content.split.mission.alt} />
               </div>
               <div className="landing-split__copy">
-                <p className="landing-split__eyebrow">Empresa</p>
-                <h2 className="landing-split__title">Misión</h2>
-                <p className="landing-split__text">
-                  Conectar demanda y suministro con procesos claros, inventario real
-                  y acompañamiento cercano en cada pedido bajo la marca IP.
-                </p>
+                <p className="landing-split__eyebrow">{content.split.mission.eyebrow}</p>
+                <h2 className="landing-split__title">{content.split.mission.title}</h2>
+                <p className="landing-split__text">{content.split.mission.text}</p>
               </div>
             </div>
           </section>
@@ -235,11 +224,11 @@ export function LandingPage() {
         >
           <section className="catalog-productos">
             <h2 className="catalog-productos__title">
-               <span>Catálogo Premium</span>
+               <span>{content.catalog.title}</span>
             </h2>
             <span className="landing-careers-bar__rule2" aria-hidden />
             <div className="catalog-productos__grid">
-              {CATALOG_OPTIONS.map((option, index) => (
+              {catalogOptions.map((option, index) => (
                 <Link
                   key={option.id}
                   to={getLandingDetailPath(option.id)}
@@ -260,7 +249,7 @@ export function LandingPage() {
               href="#marcas"
               onClick={(event) => handleLandingHashClick(event, '#marcas')}
             >
-              Catálogo completo
+              {content.catalog.cta}
             </a>
           </section>
         </section>
@@ -269,14 +258,12 @@ export function LandingPage() {
           className={`our-brands${brandsLive ? ' is-live' : ''}`}
           id="marcas"
           aria-label="Nuestras marcas"
-          style={{ backgroundImage: `url(${LANDING_IMAGES.brandsBg})` }}
+          style={{ backgroundImage: `url(${content.brands.background})` }}
         >
-          <h2 className="our-brands__title">Marcas que respaldan nuestra calidad</h2>
-          <p className="our-brands__lead">
-            Las marcas más reconocidas en el mercado para tu moto.
-          </p>
+          <h2 className="our-brands__title">{content.brands.title}</h2>
+          <p className="our-brands__lead">{content.brands.lead}</p>
           <div className="our-brands__marquee">
-            <BrandMarqueeRow logos={MARCA_ENTRIES} />
+            <BrandMarqueeRow logos={visibleBrands(content)} />
           </div>
         </section>
         <section
@@ -300,18 +287,14 @@ export function LandingPage() {
         >
           <section className="our-company">
             <div className="our-company__media">
-              <img src={LANDING_IMAGES.vision} alt="Operación de Importadora Premium" />
+              <img src={content.company.image} alt={content.company.alt} />
             </div>
             <div className="our-company__copy">
-              <p className="our-company__eyebrow">La compañía</p>
-              <h2 className="our-company__title">Nosotros como empresa</h2>
-              <p className="our-company__text">
-                Importadora Premium conecta marcas globales con el mercado local.
-                Centralizamos compra, bodega y distribución para que tu negocio
-                reciba productos verificados, trazabilidad y un servicio comercial cercano.
-              </p>
+              <p className="our-company__eyebrow">{content.company.eyebrow}</p>
+              <h2 className="our-company__title">{content.company.title}</h2>
+              <p className="our-company__text">{content.company.text}</p>
               <a className="our-company__cta" href="#catalogo">
-                Catálogo completo
+                {content.company.cta}
               </a>
             </div>
           </section>

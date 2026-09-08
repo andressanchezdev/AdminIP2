@@ -28,17 +28,18 @@ export const STAFF_MODULE_CATALOG: StaffModuleEntry[] = [
       { routeKey: 'contenido/blog', label: 'Gestión Blog', permission: 'blog:read' },
       { routeKey: 'contenido/vacantes', label: 'Gestión Vacantes', permission: 'vacancies:read' },
       { routeKey: 'contenido/landing', label: 'Gestión Landing', permission: 'landing:read' },
+      { routeKey: 'contenido/bot', label: 'Gestión botIP', permission: 'landing:read' },
     ],
   },
   {
     module: 'operacion',
     label: 'Ventas',
     routes: [
-      { routeKey: 'operacion/pedidos', label: 'Gestión pedidos', permission: 'orders:read' },
-      { routeKey: 'operacion/clientes', label: 'Gestión clientes', permission: 'clients:read' },
-      { routeKey: 'operacion/envios', label: 'Gestión envíos', permission: 'shipments:read' },
       { routeKey: 'operacion/productos', label: 'Gestión productos', permission: 'products:read' },
       { routeKey: 'operacion/categorias', label: 'Gestión categorías', permission: 'categories:read' },
+      { routeKey: 'operacion/clientes', label: 'Gestión clientes', permission: 'clients:read' },
+      { routeKey: 'operacion/pedidos', label: 'Gestión pedidos', permission: 'orders:read' },
+      { routeKey: 'operacion/envios', label: 'Gestión envíos', permission: 'shipments:read' },
     ],
   },
   {
@@ -54,7 +55,6 @@ export const STAFF_MODULE_CATALOG: StaffModuleEntry[] = [
     module: 'configuracion',
     label: 'Configuración',
     routes: [
-      { routeKey: 'configuracion/ajustes', label: 'Configuración general', permission: 'settings:update' },
       { routeKey: 'configuracion/perfil', label: 'Gestión de perfil', permission: 'profile:update' },
     ],
   },

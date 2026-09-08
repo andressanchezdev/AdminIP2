@@ -145,9 +145,6 @@ export function AuditPage() {
 
   return (
     <section className="admin-page">
-      <p className="admin-meta admin-page__hint">
-        Historial de cambios del sistema, agrupado por tipo de operación.
-      </p>
       <div className="admin-audit-grid">
         {grouped.map((bucket) => (
           <article key={bucket.id} className="admin-audit-card">

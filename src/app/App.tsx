@@ -29,9 +29,14 @@ const VacanciesAdminPage = lazy(async () => {
   return { default: mod.VacanciesAdminPage }
 })
 
-const LandingTeamAdminPage = lazy(async () => {
-  const mod = await import('@/features/landing/LandingTeamAdminPage')
-  return { default: mod.LandingTeamAdminPage }
+const BotIpAdminPage = lazy(async () => {
+  const mod = await import('@/features/landing/BotIpAdminPage')
+  return { default: mod.BotIpAdminPage }
+})
+
+const LandingAdminPage = lazy(async () => {
+  const mod = await import('@/features/landing/LandingAdminPage')
+  return { default: mod.LandingAdminPage }
 })
 
 const BlogPublicPage = lazy(async () => {
@@ -87,11 +92,6 @@ const ShipmentsPage = lazy(async () => {
 const ProductsPage = lazy(async () => {
   const mod = await import('@/features/products/ProductsPage')
   return { default: mod.ProductsPage }
-})
-
-const SettingsPage = lazy(async () => {
-  const mod = await import('@/pages/AccessOpsPages')
-  return { default: mod.SettingsPage }
 })
 
 const ForbiddenPage = lazy(async () => {
@@ -181,7 +181,8 @@ export function App() {
             <Route path="/dashboard/medicion" element={withGuard('dashboard/medicion', <MetricsPage />)} />
             <Route path="/contenido/blog" element={withGuard('contenido/blog', <BlogAdminPage />)} />
             <Route path="/contenido/vacantes" element={withGuard('contenido/vacantes', <VacanciesAdminPage />)} />
-            <Route path="/contenido/landing" element={withGuard('contenido/landing', <LandingTeamAdminPage />)} />
+            <Route path="/contenido/landing/:section?" element={withGuard('contenido/landing', <LandingAdminPage />)} />
+            <Route path="/contenido/bot" element={withGuard('contenido/bot', <BotIpAdminPage />)} />
             <Route path="/dashboard/blog" element={<Navigate to="/contenido/blog" replace />} />
             <Route path="/acceso/usuarios" element={withGuard('acceso/usuarios', <UsersPage />)} />
             <Route path="/acceso/roles" element={withGuard('acceso/roles', <RolesPage />)} />
@@ -191,8 +192,8 @@ export function App() {
             <Route path="/operacion/envios" element={withGuard('operacion/envios', <ShipmentsPage />)} />
             <Route path="/operacion/productos" element={withGuard('operacion/productos', <ProductsPage />)} />
             <Route path="/operacion/categorias" element={withGuard('operacion/categorias', <CategoriesPage />)} />
-            <Route path="/configuracion/ajustes" element={withGuard('configuracion/ajustes', <SettingsPage />)} />
             <Route path="/configuracion/perfil" element={withGuard('configuracion/perfil', <ProfilePage />)} />
+            <Route path="/configuracion/ajustes" element={<Navigate to="/configuracion/perfil" replace />} />
 
             <Route path="/metrics" element={<Navigate to="/dashboard/medicion" replace />} />
             <Route path="/metrics/tangible" element={<Navigate to="/dashboard/medicion" replace />} />
@@ -206,7 +207,7 @@ export function App() {
             <Route path="/ops/shipments" element={<Navigate to="/operacion/envios" replace />} />
             <Route path="/ops/products" element={<Navigate to="/operacion/productos" replace />} />
             <Route path="/ops/categories" element={<Navigate to="/operacion/categorias" replace />} />
-            <Route path="/settings" element={<Navigate to="/configuracion/ajustes" replace />} />
+            <Route path="/settings" element={<Navigate to="/configuracion/perfil" replace />} />
 
             <Route
               path="/403"

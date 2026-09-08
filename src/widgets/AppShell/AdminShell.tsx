@@ -2,14 +2,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/app/providers/AuthProvider'
-import { mockMenu, mockRoles, type MenuNode } from '@/mocks/data'
+import { mockMenu, type MenuNode } from '@/mocks/data'
 import { Sidebar } from '@/widgets/AppShell/Sidebar/Sidebar'
 import { Header } from '@/widgets/AppShell/Header/Header'
 import {
   PageHeaderActionsProvider,
   usePageHeaderActionsSlot,
 } from '@/widgets/AppShell/Header/PageHeaderActions'
-import { getPageTitle } from '@/shared/routing/pageTitles'
+import { getPageSubtitle, getPageTitle } from '@/shared/routing/pageTitles'
 import { toRouteKey } from '@/shared/routing/routeKey'
 import { confirmAndLogout } from '@/shared/lib/logoutSession'
 import { namedControl } from '@/shared/lib/namedControl'
@@ -118,9 +118,7 @@ function AdminShellChrome() {
   )
 
   const title = getPageTitle(location.pathname)
-  const roleLabel = mockRoles.find((role) => role.id === user?.roles[0])?.name ?? user?.roles[0]
-  const subtitle = moduleSubtitle(location.pathname, visibleMenu)
-    ?? (roleLabel ? `Rol: ${roleLabel}` : user?.fullName)
+  const subtitle = getPageSubtitle(location.pathname) ?? moduleSubtitle(location.pathname, visibleMenu)
 
   const handleNavigate = (path: string) => {
     navigate(path)

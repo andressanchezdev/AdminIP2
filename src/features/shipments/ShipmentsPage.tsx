@@ -26,7 +26,7 @@ import { ResourcePage } from '@/pages/ResourcePage'
 import { DetailView } from '@/shared/ui/DetailView/DetailView'
 import { Modal } from '@/shared/ui/Modal/Modal'
 
-const SHIPMENT_STATUSES = ['programado', 'en_transito', 'entregado', 'cancelado'] as const
+const SHIPMENT_STATUSES = ['programado', 'en transito', 'entregado', 'cancelado'] as const
 
 type ShipmentForm = {
   orderId: string

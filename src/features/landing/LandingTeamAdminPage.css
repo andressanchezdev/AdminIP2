@@ -42,7 +42,6 @@
 
 .landing-team-admin__group-picks {
   display: flex;
-  flex-wrap: wrap;
   gap: 8px;
 }
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { STATS_SLIDES } from '../content'
+import { getLandingContent } from '../landingContentStore'
 import { SpeedingText } from './SpeedingText'
 
 /** Tres contadores: animan solo al entrar en viewport (scroll desde el hero). */
@@ -34,7 +34,7 @@ export function LandingStats() {
       aria-label="Cantidades que manejamos"
     >
       <div className="landing-stats__viewport">
-        {STATS_SLIDES.map((item, index) => (
+        {getLandingContent().stats.map((item, index) => (
           <article
             key={item.id}
             className={`landing-stats__slide landing-stats__slide--${item.id}`}

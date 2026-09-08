@@ -20,7 +20,6 @@ import {
   deleteRole,
   mockPermissionsCatalog,
   mockRoles,
-  mockSettings,
   mockUsers,
   updateRole,
   updateUser,
@@ -737,16 +736,6 @@ export function ProfilePage() {
             </label>
           </article>
         </div>
-      </div>
-    </section>
-  )
-}
-
-export function SettingsPage() {
-  return (
-    <section className="admin-page">
-      <div className="admin-card">
-        <pre className="admin-pre">{JSON.stringify(mockSettings, null, 2)}</pre>
       </div>
     </section>
   )

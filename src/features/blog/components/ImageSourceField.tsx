@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 import { ImagePlus, Link2 } from 'lucide-react'
 import { fileToWebpDataUrl } from '@/features/blog/lib/imageToWebp'
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
+import { IconAction } from '@/shared/ui/IconAction/IconAction'
 import './ImageSourceField.css'
 
 type ImageSourceFieldProps = {
@@ -37,18 +38,17 @@ export function ImageSourceField({
 
   return (
     <div className="image-source-field">
-      <div className="image-source-field__row">
-        <span className="image-source-field__icon" aria-hidden>
-          <Link2 size={16} strokeWidth={1.75} />
-        </span>
-        <input
-          className="admin-input"
-          value={value.startsWith('data:image/') ? '' : value}
-          placeholder={value.startsWith('data:image/') ? 'Imagen local (WebP) cargada' : placeholder}
-          disabled={disabled || busy}
-          onChange={(event) => onChange(event.target.value)}
-        />
-        <label className="image-source-field__upload" htmlFor={inputId} title="Subir imagen local">
+      <span className="image-source-field__icon" aria-hidden>
+        <Link2 size={16} strokeWidth={1.75} />
+      </span>
+      <input
+        className="admin-input"
+        value={value.startsWith('data:image/') ? '' : value}
+        placeholder={value.startsWith('data:image/') ? 'Imagen local (WebP) cargada' : placeholder}
+        disabled={disabled || busy}
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <label className="image-source-field__upload" htmlFor={inputId} title="Subir imagen local">
           <input
             id={inputId}
             type="file"
@@ -62,21 +62,13 @@ export function ImageSourceField({
             }}
           />
           <ImagePlus size={16} strokeWidth={1.75} aria-hidden />
-          {busy ? '…' : 'Subir'}
-        </label>
-      </div>
+        {busy ? '…' : 'Subir'}
+      </label>
       {value ? (
-        <div className="image-source-field__preview">
-          <img src={value} alt="" />
-          <button
-            type="button"
-            className="admin-btn admin-btn--ghost"
-            disabled={disabled || busy}
-            onClick={() => onChange('')}
-          >
-            Quitar
-          </button>
-        </div>
+        <>
+          <img className="image-source-field__preview" src={value} alt="" />
+          <IconAction label="Quitar" variant="delete" disabled={disabled || busy} onClick={() => onChange('')} />
+        </>
       ) : null}
     </div>
   )

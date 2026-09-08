@@ -1,9 +1,9 @@
 :root {
   /* Escala única de grises (4) */
-  --color-gris-oscuro: #1a1a1a;
-  --color-gris-claro: #f7f7f7;
-  --color-gris: #757575; /* grisgis — texto/iconos secundarios */
-  --color-gris-casi-invisible: #e5e5e5; /* bordes y divisores */
+  --color-gris-oscuro: #2d3238;
+  --color-gris-claro: #f3f3f3;
+  --color-gris: #5b5a5a; /* grisgis — texto/iconos secundarios */
+  --color-gris-casi-invisible: #d1d1d1; /* bordes y divisores */
 
   /* Marca Importadora Premium (COLOR.md) */
   --brand-gray-light: #E6E7E8;
@@ -45,7 +45,7 @@
   --header-height: 64px;
   --radius-badge: 6px;
   --radius-card: 12px;
-  --radius-input: 24px;
+  --radius-input: 5px;
   --shadow-card-hover: 0 6px 20px rgba(0, 0, 0, 0.1);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.06);
   --sidebar-width: 222px;

@@ -44,6 +44,14 @@
         "icon": "content",
         "routeKey": "contenido/landing",
         "permissionsAllowed": ["contenido/landing"]
+      },
+      {
+        "id": "menu_bot_mgmt",
+        "title": "Gestión botIP",
+        "path": "/contenido/bot",
+        "icon": "content",
+        "routeKey": "contenido/bot",
+        "permissionsAllowed": ["contenido/bot"]
       }
     ]
   },
@@ -53,30 +61,6 @@
     "path": "/operacion",
     "icon": "operation",
     "children": [
-      {
-        "id": "menu_orders",
-        "title": "Gestión pedidos",
-        "path": "/operacion/pedidos",
-        "icon": "orders",
-        "routeKey": "operacion/pedidos",
-        "permissionsAllowed": ["operacion/pedidos"]
-      },
-      {
-        "id": "menu_clients",
-        "title": "Gestión clientes",
-        "path": "/operacion/clientes",
-        "icon": "clients",
-        "routeKey": "operacion/clientes",
-        "permissionsAllowed": ["operacion/clientes"]
-      },
-      {
-        "id": "menu_shipments",
-        "title": "Gestión envíos",
-        "path": "/operacion/envios",
-        "icon": "shipments",
-        "routeKey": "operacion/envios",
-        "permissionsAllowed": ["operacion/envios"]
-      },
       {
         "id": "menu_products",
         "title": "Gestión productos",
@@ -92,6 +76,30 @@
         "icon": "list",
         "routeKey": "operacion/categorias",
         "permissionsAllowed": ["operacion/categorias"]
+      },
+      {
+        "id": "menu_clients",
+        "title": "Gestión clientes",
+        "path": "/operacion/clientes",
+        "icon": "clients",
+        "routeKey": "operacion/clientes",
+        "permissionsAllowed": ["operacion/clientes"]
+      },
+      {
+        "id": "menu_orders",
+        "title": "Gestión pedidos",
+        "path": "/operacion/pedidos",
+        "icon": "orders",
+        "routeKey": "operacion/pedidos",
+        "permissionsAllowed": ["operacion/pedidos"]
+      },
+      {
+        "id": "menu_shipments",
+        "title": "Gestión envíos",
+        "path": "/operacion/envios",
+        "icon": "shipments",
+        "routeKey": "operacion/envios",
+        "permissionsAllowed": ["operacion/envios"]
       }
     ]
   },
@@ -132,14 +140,6 @@
     "path": "/configuracion",
     "icon": "settings",
     "children": [
-      {
-        "id": "menu_settings_general",
-        "title": "Configuración general",
-        "path": "/configuracion/ajustes",
-        "icon": "settings",
-        "routeKey": "configuracion/ajustes",
-        "permissionsAllowed": ["configuracion/ajustes"]
-      },
       {
         "id": "menu_profile",
         "title": "Gestión de perfil",

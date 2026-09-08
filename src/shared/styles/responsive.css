@@ -72,12 +72,15 @@ body,
   }
 
   .landing {
-    display: block;
-    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
   }
 
   .landing__main {
-    min-height: 100dvh;
+    min-height: 0;
     width: 100%;
   }
 
@@ -130,6 +133,8 @@ body,
     border-radius: 10px;
     margin: 0 -2px;
     max-width: calc(100% + 4px);
+    text-align: center;
+    align-content: center;
   }
 
   .admin-table th,

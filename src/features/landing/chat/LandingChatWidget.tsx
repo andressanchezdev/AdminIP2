@@ -1,7 +1,18 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { answerLandingChat, type ChatReply } from './answerChat'
-import { greetingReply } from './intents'
+import {
+  commitUserMessage,
+  endChatSession,
+  isContextFollowUp,
+  isFreshConversation,
+  priorUserMessages,
+  startChatSession,
+} from './chatContext'
+import { chatDraftError, readChatGuard, registerChatSend } from './chatGuard'
+import { getBotSettings } from './botSettings'
+import { greetingReply, type ChatAction } from './intents'
+import { downloadLandingCatalog } from '../lib/downloadLandingCatalog'
 
 type ChatMessage = {
   id: string
@@ -12,18 +23,33 @@ type ChatMessage = {
 
 const REPLY_DELAY_MS = 700
 
-function ChatLink({ href, label, external }: { href: string; label: string; external?: boolean }) {
-  if (external || href.startsWith('http') || href.startsWith('mailto:')) {
+function ChatLink({ action }: { action: ChatAction }) {
+  if (action.kind === 'catalog-download') {
+    return (
+      <button
+        type="button"
+        className="landing-chat__action"
+        onClick={() => {
+          void downloadLandingCatalog()
+        }}
+      >
+        {action.label}
+      </button>
+    )
+  }
+
+  const href = action.href || '/'
+  if (action.external || href.startsWith('http') || href.startsWith('mailto:')) {
     return (
       <a className="landing-chat__action" href={href} target="_blank" rel="noreferrer">
-        {label}
+        {action.label}
       </a>
     )
   }
 
   return (
     <Link className="landing-chat__action" to={href}>
-      {label}
+      {action.label}
     </Link>
   )
 }
@@ -43,28 +69,78 @@ export function LandingChatWidget() {
   const inputRef = useRef<HTMLInputElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const replyTimer = useRef<number | null>(null)
+  const limits = getBotSettings()
   const welcome = greetingReply()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [typing, setTyping] = useState(false)
+  const [notice, setNotice] = useState('')
+  const [blockedMessage, setBlockedMessage] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([
     { id: 'welcome', role: 'bot', text: welcome.text, reply: welcome },
   ])
 
   useEffect(() => {
+    startChatSession()
     return () => {
       if (replyTimer.current) window.clearTimeout(replyTimer.current)
+      endChatSession()
     }
+  }, [])
+
+  const refreshBlock = () => {
+    const guard = readChatGuard()
+    setBlockedMessage(guard.blocked ? guard.message : '')
+    return guard.blocked
+  }
+
+  useEffect(() => {
+    refreshBlock()
+    const timer = window.setInterval(refreshBlock, 1000)
+    return () => window.clearInterval(timer)
   }, [])
 
   const pushQuery = (query: string) => {
     const text = query.trim()
-    if (!text || typing) return
+    if (typing) return
+    if (refreshBlock()) return
 
-    const reply = answerLandingChat(text)
-    setTyping(true)
+    const error = chatDraftError(text)
+    if (error) {
+      setNotice(error)
+      return
+    }
+
+    const guard = registerChatSend(text)
+    if (guard.blocked) {
+      setBlockedMessage(guard.message)
+      setNotice('')
+      setMessages((current) => [
+        ...current,
+        { id: `block-${current.length}`, role: 'bot', text: guard.message },
+      ])
+      return
+    }
+
+    setNotice('')
     setDraft('')
     setMessages((current) => [...current, { id: `user-${current.length}`, role: 'user', text }])
+    setTyping(true)
+
+    let reply: ChatReply
+    try {
+      const fresh = isFreshConversation(text)
+      const history = fresh ? [] : priorUserMessages(text)
+      reply = answerLandingChat(text, history)
+      if (fresh) commitUserMessage(text, 'clear')
+      else if (isContextFollowUp(text)) commitUserMessage(text, 'append')
+      else commitUserMessage(text, 'replace')
+    } catch {
+      reply = {
+        text: 'Tuve un inconveniente al preparar la respuesta y no quiero dejarte sin una respuesta. Escríbeme de nuevo o te contacto con un asesor por WhatsApp.',
+        actions: [],
+      }
+    }
 
     replyTimer.current = window.setTimeout(() => {
       setMessages((current) => [
@@ -119,7 +195,7 @@ export function LandingChatWidget() {
                 {message.reply?.actions.length ? (
                   <div className="landing-chat__actions">
                     {message.reply.actions.map((action) => (
-                      <ChatLink key={action.label} href={action.href} label={action.label} external={action.external} />
+                      <ChatLink key={action.label} action={action} />
                     ))}
                   </div>
                 ) : null}
@@ -132,22 +208,37 @@ export function LandingChatWidget() {
             ) : null}
           </div>
 
+          {blockedMessage ? <p className="landing-chat__block">{blockedMessage}</p> : null}
+          {notice ? <p className="landing-chat__notice">{notice}</p> : null}
+
           <form className="landing-chat__form" onSubmit={submit}>
             <input
               ref={inputRef}
               className="landing-chat__input"
               value={draft}
-              onChange={(event) => setDraft(event.target.value)}
+              onChange={(event) => {
+                setDraft(event.target.value.slice(0, limits.maxChars))
+                if (notice) setNotice('')
+              }}
               onKeyDown={onKeyDown}
               placeholder="Escribe tu consulta"
               aria-label="Mensaje"
               autoComplete="off"
-              disabled={typing}
+              minLength={limits.minChars}
+              maxLength={limits.maxChars}
+              disabled={typing || Boolean(blockedMessage)}
             />
-            <button type="submit" className="landing-chat__send" disabled={!draft.trim() || typing}>
+            <button
+              type="submit"
+              className="landing-chat__send"
+              disabled={typing || Boolean(blockedMessage) || draft.trim().length < limits.minChars}
+            >
               Enviar
             </button>
           </form>
+          <p className="landing-chat__count">
+            {draft.trim().length}/{limits.maxChars}
+          </p>
         </section>
       ) : null}
 
@@ -158,7 +249,7 @@ export function LandingChatWidget() {
         aria-controls={panelId}
         onClick={toggle}
       >
-        {open ? 'Cerrar' : 'Atención'}
+        Atención
       </button>
     </div>
   )
