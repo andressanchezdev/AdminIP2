@@ -14,6 +14,7 @@ import {
 import { confirmAction, notifyError, notifySuccess } from '@/shared/lib/notify'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import {
   AdminRowCard,
   ResponsiveTableShell,
@@ -52,15 +53,21 @@ export function VacanciesAdminPage() {
   const refresh = () => setTick((value) => value + 1)
 
   const [statusFilter, setStatusFilter] = useState<VacancyStatus | 'all'>('all')
+  const [query, setQuery] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<VacancyRecord | null>(null)
   const [form, setForm] = useState<VacancyFormState>(emptyForm)
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof VacancyFormState, string>>>({})
 
   const vacancies = useMemo(
-    () => listVacancies(statusFilter),
+    () => {
+      const q = query.trim().toLowerCase()
+      const list = listVacancies(statusFilter)
+      if (!q) return list
+      return list.filter((vacancy) => vacancy.title.toLowerCase().includes(q) || vacancy.location.toLowerCase().includes(q))
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mock array mutates in place
-    [statusFilter, mockVacancies.length, mockVacancies.map((v) => `${v.status}:${v.updatedAt}`).join()],
+    [statusFilter, query, mockVacancies.length, mockVacancies.map((v) => `${v.status}:${v.updatedAt}`).join()],
   )
 
   const {
@@ -72,7 +79,7 @@ export function VacanciesAdminPage() {
     rangeStart,
     rangeEnd,
     pageSize,
-  } = useTablePagination(vacancies, { resetKey: statusFilter })
+  } = useTablePagination(vacancies, { resetKey: `${statusFilter}|${query}` })
 
   const openCreate = () => {
     setEditing(null)
@@ -232,6 +239,11 @@ export function VacanciesAdminPage() {
     <div className="admin-page">
       <div className="admin-toolbar">
         <div className="admin-toolbar__filters">
+          <SearchInput
+            appliedValue={query}
+            placeholder="Buscar por título o ubicación… (pulse Enter)"
+            onSearch={setQuery}
+          />
           <select
             className="admin-input"
             aria-label="Filtrar por estado"

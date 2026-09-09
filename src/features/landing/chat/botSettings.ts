@@ -2,6 +2,7 @@ const STORAGE_KEY = 'botip-settings'
 
 export type BotReplyConfig = {
   keywords: string
+  paused?: string
   text: string
 }
 
@@ -160,8 +161,36 @@ export function applyBotText(id: string, fallback: string, vars: Record<string, 
   )
 }
 
+export type BotKeywordItem = {
+  word: string
+  enabled: boolean
+}
+
+export function parseKeywordList(keywords: string, paused = ''): BotKeywordItem[] {
+  const pausedSet = new Set(
+    paused.split(',').map((item) => item.trim().toLowerCase()).filter(Boolean),
+  )
+  const seen = new Set<string>()
+  const list: BotKeywordItem[] = []
+  for (const raw of keywords.split(',')) {
+    const word = raw.trim().toLowerCase()
+    if (!word || seen.has(word)) continue
+    seen.add(word)
+    list.push({ word, enabled: !pausedSet.has(word) })
+  }
+  return list
+}
+
+export function serializeKeywordList(list: readonly BotKeywordItem[]) {
+  return {
+    keywords: list.map((item) => item.word).join(', '),
+    paused: list.filter((item) => !item.enabled).map((item) => item.word).join(', '),
+  }
+}
+
 export function keywordsOf(id: string, fallback: readonly string[]) {
-  const raw = getBotSettings().replies[id]?.keywords
+  const reply = getBotSettings().replies[id]
+  const raw = reply?.keywords
   if (!raw?.trim()) return [...fallback]
-  return raw.split(',').map((item) => item.trim().toLowerCase()).filter(Boolean)
+  return parseKeywordList(raw, reply?.paused).filter((item) => item.enabled).map((item) => item.word)
 }

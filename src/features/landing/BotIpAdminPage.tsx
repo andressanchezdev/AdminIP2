@@ -1,16 +1,21 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   BOT_REPLY_FIELDS,
+  DEFAULT_BOT_SETTINGS,
   getBotSettings,
-  resetBotSettings,
   saveBotSettings,
   type BotSettings,
 } from './chat/botSettings'
 import { notifySuccess } from '@/shared/lib/notify'
 import { ContentBack } from './ContentBack'
+import { BotKeywordList } from './components/BotKeywordList'
+import { BotReplyPreview } from './components/BotReplyPreview'
 import './BotIpAdminPage.css'
 import './contentStudio.css'
+import './LandingAdminPage.css'
+
+const LIMITS_ID = 'limites'
 
 const BOT_GROUPS: Array<{ id: string; title: string; hint: string; ids: string[] }> = [
   {
@@ -45,111 +50,191 @@ const BOT_GROUPS: Array<{ id: string; title: string; hint: string; ids: string[]
   },
 ]
 
+const REPLY_GROUPS = (() => {
+  const used = new Set(BOT_GROUPS.flatMap((group) => group.ids))
+  const rest = BOT_REPLY_FIELDS.filter((field) => !used.has(field.id)).map((field) => field.id)
+  return rest.length
+    ? [...BOT_GROUPS, { id: 'otras', title: 'Otras respuestas', hint: 'Respuestas que no están en un grupo.', ids: rest }]
+    : BOT_GROUPS
+})()
+
+const HUB_ITEMS: Array<{ id: string; title: string; hint: string }> = [
+  { id: LIMITS_ID, title: 'Límites del chat', hint: 'Bienvenida, largo del mensaje y bloqueo por ráfaga.' },
+  ...REPLY_GROUPS,
+]
+
+const HUB_IDS = new Set(HUB_ITEMS.map((item) => item.id))
+
+function clampSettings(form: BotSettings): BotSettings {
+  return {
+    ...form,
+    minChars: Math.max(1, Number(form.minChars) || 3),
+    maxChars: Math.max(3, Number(form.maxChars) || 250),
+    blockMinutes: Math.max(1, Number(form.blockMinutes) || 5),
+    burstLimit: Math.max(2, Number(form.burstLimit) || 8),
+  }
+}
+
 export function BotIpAdminPage() {
   const navigate = useNavigate()
+  const { section } = useParams()
   const [form, setForm] = useState<BotSettings>(() => getBotSettings())
+  const group = REPLY_GROUPS.find((item) => item.id === section)
+  const hubItem = HUB_ITEMS.find((item) => item.id === section)
+
+  useEffect(() => {
+    if (section && !HUB_IDS.has(section)) {
+      navigate('/contenido/bot', { replace: true })
+      return
+    }
+    setForm(getBotSettings())
+  }, [navigate, section])
 
   const save = () => {
-    const next = {
-      ...form,
-      minChars: Math.max(1, Number(form.minChars) || 3),
-      maxChars: Math.max(3, Number(form.maxChars) || 250),
-      blockMinutes: Math.max(1, Number(form.blockMinutes) || 5),
-      burstLimit: Math.max(2, Number(form.burstLimit) || 8),
-    }
+    const next = clampSettings(form)
     saveBotSettings(next)
     setForm(next)
     notifySuccess('BotIP actualizado')
   }
 
   const restore = () => {
-    resetBotSettings()
-    setForm(getBotSettings())
+    const current = getBotSettings()
+    const defaults = DEFAULT_BOT_SETTINGS
+    let next = current
+    if (section === LIMITS_ID) {
+      next = {
+        ...current,
+        minChars: defaults.minChars,
+        maxChars: defaults.maxChars,
+        blockMinutes: defaults.blockMinutes,
+        burstLimit: defaults.burstLimit,
+        welcome: defaults.welcome,
+      }
+    } else if (group) {
+      const replies = { ...current.replies }
+      for (const id of group.ids) {
+        replies[id] = { ...defaults.replies[id] }
+      }
+      next = { ...current, replies }
+    }
+    saveBotSettings(next)
+    setForm(next)
     notifySuccess('Valores por defecto restaurados')
   }
 
-  const setReply = (id: string, key: 'text' | 'keywords', value: string) => {
+  const setReply = (id: string, patch: Partial<{ text: string; keywords: string; paused: string }>) => {
     setForm((current) => ({
       ...current,
       replies: {
         ...current.replies,
-        [id]: { ...current.replies[id], [key]: value },
+        [id]: { ...current.replies[id], ...patch },
       },
     }))
   }
 
+  const back = () => {
+    if (!section) {
+      navigate(-1)
+      return
+    }
+    navigate('/contenido/bot')
+  }
+
+  if (!section) {
+    return (
+      <div className="content-studio">
+        <div className="content-card">
+          <ContentBack onBack={back} />
+          <div className="landing-admin__grid">
+            {HUB_ITEMS.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                className="landing-admin__card"
+                onClick={() => navigate(`/contenido/bot/${item.id}`)}
+              >
+                <strong>{item.title}</strong>
+                <span>{item.hint}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  const fields = (group?.ids ?? [])
+    .map((id) => BOT_REPLY_FIELDS.find((field) => field.id === id))
+    .filter((field): field is (typeof BOT_REPLY_FIELDS)[number] => Boolean(field))
+
   return (
     <section className="content-studio">
-      <ContentBack onBack={() => navigate(-1)} />
-      <details className="content-accordion">
-        <summary className="content-accordion__trigger">Límites del chat</summary>
-        <div className="content-accordion__panel">
-          <label>
-            Mensaje de bienvenida
-            <textarea className="admin-input" value={form.welcome} onChange={(event) => setForm({ ...form, welcome: event.target.value })} />
-          </label>
-          <label>
-            Mínimo de caracteres
-            <input className="admin-input" type="number" value={form.minChars} onChange={(event) => setForm({ ...form, minChars: Number(event.target.value) })} />
-          </label>
-          <label>
-            Máximo de caracteres
-            <input className="admin-input" type="number" value={form.maxChars} onChange={(event) => setForm({ ...form, maxChars: Number(event.target.value) })} />
-          </label>
-          <label>
-            Bloqueo (minutos)
-            <input className="admin-input" type="number" value={form.blockMinutes} onChange={(event) => setForm({ ...form, blockMinutes: Number(event.target.value) })} />
-          </label>
-          <label>
-            Mensajes seguidos antes de bloquear
-            <input className="admin-input" type="number" value={form.burstLimit} onChange={(event) => setForm({ ...form, burstLimit: Number(event.target.value) })} />
-          </label>
+      <div className="content-card">
+        <div className="admin-toolbar">
+          <ContentBack onBack={back} />
+          <div className="landing-admin__actions">
+            <button type="button" className="admin-btn" onClick={save}>Guardar</button>
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={restore}>Restaurar valores por defecto</button>
+          </div>
         </div>
-      </details>
-      {[
-        ...BOT_GROUPS,
-        ...(() => {
-          const used = new Set(BOT_GROUPS.flatMap((group) => group.ids))
-          const rest = BOT_REPLY_FIELDS.filter((field) => !used.has(field.id)).map((field) => field.id)
-          return rest.length ? [{ id: 'otras', title: 'Otras respuestas', hint: 'Respuestas que no están en un grupo.', ids: rest }] : []
-        })(),
-      ].map((group) => {
-        const fields = group.ids
-          .map((id) => BOT_REPLY_FIELDS.find((field) => field.id === id))
-          .filter((field): field is (typeof BOT_REPLY_FIELDS)[number] => Boolean(field))
-        return (
-          <details key={group.id} className="content-accordion">
-            <summary className="content-accordion__trigger">{group.title}</summary>
-            <div className="content-accordion__panel">
-              <p className="content-card__subtitle content-accordion__hint">{group.hint}</p>
-              {fields.map((field) => (
-                <div key={field.id} className="content-accordion__field">
-                  <h3 className="content-card__title content-accordion__name">{field.label}</h3>
-                  <label>
-                    Palabras clave
-                    <input
-                      className="admin-input"
-                      value={form.replies[field.id]?.keywords ?? ''}
-                      onChange={(event) => setReply(field.id, 'keywords', event.target.value)}
-                    />
-                  </label>
-                  <label>
-                    Respuesta
-                    <textarea
-                      className="admin-input"
-                      value={form.replies[field.id]?.text ?? ''}
-                      onChange={(event) => setReply(field.id, 'text', event.target.value)}
-                    />
-                  </label>
+        <h2 className="content-card__title">{hubItem?.title ?? 'Gestión botIP'}</h2>
+        <div className={section === LIMITS_ID ? 'content-studio__cols content-studio__cols--limites' : 'content-studio__cols'}>
+          {section === LIMITS_ID ? (
+            <>
+              <section className="landing-admin__block">
+                <h3>Reglas para la respuesta</h3>
+                <div className="bot-limits">
+                  <div className="bot-limits__row">
+                    <label className="admin-form__field">
+                      Mínimo de caracteres
+                      <input className="admin-input" type="number" value={form.minChars} onChange={(event) => setForm({ ...form, minChars: Number(event.target.value) })} />
+                    </label>
+                    <label className="admin-form__field">
+                      Máximo de caracteres
+                      <input className="admin-input" type="number" value={form.maxChars} onChange={(event) => setForm({ ...form, maxChars: Number(event.target.value) })} />
+                    </label>
+                  </div>
+                  <div className="bot-limits__row">
+                    <label className="admin-form__field">
+                      Tiempo de bloqueo
+                      <input className="admin-input" type="number" value={form.blockMinutes} onChange={(event) => setForm({ ...form, blockMinutes: Number(event.target.value) })} />
+                    </label>
+                    <label className="admin-form__field">
+                      Límite de mensajes
+                      <input className="admin-input" type="number" value={form.burstLimit} onChange={(event) => setForm({ ...form, burstLimit: Number(event.target.value) })} />
+                    </label>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </details>
-        )
-      })}
-      <div className="content-studio__actions">
-        <button type="button" className="admin-btn" onClick={save}>Guardar</button>
-        <button type="button" className="admin-btn admin-btn--ghost" onClick={restore}>Restaurar valores por defecto</button>
+              </section>
+              <section className="landing-admin__block">
+                <h3>Mensaje de bienvenida</h3>
+                <BotReplyPreview
+                  previewLabel="Así lo verá el visitante"
+                  title="Editar mensaje"
+                  value={form.welcome}
+                  onChange={(welcome) => setForm({ ...form, welcome })}
+                />
+              </section>
+            </>
+          ) : (
+            fields.map((field) => (
+              <div key={field.id} className="landing-admin__block">
+                <h3>{field.label}</h3>
+                <div className="content-studio__split">
+                  <BotKeywordList
+                    keywords={form.replies[field.id]?.keywords ?? ''}
+                    paused={form.replies[field.id]?.paused}
+                    onChange={(next) => setReply(field.id, next)}
+                  />
+                  <BotReplyPreview
+                    value={form.replies[field.id]?.text ?? ''}
+                    onChange={(text) => setReply(field.id, { text })}
+                  />
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </section>
   )

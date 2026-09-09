@@ -55,6 +55,10 @@ const SECTIONS: Array<{ id: Exclude<View, 'hub'>; title: string; hint: string }>
   { id: 'company', title: 'Nosotros', hint: 'Imagen, título y texto de la sección.' },
 ]
 
+function sectionCopy(id: Exclude<View, 'hub'>) {
+  return SECTIONS.find((item) => item.id === id) ?? { title: '', hint: '' }
+}
+
 function Field({
   label,
   value,
@@ -81,19 +85,28 @@ function Field({
 }
 
 function EditorShell({
+  heading,
+  hint,
+  onBack,
   onSave,
   onReset,
   canUpdate,
+  colsClass,
   children,
 }: {
+  heading: string
+  hint: string
+  onBack: () => void
   onSave: () => void
   onReset: () => void
   canUpdate: boolean
+  colsClass?: string
   children: ReactNode
 }) {
   return (
     <div className="content-card">
       <div className="admin-toolbar">
+        <ContentBack onBack={onBack} />
         <div className="landing-admin__actions">
           <button type="button" className="admin-btn admin-btn--ghost" disabled={!canUpdate} onClick={onReset}>
             Restaurar maqueta
@@ -103,7 +116,9 @@ function EditorShell({
           </button>
         </div>
       </div>
-      <div className="content-studio__cols">{children}</div>
+      <h2 className="content-card__title">{heading}</h2>
+      <p className="content-card__subtitle">{hint}</p>
+      <div className={colsClass ? `content-studio__cols ${colsClass}` : 'content-studio__cols'}>{children}</div>
     </div>
   )
 }
@@ -118,13 +133,18 @@ function SplitFields({
   onChange: (value: LandingSplitBlock) => void
 }) {
   return (
-    <section className="landing-admin__block">
-      <ImageSourceField value={value.image} disabled={disabled} onChange={(image) => onChange({ ...value, image })} />
-      <Field label="Texto alternativo" value={value.alt} disabled={disabled} onChange={(alt) => onChange({ ...value, alt })} />
-      <Field label="Etiqueta" value={value.eyebrow} disabled={disabled} onChange={(eyebrow) => onChange({ ...value, eyebrow })} />
-      <Field label="Título" value={value.title} disabled={disabled} onChange={(titleValue) => onChange({ ...value, title: titleValue })} />
-      <Field label="Texto" value={value.text} disabled={disabled} multiline onChange={(text) => onChange({ ...value, text })} />
-    </section>
+    <>
+      <section className="landing-admin__block landing-admin__block--narrow">
+        <Field label="Texto alternativo" value={value.alt} disabled={disabled} onChange={(alt) => onChange({ ...value, alt })} />
+        <Field label="Etiqueta" value={value.eyebrow} disabled={disabled} onChange={(eyebrow) => onChange({ ...value, eyebrow })} />
+        <Field label="Título" value={value.title} disabled={disabled} onChange={(titleValue) => onChange({ ...value, title: titleValue })} />
+        <Field label="Texto" value={value.text} disabled={disabled} multiline onChange={(text) => onChange({ ...value, text })} />
+      </section>
+      <section className="landing-admin__block">
+        <h3>Imagen</h3>
+        <ImageSourceField value={value.image} disabled={disabled} onChange={(image) => onChange({ ...value, image })} />
+      </section>
+    </>
   )
 }
 
@@ -204,8 +224,10 @@ export function LandingAdminPage() {
   if (view === 'team') {
     return (
       <div className="content-studio">
-        <ContentBack onBack={back} />
-        <LandingTeamAdminPage />
+        <div className="content-card">
+          <ContentBack onBack={back} />
+          <LandingTeamAdminPage />
+        </div>
       </div>
     )
   }
@@ -213,30 +235,28 @@ export function LandingAdminPage() {
   if (view === 'hub') {
     return (
       <div className="content-studio">
-        <ContentBack onBack={back} />
-        <div className="landing-admin__grid">
-          {SECTIONS.map((item) => (
-            <button key={item.id} type="button" className="landing-admin__card" onClick={() => open(item.id)}>
-              <strong>{item.title}</strong>
-              <span>{item.hint}</span>
-            </button>
-          ))}
+        <div className="content-card">
+          <ContentBack onBack={back} />
+          <div className="landing-admin__grid">
+            {SECTIONS.map((item) => (
+              <button key={item.id} type="button" className="landing-admin__card" onClick={() => open(item.id)}>
+                <strong>{item.title}</strong>
+                <span>{item.hint}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     )
   }
 
-  const shell = (node: ReactNode) => (
-    <div className="content-studio">
-      <ContentBack onBack={back} />
-      {node}
-    </div>
-  )
+  const shell = (node: ReactNode) => <div className="content-studio">{node}</div>
 
   if (view === 'hero') {
     return shell(
-      <EditorShell onSave={() => save('hero')} onReset={() => reset('hero')} canUpdate={canUpdate}>
+      <EditorShell heading={sectionCopy('hero').title} hint={sectionCopy('hero').hint} onBack={back} onSave={() => save('hero')} onReset={() => reset('hero')} canUpdate={canUpdate} colsClass="content-studio__cols--hero">
         <section className="landing-admin__block">
+          <h3>Fondos</h3>
           {draft.hero.backgrounds.map((src, index) => (
             <ImageSourceField
               key={`hero-bg-${index}`}
@@ -247,10 +267,14 @@ export function LandingAdminPage() {
                 backgrounds[index] = value
                 setDraft({ ...draft, hero: { ...draft.hero, backgrounds } })
               }}
+              onAdd={index === draft.hero.backgrounds.length - 1
+                ? () => setDraft({ ...draft, hero: { ...draft.hero, backgrounds: [...draft.hero.backgrounds, ''] } })
+                : undefined}
             />
           ))}
         </section>
         <section className="landing-admin__block">
+          <h3>Textos</h3>
           <Field label="Título" value={draft.hero.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, hero: { ...draft.hero, title } })} />
           <Field label="Subtítulo" value={draft.hero.subtitle} disabled={!canUpdate} multiline onChange={(subtitle) => setDraft({ ...draft, hero: { ...draft.hero, subtitle } })} />
           <Field label="Botón" value={draft.hero.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, hero: { ...draft.hero, cta } })} />
@@ -267,10 +291,10 @@ export function LandingAdminPage() {
       })
     }
     return shell(
-      <EditorShell onSave={() => save('stats')} onReset={() => reset('stats')} canUpdate={canUpdate}>
+      <EditorShell heading={sectionCopy('stats').title} hint={sectionCopy('stats').hint} onBack={back} onSave={() => save('stats')} onReset={() => reset('stats')} canUpdate={canUpdate} colsClass="content-studio__cols--cifras">
         {draft.stats.map((item, index) => (
-          <section key={item.id} className="landing-admin__block">
-            <h3>cifras {index + 1}</h3>
+          <section key={item.id} className="landing-admin__block landing-admin__block--compact">
+            <h3>Cifra {index + 1}</h3>
             <Field label="Texto inicial" value={item.lead} disabled={!canUpdate} onChange={(lead) => updateSlide(item.id, { lead })} />
             <Field label="Número" value={String(item.value)} disabled={!canUpdate} onChange={(value) => updateSlide(item.id, { value: Number(value.replace(/\D/g, '')) || 0 })} />
             <Field label="Texto final" value={item.trail} disabled={!canUpdate} onChange={(trail) => updateSlide(item.id, { trail })} />
@@ -282,11 +306,16 @@ export function LandingAdminPage() {
 
   if (view === 'split' || view === 'mission') {
     const part = view === 'mission' ? 'mission' : 'vision'
+    const copy = sectionCopy(part === 'mission' ? 'mission' : 'split')
     return shell(
       <EditorShell
+        heading={copy.title}
+        hint={copy.hint}
+        onBack={back}
         onSave={() => saveSplit(part)}
         onReset={() => resetSplit(part)}
         canUpdate={canUpdate}
+        colsClass="content-studio__cols--marcas"
       >
         <SplitFields
           value={draft.split[part]}
@@ -308,28 +337,42 @@ export function LandingAdminPage() {
       })
     }
     return shell(
-      <EditorShell onSave={() => save('catalog')} onReset={() => reset('catalog')} canUpdate={canUpdate}>
+      <EditorShell heading={sectionCopy('catalog').title} hint={sectionCopy('catalog').hint} onBack={back} onSave={() => save('catalog')} onReset={() => reset('catalog')} canUpdate={canUpdate}>
         <section className="landing-admin__block">
-          <h3>Catálogo</h3>
+          <h3>Título</h3>
           <Field label="Título de la sección" value={draft.catalog.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, catalog: { ...draft.catalog, title } })} />
-          <Field label="Texto del botón" value={draft.catalog.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, catalog: { ...draft.catalog, cta } })} />
         </section>
         {draft.catalog.options.map((option) => (
           <section key={option.id} className="landing-admin__block">
             <h3>{option.label || 'Categoría'}</h3>
-            <Field label="Nombre" value={option.label} disabled={!canUpdate} onChange={(label) => updateOption(option.id, { label })} />
-            <ImageSourceField
-              value={option.images[0]}
-              disabled={!canUpdate}
-              onChange={(src) => updateOption(option.id, { images: [src, option.images[1]] })}
-            />
-            <ImageSourceField
-              value={option.images[1]}
-              disabled={!canUpdate}
-              onChange={(src) => updateOption(option.id, { images: [option.images[0], src] })}
-            />
+            <div className="landing-admin__list-row">
+              <input
+                className="admin-input"
+                aria-label="Nombre de la categoría"
+                placeholder="Nombre"
+                value={option.label}
+                disabled={!canUpdate}
+                onChange={(event) => updateOption(option.id, { label: event.target.value })}
+              />
+              <div className="landing-admin__list-stack">
+                <ImageSourceField
+                  value={option.images[0]}
+                  disabled={!canUpdate}
+                  onChange={(src) => updateOption(option.id, { images: [src, option.images[1]] })}
+                />
+                <ImageSourceField
+                  value={option.images[1]}
+                  disabled={!canUpdate}
+                  onChange={(src) => updateOption(option.id, { images: [option.images[0], src] })}
+                />
+              </div>
+            </div>
           </section>
         ))}
+        <section className="landing-admin__block">
+          <h3>Botón</h3>
+          <Field label="Texto del botón" value={draft.catalog.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, catalog: { ...draft.catalog, cta } })} />
+        </section>
       </EditorShell>
     )
   }
@@ -345,31 +388,27 @@ export function LandingAdminPage() {
       })
     }
     return shell(
-      <EditorShell onSave={() => save('brands')} onReset={() => reset('brands')} canUpdate={canUpdate}>
+      <EditorShell heading={sectionCopy('brands').title} hint={sectionCopy('brands').hint} onBack={back} onSave={() => save('brands')} onReset={() => reset('brands')} canUpdate={canUpdate} colsClass="content-studio__cols--marcas">
         <section className="landing-admin__block">
-          <h3>Marcas</h3>
+          <h3>Título</h3>
           <Field label="Título" value={draft.brands.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, brands: { ...draft.brands, title } })} />
           <Field label="Texto" value={draft.brands.lead} disabled={!canUpdate} multiline onChange={(lead) => setDraft({ ...draft, brands: { ...draft.brands, lead } })} />
           <ImageSourceField value={draft.brands.background} disabled={!canUpdate} onChange={(background) => setDraft({ ...draft, brands: { ...draft.brands, background } })} />
         </section>
-        <div className="landing-admin__actions">
-          <button
-            type="button"
-            className="admin-btn"
-            disabled={!canUpdate}
-            onClick={() => {
-              const item: LandingBrandItem = { id: `marca-${Date.now()}`, name: 'Nueva marca', url: '', visible: false }
-              setDraft({ ...draft, brands: { ...draft.brands, items: [...draft.brands.items, item] } })
-            }}
-          >
-            Agregar marca
-          </button>
-        </div>
-        {draft.brands.items.map((item) => (
-          <section key={item.id} className="landing-admin__block">
-            <div className="landing-admin__row">
-              <h3>{item.name || 'Marca'}</h3>
-              <label>
+        <section className="landing-admin__block">
+          <h3>Marcas</h3>
+          {draft.brands.items.map((item) => (
+            <div key={item.id} className="landing-admin__list-row">
+              <input
+                className="admin-input"
+                aria-label="Nombre de la marca"
+                placeholder="Nombre"
+                value={item.name}
+                disabled={!canUpdate}
+                onChange={(event) => updateBrand(item.id, { name: event.target.value })}
+              />
+              <ImageSourceField value={item.url} disabled={!canUpdate} onChange={(url) => updateBrand(item.id, { url })} />
+              <label className="landing-admin__list-check">
                 <input
                   type="checkbox"
                   checked={item.visible}
@@ -379,24 +418,38 @@ export function LandingAdminPage() {
                 Mostrar
               </label>
             </div>
-            <Field label="Nombre" value={item.name} disabled={!canUpdate} onChange={(name) => updateBrand(item.id, { name })} />
-            <ImageSourceField value={item.url} disabled={!canUpdate} onChange={(url) => updateBrand(item.id, { url })} />
-          </section>
-        ))}
+          ))}
+          <div className="landing-admin__actions">
+            <button
+              type="button"
+              className="admin-btn"
+              disabled={!canUpdate}
+              onClick={() => {
+                const item: LandingBrandItem = { id: `marca-${Date.now()}`, name: 'Nueva marca', url: '', visible: false }
+                setDraft({ ...draft, brands: { ...draft.brands, items: [...draft.brands.items, item] } })
+              }}
+            >
+              Agregar marca
+            </button>
+          </div>
+        </section>
       </EditorShell>
     )
   }
 
   return shell(
-    <EditorShell onSave={() => save('company')} onReset={() => reset('company')} canUpdate={canUpdate}>
+    <EditorShell heading={sectionCopy('company').title} hint={sectionCopy('company').hint} onBack={back} onSave={() => save('company')} onReset={() => reset('company')} canUpdate={canUpdate} colsClass="content-studio__cols--marcas">
+      <section className="landing-admin__block landing-admin__block--narrow">
+        <h3>Nosotros</h3>
+        <Field label="Texto alternativo" value={draft.company.alt} disabled={!canUpdate} onChange={(alt) => setDraft({ ...draft, company: { ...draft.company, alt } })} />
+        <Field label="Etiqueta" value={draft.company.eyebrow} disabled={!canUpdate} onChange={(eyebrow) => setDraft({ ...draft, company: { ...draft.company, eyebrow } })} />
+        <Field label="Título" value={draft.company.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, company: { ...draft.company, title } })} />
+        <Field label="Texto" value={draft.company.text} disabled={!canUpdate} multiline onChange={(text) => setDraft({ ...draft, company: { ...draft.company, text } })} />
+        <Field label="Botón" value={draft.company.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, company: { ...draft.company, cta } })} />
+      </section>
       <section className="landing-admin__block">
-      <h3>Nosotros</h3>
-      <ImageSourceField value={draft.company.image} disabled={!canUpdate} onChange={(image) => setDraft({ ...draft, company: { ...draft.company, image } })} />
-      <Field label="Texto alternativo" value={draft.company.alt} disabled={!canUpdate} onChange={(alt) => setDraft({ ...draft, company: { ...draft.company, alt } })} />
-      <Field label="Etiqueta" value={draft.company.eyebrow} disabled={!canUpdate} onChange={(eyebrow) => setDraft({ ...draft, company: { ...draft.company, eyebrow } })} />
-      <Field label="Título" value={draft.company.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, company: { ...draft.company, title } })} />
-      <Field label="Texto" value={draft.company.text} disabled={!canUpdate} multiline onChange={(text) => setDraft({ ...draft, company: { ...draft.company, text } })} />
-      <Field label="Botón" value={draft.company.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, company: { ...draft.company, cta } })} />
+        <h3>Imagen</h3>
+        <ImageSourceField value={draft.company.image} disabled={!canUpdate} onChange={(image) => setDraft({ ...draft, company: { ...draft.company, image } })} />
       </section>
     </EditorShell>
   )

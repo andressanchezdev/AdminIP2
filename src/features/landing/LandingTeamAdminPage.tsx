@@ -17,6 +17,7 @@ import { ImageSourceField } from '@/features/blog/components/ImageSourceField'
 import { confirmAction, notifyError, notifySuccess } from '@/shared/lib/notify'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import {
   AdminRowCard,
   ResponsiveTableShell,
@@ -62,15 +63,21 @@ export function LandingTeamAdminPage({ onBack }: { onBack?: () => void }) {
 
   const [statusFilter, setStatusFilter] = useState<LandingTeamStatus | 'all'>('all')
   const [groupFilter, setGroupFilter] = useState<LandingTeamGroup | 'all'>('all')
+  const [query, setQuery] = useState('')
   const [formOpen, setFormOpen] = useState(false)
   const [editing, setEditing] = useState<LandingTeamMember | null>(null)
   const [form, setForm] = useState<FormState>(emptyForm)
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof FormState, string>>>({})
 
   const members = useMemo(
-    () => listLandingTeam({ status: statusFilter, group: groupFilter }),
+    () => {
+      const q = query.trim().toLowerCase()
+      const list = listLandingTeam({ status: statusFilter, group: groupFilter })
+      if (!q) return list
+      return list.filter((member) => member.fullName.toLowerCase().includes(q) || member.role.toLowerCase().includes(q))
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mock array mutates in place
-    [statusFilter, groupFilter, mockLandingTeam.length, mockLandingTeam.map((m) => `${m.status}:${m.updatedAt}`).join()],
+    [statusFilter, groupFilter, query, mockLandingTeam.length, mockLandingTeam.map((m) => `${m.status}:${m.updatedAt}`).join()],
   )
 
   const {
@@ -82,7 +89,7 @@ export function LandingTeamAdminPage({ onBack }: { onBack?: () => void }) {
     rangeStart,
     rangeEnd,
     pageSize,
-  } = useTablePagination(members, { resetKey: `${statusFilter}|${groupFilter}` })
+  } = useTablePagination(members, { resetKey: `${statusFilter}|${groupFilter}|${query}` })
 
   const openCreate = () => {
     setEditing(null)
@@ -259,6 +266,11 @@ export function LandingTeamAdminPage({ onBack }: { onBack?: () => void }) {
       ) : null}
       <div className="admin-toolbar">
         <div className="admin-toolbar__filters">
+          <SearchInput
+            appliedValue={query}
+            placeholder="Buscar por nombre o cargo… (pulse Enter)"
+            onSearch={setQuery}
+          />
           <select
             className="admin-input"
             aria-label="Filtrar por grupo"

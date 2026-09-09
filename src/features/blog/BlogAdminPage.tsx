@@ -25,6 +25,7 @@ import {
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import {
   AdminRowCard,
   ResponsiveTableShell,
@@ -49,6 +50,7 @@ export function BlogAdminPage() {
   const refresh = () => setTick((value) => value + 1)
 
   const [statusFilter, setStatusFilter] = useState<BlogPostStatus | 'all'>('all')
+  const [query, setQuery] = useState('')
   const [editorOpen, setEditorOpen] = useState(false)
   const [editing, setEditing] = useState<BlogPost | null>(null)
   const [viewPost, setViewPost] = useState<BlogPost | null>(null)
@@ -57,8 +59,13 @@ export function BlogAdminPage() {
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
 
   const posts = useMemo(
-    () => listBlogPosts(statusFilter),
-    [statusFilter, mockBlogPosts.length, mockBlogPosts.map((p) => `${p.status}:${p.sortOrder}:${p.updatedAt}`).join()],
+    () => {
+      const q = query.trim().toLowerCase()
+      const list = listBlogPosts(statusFilter)
+      if (!q) return list
+      return list.filter((post) => post.title.toLowerCase().includes(q) || post.slug.toLowerCase().includes(q))
+    },
+    [statusFilter, query, mockBlogPosts.length, mockBlogPosts.map((p) => `${p.status}:${p.sortOrder}:${p.updatedAt}`).join()],
   )
   const published = useMemo(
     () => getPublishedPosts(),
@@ -82,7 +89,7 @@ export function BlogAdminPage() {
     rangeStart,
     rangeEnd,
     pageSize,
-  } = useTablePagination(posts, { resetKey: statusFilter })
+  } = useTablePagination(posts, { resetKey: `${statusFilter}|${query}` })
 
   const openCreate = () => {
     setEditing(null)
@@ -380,6 +387,11 @@ export function BlogAdminPage() {
         <div className="blog-admin__manage">
           <div className="admin-toolbar">
             <div className="admin-toolbar__filters">
+              <SearchInput
+                appliedValue={query}
+                placeholder="Buscar por título o slug… (pulse Enter)"
+                onSearch={setQuery}
+              />
               <select
                 className="admin-input"
                 value={statusFilter}

@@ -283,7 +283,6 @@ a {
   font-size: var(--font-size-sm);
   gap: 5px;
   padding: 5px;
-  width: 100%;
 }
 
 .admin-form__error {
@@ -371,11 +370,16 @@ a {
 }
 
 .admin-toolbar {
+  height: 30px;
   align-items: center;
   display: flex;
   flex-direction: row;
   gap: var(--spacing-md);
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.admin-toolbar__create {
+  margin-left: auto;
 }
 
 .admin-toolbar__filters {
@@ -396,12 +400,11 @@ a {
 
 .admin-input {
   background: var(--color-bg-surface);
-  border: 2px solid var(--color-border);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
   box-sizing: border-box;
   font: inherit;
   font-size: var(--font-size-md);
-  min-width: 160px;
   padding: 8px 10px;
   text-align: center;
 }
@@ -418,7 +421,6 @@ select.admin-input.admin-input--status {
   text-align: center;
   text-align-last: center;
 }
-
 /* Búsqueda toolbar — medidas SearchBar clienteIP */
 .admin-search {
   background: var(--color-bg-page);
@@ -957,6 +959,7 @@ select.admin-input.admin-input--status {
 }
 
 .admin-btn {
+  margin: 5px;
   background: var(--color-gris-oscuro);
   border-radius: 10px;
   color: #fff;

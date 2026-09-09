@@ -182,7 +182,7 @@ export function App() {
             <Route path="/contenido/blog" element={withGuard('contenido/blog', <BlogAdminPage />)} />
             <Route path="/contenido/vacantes" element={withGuard('contenido/vacantes', <VacanciesAdminPage />)} />
             <Route path="/contenido/landing/:section?" element={withGuard('contenido/landing', <LandingAdminPage />)} />
-            <Route path="/contenido/bot" element={withGuard('contenido/bot', <BotIpAdminPage />)} />
+            <Route path="/contenido/bot/:section?" element={withGuard('contenido/bot', <BotIpAdminPage />)} />
             <Route path="/dashboard/blog" element={<Navigate to="/contenido/blog" replace />} />
             <Route path="/acceso/usuarios" element={withGuard('acceso/usuarios', <UsersPage />)} />
             <Route path="/acceso/roles" element={withGuard('acceso/roles', <RolesPage />)} />

@@ -59,7 +59,8 @@ type SidebarProps = {
 
 function pathMatches(activePath: string, path: string) {
   if (activePath === path) return true
-  return path === '/contenido/landing' && activePath.startsWith('/contenido/landing/')
+  return (path === '/contenido/landing' && activePath.startsWith('/contenido/landing/'))
+    || (path === '/contenido/bot' && activePath.startsWith('/contenido/bot/'))
 }
 
 function isGroupActive(item: MenuNode, activePath: string) {

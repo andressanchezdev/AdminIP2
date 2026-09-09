@@ -1,36 +1,38 @@
-import { useId, useState } from 'react'
-import { ImagePlus, Link2 } from 'lucide-react'
-import { fileToWebpDataUrl } from '@/features/blog/lib/imageToWebp'
-import { notifyError, notifySuccess } from '@/shared/lib/notify'
+import { useId, useRef, useState } from 'react'
+import { Plus } from 'lucide-react'
+import { notifyError } from '@/shared/lib/notify'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { fileToWebpDataUrl } from '../lib/imageToWebp'
 import './ImageSourceField.css'
 
 type ImageSourceFieldProps = {
   value: string
   onChange: (value: string) => void
-  placeholder?: string
   disabled?: boolean
+  placeholder?: string
+  /** Si se define, muestra la acción "Agregar" (imagen +1). */
+  onAdd?: () => void
 }
 
-/** Campo de imagen: URL pegable + subida local convertida a WebP. */
 export function ImageSourceField({
   value,
   onChange,
-  placeholder = 'URL de imagen o suba un archivo',
-  disabled,
+  disabled = false,
+  placeholder = 'URL de la imagen',
+  onAdd,
 }: ImageSourceFieldProps) {
   const inputId = useId()
+  const fileRef = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
+  const [showView, setShowView] = useState(false)
 
   const onFile = async (file: File | null) => {
-    if (!file || disabled) return
+    if (!file) return
     setBusy(true)
     try {
-      const webp = await fileToWebpDataUrl(file)
-      onChange(webp)
-      notifySuccess('Imagen lista', 'Convertida a WebP')
-    } catch (error) {
-      notifyError('No se pudo cargar', error instanceof Error ? error.message : 'Error de imagen')
+      onChange(await fileToWebpDataUrl(file))
+    } catch {
+      notifyError('No se pudo cargar la imagen')
     } finally {
       setBusy(false)
     }
@@ -38,9 +40,6 @@ export function ImageSourceField({
 
   return (
     <div className="image-source-field">
-      <span className="image-source-field__icon" aria-hidden>
-        <Link2 size={16} strokeWidth={1.75} />
-      </span>
       <input
         className="admin-input"
         value={value.startsWith('data:image/') ? '' : value}
@@ -48,28 +47,53 @@ export function ImageSourceField({
         disabled={disabled || busy}
         onChange={(event) => onChange(event.target.value)}
       />
-      <label className="image-source-field__upload" htmlFor={inputId} title="Subir imagen local">
-          <input
-            id={inputId}
-            type="file"
-            accept="image/*"
-            hidden
-            disabled={disabled || busy}
-            onChange={(event) => {
-              const file = event.target.files?.[0] ?? null
-              void onFile(file)
-              event.target.value = ''
-            }}
-          />
-          <ImagePlus size={16} strokeWidth={1.75} aria-hidden />
-        {busy ? '…' : 'Subir'}
-      </label>
-      {value ? (
-        <>
-          <img className="image-source-field__preview" src={value} alt="" />
-          <IconAction label="Quitar" variant="delete" disabled={disabled || busy} onClick={() => onChange('')} />
-        </>
+      <IconAction
+        label="Ver imagen"
+        variant="view"
+        disabled={disabled || busy || !value}
+        onClick={() => setShowView((current) => !current)}
+      />
+      <input
+        id={inputId}
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        hidden
+        disabled={disabled || busy}
+        onChange={(event) => {
+          const file = event.target.files?.[0] ?? null
+          void onFile(file)
+          event.target.value = ''
+        }}
+      />
+      <IconAction
+        label="Cambiar imagen"
+        variant="edit"
+        disabled={disabled || busy}
+        onClick={() => fileRef.current?.click()}
+      />
+      <IconAction
+        label="Eliminar imagen"
+        variant="delete"
+        disabled={disabled || busy || !value}
+        onClick={() => {
+          onChange('')
+          setShowView(false)
+        }}
+      />
+      {onAdd ? (
+        <button
+          type="button"
+          className="image-source-field__upload"
+          title="Agregar imagen"
+          disabled={disabled || busy}
+          onClick={onAdd}
+        >
+          <Plus size={16} strokeWidth={1.75} aria-hidden />
+          Agregar
+        </button>
       ) : null}
+      {showView && value ? <img className="image-source-field__view" src={value} alt="" /> : null}
     </div>
   )
 }
