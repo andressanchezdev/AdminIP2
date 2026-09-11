@@ -1,6 +1,6 @@
-import { useMemo, useState, type DragEvent } from 'react'
-import { Bell } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent } from 'react'
+import { createPortal } from 'react-dom'
+import { Bell, Eye, Monitor, Smartphone, Tablet } from 'lucide-react'
 import { useAuth, usePermissions } from '@/app/providers/AuthProvider'
 import {
   appendAuditLog,
@@ -8,7 +8,6 @@ import {
   createBlogPost,
   createBlogSeparator,
   deleteBlogPost,
-  getPublishedPosts,
   listBlogPosts,
   listBlogSubmissions,
   mockBlogPosts,
@@ -25,6 +24,7 @@ import {
 import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { PopupSelect } from '@/shared/ui/PopupSelect/PopupSelect'
 import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import {
   AdminRowCard,
@@ -33,10 +33,148 @@ import {
 import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
 import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { PageHeaderActions } from '@/widgets/AppShell/Header/PageHeaderActions'
-import { BlogPostRenderer } from '@/features/blog/components/BlogPostRenderer'
 import { SeparatorMenu } from '@/features/blog/components/SeparatorMenu'
 import { PostEditor, type PostEditorValue } from '@/features/blog/components/PostEditor'
 import './BlogAdminPage.css'
+
+type PreviewDevice = 'mobile' | 'tablet' | 'pc'
+
+const PREVIEW_DEVICES: Array<{
+  id: PreviewDevice
+  label: string
+  Icon: typeof Smartphone
+  width: number
+  height: number
+}> = [
+  { id: 'mobile', label: 'Móvil', Icon: Smartphone, width: 390, height: 844 },
+  { id: 'tablet', label: 'Tablet', Icon: Tablet, width: 768, height: 1024 },
+  { id: 'pc', label: 'PC', Icon: Monitor, width: 1280, height: 800 },
+]
+
+function openDevicePreviewWindow(post: BlogPost, device: PreviewDevice) {
+  const profile = PREVIEW_DEVICES.find((item) => item.id === device) || PREVIEW_DEVICES[2]
+  const left = Math.max(0, Math.round((window.screen.availWidth - profile.width) / 2))
+  const top = Math.max(0, Math.round((window.screen.availHeight - profile.height) / 2))
+  const url = `/contenido/blog/preview/${encodeURIComponent(post.id)}?device=${device}`
+  const features = [
+    'popup=yes',
+    `width=${profile.width}`,
+    `height=${profile.height}`,
+    `left=${left}`,
+    `top=${top}`,
+    'resizable=yes',
+    'scrollbars=yes',
+  ].join(',')
+  const win = window.open(url, `blog-preview-${post.id}-${device}`, features)
+  if (!win) {
+    notifyError('No se pudo abrir la vista previa', 'Permita ventanas emergentes para este sitio')
+  } else {
+    win.focus()
+  }
+}
+
+function BlogPreviewMenu({
+  open,
+  onOpenChange,
+  onSelect,
+}: {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+  onSelect: (device: PreviewDevice) => void
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [coords, setCoords] = useState<{ top: number; right: number } | null>(null)
+
+  useLayoutEffect(() => {
+    if (!open || !wrapRef.current) {
+      setCoords(null)
+      return undefined
+    }
+    const place = () => {
+      const rect = wrapRef.current!.getBoundingClientRect()
+      setCoords({
+        top: rect.bottom + 6,
+        right: Math.max(8, window.innerWidth - rect.right),
+      })
+    }
+    place()
+    window.addEventListener('resize', place)
+    window.addEventListener('scroll', place, true)
+    return () => {
+      window.removeEventListener('resize', place)
+      window.removeEventListener('scroll', place, true)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return undefined
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onOpenChange(false)
+    }
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target as Node
+      if (wrapRef.current?.contains(target) || menuRef.current?.contains(target)) return
+      onOpenChange(false)
+    }
+    document.addEventListener('keydown', onKey)
+    const timer = window.setTimeout(() => {
+      document.addEventListener('pointerdown', onPointer)
+    }, 0)
+    return () => {
+      window.clearTimeout(timer)
+      document.removeEventListener('keydown', onKey)
+      document.removeEventListener('pointerdown', onPointer)
+    }
+  }, [open, onOpenChange])
+
+  return (
+    <div className="blog-admin__preview-menu" ref={wrapRef}>
+      <button
+        type="button"
+        className="admin-icon-btn admin-icon-btn--view"
+        aria-label="Ver"
+        title="Ver vista previa"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={(event) => {
+          event.stopPropagation()
+          onOpenChange(!open)
+        }}
+      >
+        <Eye size={16} strokeWidth={1.75} aria-hidden />
+      </button>
+      {open && coords
+        ? createPortal(
+            <div
+              ref={menuRef}
+              className="blog-admin__preview-menu-list"
+              role="menu"
+              style={{ top: coords.top, right: coords.right }}
+            >
+              {PREVIEW_DEVICES.map((device) => (
+                <button
+                  key={device.id}
+                  type="button"
+                  className="blog-admin__preview-menu-option"
+                  role="menuitem"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    onSelect(device.id)
+                    onOpenChange(false)
+                  }}
+                >
+                  <device.Icon size={16} strokeWidth={1.75} aria-hidden />
+                  <span>{device.label}</span>
+                </button>
+              ))}
+            </div>,
+            document.body,
+          )
+        : null}
+    </div>
+  )
+}
 
 export function BlogAdminPage() {
   const { user } = useAuth()
@@ -53,7 +191,7 @@ export function BlogAdminPage() {
   const [query, setQuery] = useState('')
   const [editorOpen, setEditorOpen] = useState(false)
   const [editing, setEditing] = useState<BlogPost | null>(null)
-  const [viewPost, setViewPost] = useState<BlogPost | null>(null)
+  const [previewMenuPostId, setPreviewMenuPostId] = useState<string | null>(null)
   const [requestsOpen, setRequestsOpen] = useState(false)
   const [dragId, setDragId] = useState<string | null>(null)
   const [dropTargetId, setDropTargetId] = useState<string | null>(null)
@@ -66,10 +204,6 @@ export function BlogAdminPage() {
       return list.filter((post) => post.title.toLowerCase().includes(q) || post.slug.toLowerCase().includes(q))
     },
     [statusFilter, query, mockBlogPosts.length, mockBlogPosts.map((p) => `${p.status}:${p.sortOrder}:${p.updatedAt}`).join()],
-  )
-  const published = useMemo(
-    () => getPublishedPosts(),
-    [mockBlogPosts.length, mockBlogPosts.map((p) => `${p.status}:${p.sortOrder}:${p.updatedAt}:${p.scheduledAt}:${p.unpublishAt}`).join()],
   )
   const pendingCount = useMemo(
     () => countPendingBlogSubmissions(),
@@ -315,7 +449,11 @@ export function BlogAdminPage() {
   const renderActions = (post: BlogPost) => (
     <div className="admin-row-actions">
       {post.kind === 'post' ? (
-        <IconAction label="Ver" variant="view" onClick={() => setViewPost(post)} />
+        <BlogPreviewMenu
+          open={previewMenuPostId === post.id}
+          onOpenChange={(open) => setPreviewMenuPostId(open ? post.id : null)}
+          onSelect={(device) => openDevicePreviewWindow(post, device)}
+        />
       ) : null}
       <IconAction
         label="Subir"
@@ -365,26 +503,7 @@ export function BlogAdminPage() {
     <section className="admin-page blog-admin">
       <PageHeaderActions>{headerActions}</PageHeaderActions>
 
-      <div className="blog-admin__layout">
-        <div className="blog-admin__preview-panel admin-card">
-          <div className="blog-admin__preview-head">
-            <strong>Vista pública del blog</strong>
-            <Link className="admin-btn admin-btn--ghost" to="/blog" target="_blank" rel="noreferrer">
-              Abrir /blog
-            </Link>
-          </div>
-          <div className="blog-admin__preview-frame">
-            {published.length === 0 ? (
-              <p className="admin-empty">No hay publicaciones públicas todavía.</p>
-            ) : (
-              published.map((post) => (
-                <BlogPostRenderer key={post.id} post={post} compact />
-              ))
-            )}
-          </div>
-        </div>
-
-        <div className="blog-admin__manage">
+      <div className="blog-admin__manage">
           <div className="admin-toolbar">
             <div className="admin-toolbar__filters">
               <SearchInput
@@ -392,18 +511,18 @@ export function BlogAdminPage() {
                 placeholder="Buscar por título o slug… (pulse Enter)"
                 onSearch={setQuery}
               />
-              <select
-                className="admin-input"
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value as BlogPostStatus | 'all')}
+              <PopupSelect
                 aria-label="Filtrar por estado"
-              >
-                <option value="all">Todos los estados</option>
-                <option value="borrador">borrador</option>
-                <option value="programado">programado</option>
-                <option value="publicado">publicado</option>
-                <option value="archivado">archivado</option>
-              </select>
+                value={statusFilter}
+                onChange={(next) => setStatusFilter(next as BlogPostStatus | 'all')}
+                options={[
+                  { value: 'all', label: 'Todos los estados' },
+                  { value: 'borrador', label: 'borrador' },
+                  { value: 'programado', label: 'programado' },
+                  { value: 'publicado', label: 'publicado' },
+                  { value: 'archivado', label: 'archivado' },
+                ]}
+              />
             </div>
             <div className="admin-toolbar__create">
               <button type="button" className="admin-btn" disabled={!canCreate} onClick={openCreate}>
@@ -517,7 +636,6 @@ export function BlogAdminPage() {
             onPageChange={setPage}
           />
         </div>
-      </div>
 
       <Modal
         isOpen={editorOpen}
@@ -537,18 +655,6 @@ export function BlogAdminPage() {
           }}
           onSave={handleSave}
         />
-      </Modal>
-
-      <Modal
-        isOpen={Boolean(viewPost)}
-        title={viewPost?.title ?? 'Publicación'}
-        size="lg"
-        onClose={() => setViewPost(null)}
-        footer={(
-          <button type="button" className="admin-btn" onClick={() => setViewPost(null)}>Cerrar</button>
-        )}
-      >
-        {viewPost ? <BlogPostRenderer post={viewPost} /> : null}
       </Modal>
 
       <Modal

@@ -68,7 +68,7 @@ export const pageSubtitles: Record<string, string> = {
   '/contenido/blog': 'Publicaciones, estados y orden del blog.',
   '/contenido/vacantes': 'Vacantes publicadas en Trabaja con nosotros.',
   '/contenido/landing': 'Elija la sección del landing que desea ajustar.',
-  '/contenido/bot': 'Elija la sección de BotIP que desea ajustar.',
+  '/contenido/bot': 'Gradúe cómo responde el bot. El archivo de comportamiento se descarga, se sube o se restablece aquí.',
   '/acceso/usuarios': 'Usuarios del panel administrativo. Los clientes de venta se gestionan en Gestión de clientes.',
   '/acceso/roles': 'Roles y permisos del panel.',
   '/acceso/auditoria': 'Registro de cambios y accesos del panel.',

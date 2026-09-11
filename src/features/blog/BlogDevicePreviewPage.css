@@ -1,0 +1,41 @@
+.blog-device-preview-page {
+  background: linear-gradient(180deg, var(--brand-gray-light, #e6e7e8) 0%, var(--brand-white, #fff) 42%);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  width: 100%;
+}
+
+.blog-device-preview-page__bar {
+  align-items: center;
+  background: color-mix(in srgb, var(--brand-dark, #2d3238) 92%, #000);
+  color: #fff;
+  display: flex;
+  flex-shrink: 0;
+  gap: 12px;
+  justify-content: space-between;
+  padding: 10px 14px;
+}
+
+.blog-device-preview-page__bar strong {
+  font-size: 14px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.blog-device-preview-page__bar span {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.blog-device-preview-page__body {
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  padding: 12px;
+  width: 100%;
+}

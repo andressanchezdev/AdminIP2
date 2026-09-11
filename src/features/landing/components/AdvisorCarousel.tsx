@@ -1,5 +1,15 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
 import {
   getPublishedLandingTeam,
   type LandingTeamGroup,
@@ -7,9 +17,40 @@ import {
 } from '@/mocks/data'
 import { getCircularOffset, useAdvisorCarousel } from '../hooks/useAdvisorCarousel'
 import { useNearViewport } from '../hooks/useNearViewport'
+import { parseLandingHash } from '../landingScroll'
 
 /** Swap de grupo: alinea con fade rápido del viewport (~0.32s). */
 const GROUP_CROSSFADE_MS = 320
+const DRAG_LOCK_PX = 8
+const DRAG_SNAP_RATIO = 0.22
+const DRAG_FLICK_PX_PER_MS = 0.5
+
+type DragSession = {
+  pointerId: number
+  startX: number
+  startY: number
+  lastX: number
+  lastT: number
+  velocity: number
+  axis: 'x' | 'y' | null
+  offset: number
+}
+
+function snapIndexDelta(dragOffset: number, stride: number, velocity: number) {
+  if (stride <= 0) return 0
+  const ratio = -dragOffset / stride
+  const rounded = Math.round(ratio)
+  if (rounded !== 0) return rounded
+  if (Math.abs(ratio) >= DRAG_SNAP_RATIO) return ratio > 0 ? 1 : -1
+  if (
+    Math.abs(velocity) >= DRAG_FLICK_PX_PER_MS
+    && Math.sign(velocity) === Math.sign(dragOffset)
+    && dragOffset !== 0
+  ) {
+    return dragOffset > 0 ? -1 : 1
+  }
+  return 0
+}
 
 function advisorOffsetClass(offset: number) {
   if (offset === 0) return 'is-center'
@@ -81,10 +122,17 @@ export function AdvisorCarousel() {
   const {
     activeIndex,
     goToSlide,
-    setIsPaused,
+    holdDrag,
+    releaseDrag,
     slideNext,
     slidePrev,
   } = useAdvisorCarousel(items.length, isActive && groupFadeOn)
+  const [dragOffset, setDragOffset] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragRef = useRef<DragSession | null>(null)
+  const suppressClickRef = useRef(false)
+  const metricsRef = useRef(metrics)
+  metricsRef.current = metrics
 
   const selectGroup = (group: LandingTeamGroup) => {
     if (group === activeGroup || switchingRef.current) return
@@ -100,6 +148,28 @@ export function AdvisorCarousel() {
       })
     }, GROUP_CROSSFADE_MS)
   }
+  const selectGroupRef = useRef(selectGroup)
+  selectGroupRef.current = selectGroup
+
+  useEffect(() => {
+    const showAdvisors = () => {
+      if (parseLandingHash(window.location.hash) === 'asesores') {
+        selectGroupRef.current('asesor')
+      }
+    }
+    const onSection = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === 'asesores') {
+        selectGroupRef.current('asesor')
+      }
+    }
+    showAdvisors()
+    window.addEventListener('hashchange', showAdvisors)
+    window.addEventListener('landing-section', onSection)
+    return () => {
+      window.removeEventListener('hashchange', showAdvisors)
+      window.removeEventListener('landing-section', onSection)
+    }
+  }, [])
 
   useLayoutEffect(() => {
     const viewport = viewportRef.current
@@ -156,21 +226,86 @@ export function AdvisorCarousel() {
     }
   }, [activeGroup])
 
+  const finishSwipe = useCallback((session: DragSession) => {
+    const stride = metricsRef.current.stride
+    setIsDragging(false)
+    setDragOffset(0)
+    dragRef.current = null
+    releaseDrag(snapIndexDelta(session.offset, stride, session.velocity))
+  }, [releaseDrag])
+
+  const onViewportPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0 || items.length < 2 || switchingRef.current) return
+    suppressClickRef.current = false
+    dragRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      lastX: event.clientX,
+      lastT: event.timeStamp,
+      velocity: 0,
+      axis: null,
+      offset: 0,
+    }
+  }
+
+  const onViewportPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const session = dragRef.current
+    if (!session || session.pointerId !== event.pointerId) return
+
+    const dx = event.clientX - session.startX
+    const dy = event.clientY - session.startY
+    if (!session.axis) {
+      if (Math.abs(dx) < DRAG_LOCK_PX && Math.abs(dy) < DRAG_LOCK_PX) return
+      session.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+      if (session.axis === 'y') {
+        dragRef.current = null
+        return
+      }
+      event.currentTarget.setPointerCapture(event.pointerId)
+      holdDrag()
+      setIsDragging(true)
+    }
+    if (session.axis !== 'x') return
+
+    event.preventDefault()
+    const dt = event.timeStamp - session.lastT
+    if (dt > 0) session.velocity = (event.clientX - session.lastX) / dt
+    session.lastX = event.clientX
+    session.lastT = event.timeStamp
+    session.offset = dx
+    if (Math.abs(dx) >= DRAG_LOCK_PX) suppressClickRef.current = true
+    setDragOffset(dx)
+  }
+
+  const onViewportPointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const session = dragRef.current
+    if (!session || session.pointerId !== event.pointerId) return
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId)
+    }
+    if (session.axis === 'x') {
+      finishSwipe(session)
+      return
+    }
+    dragRef.current = null
+  }
+
+  const onViewportClickCapture = (event: ReactMouseEvent<HTMLDivElement>) => {
+    if (!suppressClickRef.current) return
+    event.preventDefault()
+    event.stopPropagation()
+    suppressClickRef.current = false
+  }
+
   const maxVisibleOffset = Math.floor(visibleSlides / 2)
 
   return (
     <section
       ref={sectionRef}
-      className="landing-carousel"
+      id="asesores"
+      className={`landing-carousel${isDragging ? ' is-dragging' : ''}`}
       aria-label="Equipo Importadora Premium"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-      onFocusCapture={() => setIsPaused(true)}
-      onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-          setIsPaused(false)
-        }
-      }}
     >
       <header className="landing-carousel__header">
         <div
@@ -208,6 +343,11 @@ export function AdvisorCarousel() {
         <div
           className={`landing-carousel__viewport landing-carousel__viewport--crossfade${groupFadeOn ? ' is-active' : ''}`}
           ref={viewportRef}
+          onPointerDown={onViewportPointerDown}
+          onPointerMove={onViewportPointerMove}
+          onPointerUp={onViewportPointerUp}
+          onPointerCancel={onViewportPointerUp}
+          onClickCapture={onViewportClickCapture}
         >
           <div className="landing-carousel__track" key={contentGroup}>
             {items.length === 0 ? (
@@ -215,14 +355,18 @@ export function AdvisorCarousel() {
             ) : (
               items.map((item, index) => {
                 const offset = getCircularOffset(index, activeIndex, items.length)
-                const isOutOfView = Math.abs(offset) > maxVisibleOffset
-                const x = metrics.stride > 0 ? offset * metrics.stride : 0
+                const visualOffset = metrics.stride > 0
+                  ? offset + dragOffset / metrics.stride
+                  : offset
+                const slot = Math.round(visualOffset)
+                const isOutOfView = Math.abs(slot) > maxVisibleOffset
+                const x = metrics.stride > 0 ? offset * metrics.stride + dragOffset : dragOffset
                 const whatsappUrl = memberWhatsappUrl(item)
                 return (
                   <article
                     key={`${item.id}-${index}`}
                     className={`landing-carousel__card landing-carousel__card--advisor ${
-                      isOutOfView ? 'is-away' : advisorOffsetClass(offset)
+                      isOutOfView ? 'is-away' : advisorOffsetClass(slot)
                     }`}
                     style={{
                       ...(metrics.slideWidth > 0
@@ -245,6 +389,7 @@ export function AdvisorCarousel() {
                         className="landing-carousel__advisor-main"
                         src={item.imageUrl}
                         alt={`${item.role} ${item.fullName}`}
+                        draggable={false}
                         loading="lazy"
                       />
                     </div>
@@ -257,7 +402,7 @@ export function AdvisorCarousel() {
                           href={whatsappUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          tabIndex={offset === 0 ? 0 : -1}
+                          tabIndex={slot === 0 ? 0 : -1}
                         >
                           {item.phoneDisplay}
                         </a>

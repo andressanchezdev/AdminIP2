@@ -1,11 +1,12 @@
 import { getBotSettings } from './botSettings'
+import { readStore, removeStore, writeStore } from './storage'
 
 const USAGE_KEY = 'botip-chat-usage'
 const BLOCK_KEY = 'botip-chat-blocked-until'
 
 export const CHAT_MIN_CHARS = 3
-export const CHAT_MAX_CHARS = 250
-export const CHAT_BLOCK_MS = 5 * 60 * 1000
+export const CHAT_MAX_CHARS = 1000
+export const CHAT_BLOCK_MS = 1 * 60 * 1000
 
 const BURST_WINDOW_MS = 60 * 1000
 const BURST_LIMIT = 8
@@ -19,7 +20,7 @@ export type ChatGuardState = {
 
 function readTimes() {
   try {
-    const raw = window.localStorage.getItem(USAGE_KEY)
+    const raw = readStore('local', USAGE_KEY)
     const parsed = raw ? (JSON.parse(raw) as unknown) : []
     if (!Array.isArray(parsed)) return []
     return parsed.filter((item): item is number => typeof item === 'number')
@@ -29,7 +30,7 @@ function readTimes() {
 }
 
 function writeTimes(times: number[]) {
-  window.localStorage.setItem(USAGE_KEY, JSON.stringify(times.slice(-30)))
+  writeStore('local', USAGE_KEY, JSON.stringify(times.slice(-30)))
 }
 
 function limits() {
@@ -37,36 +38,36 @@ function limits() {
   return {
     min: settings.minChars || CHAT_MIN_CHARS,
     max: settings.maxChars || CHAT_MAX_CHARS,
-    blockMs: (settings.blockMinutes || 5) * 60 * 1000,
+    blockMs: (settings.blockMinutes || 1) * 60 * 1000,
     burst: settings.burstLimit || BURST_LIMIT,
   }
 }
 
-export function chatDraftError(value: string) {
+export function chatDraftError(value: string, options?: { allowShort?: boolean }) {
   const text = value.trim()
   const { min, max } = limits()
-  if (!text) return 'Escribe tu consulta para poder atenderte.'
-  if (text.length < min) return `Escribe al menos ${min} caracteres.`
+  if (!text) return 'Cuentame tus dudas para poder ayudarte.'
+  if (!options?.allowShort && text.length < min) return `Escribe al menos ${min} caracteres.`
   if (text.length > max) return `El mensaje no puede pasar de ${max} caracteres.`
   return ''
 }
 
 export function formatBlockWait(remainingMs: number) {
-  const minutes = Math.max(1, Math.ceil(remainingMs / 60000))
+  const minutes = Math.max(1, Math.ceil(remainingMs / 60_000))
   return minutes === 1 ? '1 minuto' : `${minutes} minutos`
 }
 
 export function blockedChatMessage(remainingMs: number) {
-  return `El chat ha sido bloqueado temporalmente por uso excesivo. Podrás escribir de nuevo en ${formatBlockWait(remainingMs)}. Si necesitas atención ahora, usa WhatsApp o el correo publicados en el sitio.`
+  return `chat bloqueado | Podrás escribir de nuevo en ${formatBlockWait(remainingMs)}. Si necesitas atención urgente, utiliza WhatsApp o el correo electrónico.`
 }
 
 export function readChatGuard(now = Date.now()): ChatGuardState {
   try {
-    const until = Number(window.localStorage.getItem(BLOCK_KEY) || 0)
+    const until = Number(readStore('local', BLOCK_KEY) || 0)
     if (until > now) {
       return { blocked: true, remainingMs: until - now, message: blockedChatMessage(until - now) }
     }
-    if (until) window.localStorage.removeItem(BLOCK_KEY)
+    if (until) removeStore('local', BLOCK_KEY)
   } catch {
     return { blocked: false, remainingMs: 0, message: '' }
   }
@@ -75,7 +76,7 @@ export function readChatGuard(now = Date.now()): ChatGuardState {
 
 function blockNow(now: number) {
   const until = now + limits().blockMs
-  window.localStorage.setItem(BLOCK_KEY, String(until))
+  writeStore('local', BLOCK_KEY, String(until))
   return readChatGuard(now)
 }
 
@@ -105,7 +106,7 @@ const TEXT_KEY = 'botip-chat-recent'
 
 function readRecentTexts() {
   try {
-    const raw = window.localStorage.getItem(TEXT_KEY)
+    const raw = readStore('local', TEXT_KEY)
     const parsed = raw ? (JSON.parse(raw) as unknown) : []
     if (!Array.isArray(parsed)) return []
     return parsed.filter((item): item is string => typeof item === 'string')
@@ -115,5 +116,5 @@ function readRecentTexts() {
 }
 
 function writeRecentTexts(texts: string[]) {
-  window.localStorage.setItem(TEXT_KEY, JSON.stringify(texts))
+  writeStore('local', TEXT_KEY, JSON.stringify(texts))
 }

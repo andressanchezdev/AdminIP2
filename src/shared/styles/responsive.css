@@ -194,10 +194,16 @@ body,
   }
 
   .admin-toolbar .admin-input,
-  .admin-header__actions .admin-input {
+  .admin-header__actions .admin-input,
+  .admin-toolbar .popup-select,
+  .admin-header__actions .popup-select {
     flex: 1 1 120px;
     max-width: 100%;
     min-width: 0;
+  }
+
+  .admin-toolbar .popup-select__trigger--filter {
+    width: 100%;
   }
 }
 

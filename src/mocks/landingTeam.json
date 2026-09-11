@@ -1,31 +1,5 @@
 [
   {
-    "id": "asesor_01",
-    "fullName": "Aleja",
-    "role": "Asesora",
-    "phoneDisplay": "+57 312 614 95527",
-    "whatsappDigits": "5731261495527",
-    "imageUrl": "/static/landing/employees/aleja.png",
-    "group": "asesor",
-    "status": "publicado",
-    "sortOrder": 1,
-    "createdAt": "2026-08-01T10:00:00.000Z",
-    "updatedAt": "2026-08-15T12:00:00.000Z"
-  },
-  {
-    "id": "asesor_02",
-    "fullName": "Lina",
-    "role": "Asesora",
-    "phoneDisplay": "+57 312 614 95527",
-    "whatsappDigits": "5731261495527",
-    "imageUrl": "/static/landing/employees/lina.png",
-    "group": "asesor",
-    "status": "publicado",
-    "sortOrder": 2,
-    "createdAt": "2026-08-01T10:00:00.000Z",
-    "updatedAt": "2026-08-15T12:00:00.000Z"
-  },
-  {
     "id": "asesor_03",
     "fullName": "Mónica",
     "role": "Asesora",

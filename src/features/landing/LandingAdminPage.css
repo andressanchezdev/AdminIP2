@@ -36,19 +36,33 @@
 }
 
 .landing-admin__block {
+  align-items: stretch;
   border: 1px solid #757575;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
   padding: 10px;
   width: 100%;
 }
 
+.landing-admin__block .admin-form__field,
+.landing-admin__block .admin-input,
+.landing-admin__block textarea {
+  box-sizing: border-box;
+  max-width: none;
+  min-width: 0;
+  width: 100%;
+}
+
+.landing-admin__block > .admin-btn {
+  align-self: flex-start;
+  width: auto;
+}
+
 .landing-admin__block--compact {
-  display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
   padding: 8px;
 }
 
@@ -57,13 +71,26 @@
 }
 
 .landing-admin__block--narrow {
+  align-items: stretch;
   display: grid;
   gap: 10px;
-  grid-template-columns: repeat(2, minmax(0, 340px));
+  justify-items: stretch;
+  min-width: 0;
+  width: 100%;
 }
 
 .landing-admin__block--narrow h3 {
   grid-column: 1 / -1;
+}
+
+.landing-admin__block--narrow .admin-form__field,
+.landing-admin__block--narrow .admin-input,
+.landing-admin__block--narrow input,
+.landing-admin__block--narrow textarea {
+  box-sizing: border-box;
+  max-width: none;
+  min-width: 0;
+  width: 100%;
 }
 
 .landing-admin__block h3,
@@ -121,9 +148,12 @@
 }
 
 .landing-admin__actions {
+  align-items: center;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   grid-column: 1 / -1;
+  overflow: visible;
 }
 
 @media (max-width: 768px) {

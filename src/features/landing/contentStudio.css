@@ -8,27 +8,45 @@
 }
 
 .content-studio .admin-toolbar {
+  align-items: center;
+  height: auto;
   justify-content: space-between;
   width: 100%;
 }
 
+.content-studio .admin-toolbar .admin-btn {
+  margin: 0;
+  min-height: 40px;
+  padding-bottom: 8px;
+  padding-top: 8px;
+}
+
+.content-studio .admin-toolbar .admin-search,
+.content-studio .admin-toolbar .admin-input,
+.content-studio .admin-toolbar select.admin-input {
+  height: 40px;
+  min-height: 40px;
+}
+
 .content-studio__nav {
-  align-items: flex-start;
-  align-self: flex-start;
+  align-items: center;
+  align-self: center;
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  flex-direction: row;
+  gap: 0;
 }
 
 .content-back {
   align-items: center;
-  align-self: flex-start;
+  align-self: center;
   border-radius: 8px;
   color: var(--color-text-primary);
   cursor: pointer;
   display: inline-flex;
+  height: 40px;
   justify-content: center;
-  padding: 8px;
+  padding: 0;
+  width: 40px;
 }
 
 .content-card {
@@ -51,10 +69,10 @@
 }
 
 .content-card__subtitle {
+  justify-content: center;
   color: var(--color-text-secondary);
-  font-size: 12px;
   font-weight: 600;
-  margin: 0;
+  margin: 5px;
 }
 
 .content-studio__cols {
@@ -107,11 +125,11 @@
 .content-studio .admin-form__field,
 .content-studio .bot-limits label {
   align-items: stretch;
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   display: flex;
   flex-direction: column;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 18px;
+  font-weight: 650;
   gap: 8px;
   width: 100%;
 }
@@ -132,6 +150,9 @@
 }
 
 .content-studio .image-source-field .admin-input,
+.content-studio .landing-admin__block .admin-form__field,
+.content-studio .landing-admin__block .admin-input,
+.content-studio .landing-admin__block textarea,
 .content-studio .content-studio__split .bot-keyword-list .admin-input,
 .content-studio .content-studio__split .bot-keyword-list input,
 .content-studio .content-studio__split .bot-reply .admin-input,
@@ -141,4 +162,6 @@
 .content-studio .content-studio__cols--limites .bot-reply .admin-input,
 .content-studio .content-studio__cols--limites .bot-reply textarea {
   max-width: none;
+  min-width: 0;
+  width: 100%;
 }

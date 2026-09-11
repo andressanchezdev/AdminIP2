@@ -86,6 +86,11 @@ export function LandingFooter() {
           <p className="landing-footer__text">
             Importación y distribución con estándar premium.
           </p>
+          <p className="landing-footer__hours">
+            <strong>Horario de atención</strong>
+            {LANDING_CONTACT.hoursWeekdays}
+            {LANDING_CONTACT.hoursSaturday}
+          </p>
         </div>
 
         <div className="landing-footer__col">

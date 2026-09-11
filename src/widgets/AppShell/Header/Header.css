@@ -85,9 +85,6 @@
   width: min(220px, 100%);
 }
 
-.admin-header__warehouse-filter .multi-select-filter__menu {
-  left: auto;
-  right: 0;
+.admin-header__warehouse-filter .popup-select__menu {
   width: min(320px, 80vw);
-  z-index: 40;
 }

@@ -5,6 +5,7 @@ export const LANDING_SECTION_IDS = [
   'catalogo',
   'marcas',
   'equipo',
+  'asesores',
   'nosotros',
   'ubicacion',
   'contacto',
@@ -13,7 +14,8 @@ export const LANDING_SECTION_IDS = [
 export type LandingSectionId = (typeof LANDING_SECTION_IDS)[number]
 
 export function parseLandingHash(href: string): LandingSectionId | null {
-  const id = href.replace(/^#\/?/, '').trim()
+  const hashPart = href.includes('#') ? href.slice(href.indexOf('#') + 1) : href
+  const id = hashPart.replace(/^\/+/, '').split(/[?&]/)[0].trim()
   return (LANDING_SECTION_IDS as readonly string[]).includes(id)
     ? (id as LandingSectionId)
     : null
@@ -49,6 +51,7 @@ export function scrollToLandingSection(
     behavior: prefersReduced ? 'auto' : behavior,
     block: 'start',
   })
+  window.dispatchEvent(new CustomEvent('landing-section', { detail: sectionId }))
   return true
 }
 

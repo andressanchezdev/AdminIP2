@@ -1,6 +1,6 @@
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -35,5 +35,19 @@ export default defineConfig({
   preview: {
     port: 5174,
     strictPort: true,
+  },
+  test: {
+    environment: 'happy-dom',
+    include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: [
+        'src/features/landing/chat/answerChat.ts',
+        'src/features/landing/chat/prepare.ts',
+        'src/features/landing/chat/matchers.ts',
+        'src/features/landing/chat/composeReply.ts',
+        'src/features/landing/chat/sessionContext.ts',
+      ],
+    },
   },
 })

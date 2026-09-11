@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { usePermissions } from '@/app/providers/AuthProvider'
 import { ImageSourceField } from '@/features/blog/components/ImageSourceField'
@@ -155,6 +155,7 @@ export function LandingAdminPage() {
   const { section } = useParams()
   const view: View = section ? (SLUG_VIEW[section] ?? 'hub') : 'hub'
   const [draft, setDraft] = useState<LandingContent>(() => getLandingContent())
+  const heroFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (section && !SLUG_VIEW[section]) {
@@ -179,7 +180,8 @@ export function LandingAdminPage() {
 
   const save = (id: LandingSectionId) => {
     if (!canUpdate) return
-    if (id === 'hero' && draft.hero.backgrounds.filter(Boolean).length === 0) {
+    const heroBackgrounds = draft.hero.backgrounds.map((item) => item.trim()).filter(Boolean)
+    if (id === 'hero' && heroBackgrounds.length === 0) {
       notifyError('Agregue al menos un fondo')
       return
     }
@@ -191,9 +193,33 @@ export function LandingAdminPage() {
       notifyError('Cada categoría necesita nombre y 2 imágenes')
       return
     }
-    saveLandingSection(id, draft[id])
+    if (id === 'hero') {
+      saveLandingSection('hero', { ...draft.hero, backgrounds: heroBackgrounds })
+    } else {
+      saveLandingSection(id, draft[id])
+    }
     notifySuccess('Sección actualizada')
     setDraft(getLandingContent())
+  }
+
+  const addHeroBackgrounds = (files: FileList | null) => {
+    if (!canUpdate || !files?.length) return
+    const added: string[] = []
+    let failed = 0
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith('image/')) {
+        failed += 1
+        continue
+      }
+      added.push(URL.createObjectURL(file))
+    }
+    if (added.length) {
+      setDraft((current) => ({
+        ...current,
+        hero: { ...current.hero, backgrounds: [...current.hero.backgrounds, ...added] },
+      }))
+    }
+    if (failed) notifyError(failed === files.length ? 'No se pudo cargar la imagen' : 'Algunas imágenes no se pudieron cargar')
   }
 
   const reset = (id: LandingSectionId) => {
@@ -225,8 +251,7 @@ export function LandingAdminPage() {
     return (
       <div className="content-studio">
         <div className="content-card">
-          <ContentBack onBack={back} />
-          <LandingTeamAdminPage />
+          <LandingTeamAdminPage onBack={back} />
         </div>
       </div>
     )
@@ -236,7 +261,9 @@ export function LandingAdminPage() {
     return (
       <div className="content-studio">
         <div className="content-card">
-          <ContentBack onBack={back} />
+          <div className="admin-toolbar">
+            <ContentBack onBack={back} />
+          </div>
           <div className="landing-admin__grid">
             {SECTIONS.map((item) => (
               <button key={item.id} type="button" className="landing-admin__card" onClick={() => open(item.id)}>
@@ -256,29 +283,56 @@ export function LandingAdminPage() {
     return shell(
       <EditorShell heading={sectionCopy('hero').title} hint={sectionCopy('hero').hint} onBack={back} onSave={() => save('hero')} onReset={() => reset('hero')} canUpdate={canUpdate} colsClass="content-studio__cols--hero">
         <section className="landing-admin__block">
-          <h3>Fondos</h3>
-          {draft.hero.backgrounds.map((src, index) => (
-            <ImageSourceField
-              key={`hero-bg-${index}`}
-              value={src}
-              disabled={!canUpdate}
-              onChange={(value) => {
-                const backgrounds = [...draft.hero.backgrounds]
-                backgrounds[index] = value
-                setDraft({ ...draft, hero: { ...draft.hero, backgrounds } })
-              }}
-              onAdd={index === draft.hero.backgrounds.length - 1
-                ? () => setDraft({ ...draft, hero: { ...draft.hero, backgrounds: [...draft.hero.backgrounds, ''] } })
-                : undefined}
-            />
-          ))}
-        </section>
-        <section className="landing-admin__block">
           <h3>Textos</h3>
           <Field label="Título" value={draft.hero.title} disabled={!canUpdate} onChange={(title) => setDraft({ ...draft, hero: { ...draft.hero, title } })} />
           <Field label="Subtítulo" value={draft.hero.subtitle} disabled={!canUpdate} multiline onChange={(subtitle) => setDraft({ ...draft, hero: { ...draft.hero, subtitle } })} />
           <Field label="Botón" value={draft.hero.cta} disabled={!canUpdate} onChange={(cta) => setDraft({ ...draft, hero: { ...draft.hero, cta } })} />
         </section>
+        <section className="landing-admin__block">
+          <h3>Imágenes</h3>
+          {draft.hero.backgrounds.map((src, index) => (
+            <ImageSourceField
+              key={`hero-bg-${index}`}
+              value={src}
+              disabled={!canUpdate}
+              asObjectUrl
+              onChange={(value) => {
+                const backgrounds = [...draft.hero.backgrounds]
+                const previous = backgrounds[index]
+                if (previous && previous !== value && previous.startsWith('blob:')) {
+                  URL.revokeObjectURL(previous)
+                }
+                if (!value.trim()) {
+                  backgrounds.splice(index, 1)
+                } else {
+                  backgrounds[index] = value
+                }
+                setDraft({ ...draft, hero: { ...draft.hero, backgrounds } })
+              }}
+            />
+          ))}
+          <input
+            ref={heroFileRef}
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            disabled={!canUpdate}
+            onChange={(event) => {
+              addHeroBackgrounds(event.target.files)
+              event.target.value = ''
+            }}
+          />
+          <button
+            type="button"
+            className="admin-btn"
+            disabled={!canUpdate}
+            onClick={() => heroFileRef.current?.click()}
+          >
+            Agregar imagen
+          </button>
+        </section>
+        
       </EditorShell>
     )
   }

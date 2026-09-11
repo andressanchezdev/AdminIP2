@@ -1,0 +1,105 @@
+{
+  "hero": {
+    "backgrounds": [
+      "/static/landing/hero/hero-bg-01.jpeg",
+      "/static/landing/hero/hero-bg-02.jpeg"
+    ],
+    "title": "Importadora Premium",
+    "subtitle": "Importación, inventario y distribución con estándar premium para todo el país.",
+    "cta": "Conocer más"
+  },
+  "stats": [
+    {
+      "id": "productos",
+      "lead": "Más de",
+      "value": 23800,
+      "trail": "Productos",
+      "duration": 1200,
+      "blurStrength": 1.05,
+      "maxBlur": 12
+    },
+    {
+      "id": "categorias",
+      "lead": "Más de",
+      "value": 1390,
+      "trail": "Categorías",
+      "duration": 800,
+      "blurStrength": 0.9,
+      "maxBlur": 10
+    },
+    {
+      "id": "referencias",
+      "lead": "Más de",
+      "value": 35100,
+      "trail": "Referencias",
+      "duration": 1300,
+      "blurStrength": 1.15,
+      "maxBlur": 14
+    }
+  ],
+  "split": {
+    "vision": {
+      "image": "/static/landing/company/nosotros.jpeg",
+      "alt": "Equipo y operación de Importadora Premium",
+      "eyebrow": "Empresa",
+      "title": "Visión",
+      "text": "Ser el referente nacional en importación premium: bodega confiable, surtido amplio y un servicio ágil para cada cliente del país."
+    },
+    "mission": {
+      "image": "/static/landing/company/mission.jpeg",
+      "alt": "Local y servicio Importadora Premium",
+      "eyebrow": "Empresa",
+      "title": "Misión",
+      "text": "Conectar demanda y suministro con procesos claros, inventario real y acompañamiento cercano en cada pedido bajo la marca IP."
+    }
+  },
+  "catalog": {
+    "title": "Catálogo Premium",
+    "cta": "Catálogo completo",
+    "options": [
+      {
+        "id": "llantas",
+        "label": "Llantas",
+        "images": ["/static/landing/catalog/llanta1.png", "/static/landing/catalog/llanta2.png"]
+      },
+      {
+        "id": "pastillas",
+        "label": "Pastillas",
+        "images": ["/static/landing/catalog/pastillas1.png", "/static/landing/catalog/pastillas2.png"]
+      },
+      {
+        "id": "pinon",
+        "label": "Piñones",
+        "images": ["/static/landing/catalog/pinon1.png", "/static/landing/catalog/pinon2.png"]
+      },
+      {
+        "id": "ejes",
+        "label": "Ejes",
+        "images": ["/static/landing/catalog/eje1.png", "/static/landing/catalog/eje2.png"]
+      },
+      {
+        "id": "aceite",
+        "label": "Aceites",
+        "images": ["/static/landing/catalog/aceites.jpeg", "/static/landing/catalog/aceites2.jpeg"]
+      },
+      {
+        "id": "ramal",
+        "label": "Ramales",
+        "images": ["/static/landing/catalog/ramal1.png", "/static/landing/catalog/ramal2.png"]
+      }
+    ]
+  },
+  "brands": {
+    "title": "Marcas que respaldan nuestra calidad",
+    "lead": "Las marcas más reconocidas en el mercado para tu moto.",
+    "background": "/static/landing/backgrounds/brands-gradient.png"
+  },
+  "company": {
+    "image": "/static/landing/company/vision.jpeg",
+    "alt": "Operación de Importadora Premium",
+    "eyebrow": "La compañía",
+    "title": "Nosotros como empresa",
+    "text": "Importadora Premium conecta marcas globales con el mercado local. Centralizamos compra, bodega y distribución para que tu negocio reciba productos verificados, trazabilidad y un servicio comercial cercano.",
+    "cta": "Catálogo completo"
+  }
+}

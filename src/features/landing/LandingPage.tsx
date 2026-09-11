@@ -111,6 +111,7 @@ export function LandingPage() {
   const [heroBg, setHeroBg] = useState(0)
   const [catalogCarouselTurn, setCatalogCarouselTurn] = useState(0)
   const content = getLandingContent()
+  const heroBackgrounds = content.hero.backgrounds.filter((src) => src.trim())
   const catalogOptions = content.catalog.options
   const catalogIndices = catalogMultiIndices(catalogOptions)
   const catalogMultiCount = catalogIndices.length
@@ -150,20 +151,24 @@ export function LandingPage() {
   }, [catalogLive, catalogIndices.length])
 
   useEffect(() => {
-    if (!heroLive || content.hero.backgrounds.length < 2) return undefined
+    setHeroBg((current) => (heroBackgrounds.length ? current % heroBackgrounds.length : 0))
+  }, [heroBackgrounds.length])
+
+  useEffect(() => {
+    if (!heroLive || heroBackgrounds.length < 2) return undefined
     const timer = window.setInterval(() => {
-      setHeroBg((current) => (current + 1) % content.hero.backgrounds.length)
+      setHeroBg((current) => (current + 1) % heroBackgrounds.length)
     }, HERO_BG_MS)
     return () => window.clearInterval(timer)
-  }, [heroLive, content.hero.backgrounds.length])
+  }, [heroLive, heroBackgrounds.length])
 
   return (
     <div className="landing-page">
       <div className="landing-hero" ref={heroRef}>
         <div className="landing-hero__media" aria-hidden>
-          {content.hero.backgrounds.map((src, index) => (
+          {heroBackgrounds.map((src, index) => (
             <div
-              key={`${src}-${index}`}
+              key={`${src.slice(0, 48)}-${index}`}
               className={`landing-hero__bg${heroBg === index ? ' is-active' : ''}`}
               style={{ backgroundImage: `url(${src})` }}
             />

@@ -5,6 +5,7 @@ import { useTablePagination } from '@/shared/lib/useTablePagination'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
 import { DetailView } from '@/shared/ui/DetailView/DetailView'
+import { PopupSelect } from '@/shared/ui/PopupSelect/PopupSelect'
 import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import { TablePagination } from '@/shared/ui/TablePagination/TablePagination'
 import {
@@ -242,18 +243,15 @@ export function ResourcePage({
             onSearch={setQuery}
           />
           {filterOptions.length > 1 ? (
-            <select
-              className="admin-input"
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
+            <PopupSelect
               aria-label="Filtrar por estado"
-            >
-              {filterOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option === 'all' ? filterAllLabel : option}
-                </option>
-              ))}
-            </select>
+              value={status}
+              onChange={setStatus}
+              options={filterOptions.map((option) => ({
+                value: option,
+                label: option === 'all' ? filterAllLabel : option,
+              }))}
+            />
           ) : null}
           {extraToolbar}
         </div>

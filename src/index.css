@@ -370,15 +370,23 @@ a {
 }
 
 .admin-toolbar {
-  height: 30px;
   align-items: center;
   display: flex;
   flex-direction: row;
   gap: var(--spacing-md);
+  height: auto;
   justify-content: space-between;
+  min-height: 40px;
+  overflow: visible;
+}
+
+.admin-toolbar .admin-btn {
+  margin: 0;
 }
 
 .admin-toolbar__create {
+  align-items: center;
+  display: flex;
   margin-left: auto;
 }
 
@@ -387,6 +395,7 @@ a {
   display: flex;
   flex-direction: row;
   gap: var(--spacing-sm);
+  overflow: visible;
 }
 
 .admin-toolbar__filters .admin-input,
@@ -402,11 +411,11 @@ a {
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border);
   border-radius: 10px;
-  box-sizing: border-box;
   font: inherit;
   font-size: var(--font-size-md);
   padding: 8px 10px;
   text-align: center;
+  width: 100%;
 }
 
 select.admin-input.admin-input--status {

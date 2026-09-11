@@ -24,6 +24,11 @@ const BlogAdminPage = lazy(async () => {
   return { default: mod.BlogAdminPage }
 })
 
+const BlogDevicePreviewPage = lazy(async () => {
+  const mod = await import('@/features/blog/BlogDevicePreviewPage')
+  return { default: mod.BlogDevicePreviewPage }
+})
+
 const VacanciesAdminPage = lazy(async () => {
   const mod = await import('@/features/vacancies/VacanciesAdminPage')
   return { default: mod.VacanciesAdminPage }
@@ -158,6 +163,10 @@ export function App() {
                 <BlogPostPage />
               </Suspense>
             )}
+          />
+          <Route
+            path="/contenido/blog/preview/:postId"
+            element={withGuard('contenido/blog', <BlogDevicePreviewPage />)}
           />
           <Route
             path="/login"

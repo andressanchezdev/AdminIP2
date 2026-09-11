@@ -1,241 +1,260 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
-  BOT_REPLY_FIELDS,
-  DEFAULT_BOT_SETTINGS,
-  getBotSettings,
-  saveBotSettings,
-  type BotSettings,
-} from './chat/botSettings'
-import { notifySuccess } from '@/shared/lib/notify'
+import { notifyError, notifySuccess } from '@/shared/lib/notify'
 import { ContentBack } from './ContentBack'
-import { BotKeywordList } from './components/BotKeywordList'
-import { BotReplyPreview } from './components/BotReplyPreview'
+import { Modal } from '@/shared/ui/Modal/Modal'
+import { PopupSelect } from '@/shared/ui/PopupSelect/PopupSelect'
+import {
+  applySlidersToDocument,
+  downloadUploadedFileName,
+  factoryDownload,
+  getActiveDocument,
+  getActiveSlot,
+  hasUploadedMarkdown,
+  resetActiveMarkdown,
+  saveActiveDocument,
+  saveActiveMarkdown,
+  uploadedMarkdownSource,
+} from './chat/botip/store'
+import { parseBotMarkdown } from './chat/botip/schema'
+import {
+  SLIDER_GROUPS,
+  SLIDER_SPECS,
+  defaultSliderValues,
+  sliderDisplay,
+  slidersEqual,
+  type SliderValues,
+} from './chat/botip/sliders'
 import './BotIpAdminPage.css'
 import './contentStudio.css'
 import './LandingAdminPage.css'
 
-const LIMITS_ID = 'limites'
-
-const BOT_GROUPS: Array<{ id: string; title: string; hint: string; ids: string[] }> = [
-  {
-    id: 'catalogo',
-    title: 'Catálogo y productos',
-    hint: 'Respuestas cuando el visitante pide pieza, marca o catálogo.',
-    ids: ['catalog', 'product', 'parts', 'namedPart', 'accessory'],
-  },
-  {
-    id: 'atencion',
-    title: 'Atención y contacto',
-    hint: 'Asesor, WhatsApp, precio, vacantes y datos de la empresa.',
-    ids: ['attention', 'whatsapp', 'complaint', 'quote', 'vacancy', 'location', 'company', 'social'],
-  },
-  {
-    id: 'equipo',
-    title: 'Equipo',
-    hint: 'Nombres, grupos y sugerencias del carrusel.',
-    ids: ['teamMember', 'teamGroup', 'teamSuggest', 'teamEmpty'],
-  },
-  {
-    id: 'sin-coincidencia',
-    title: 'Sin coincidencia',
-    hint: 'Cuando falta la pieza, la marca o el modelo.',
-    ids: ['fallback', 'fallbackCompany', 'fallbackShort', 'fallbackLong', 'fallbackWide', 'fallbackMixed'],
-  },
-  {
-    id: 'conversacion',
-    title: 'Saludo y temas no admitidos',
-    hint: 'Saludo, cierre y mensajes que no son una consulta.',
-    ids: ['greeting', 'thanks', 'insult', 'sexual', 'violence', 'food', 'creature', 'vehicle', 'person'],
-  },
-]
-
-const REPLY_GROUPS = (() => {
-  const used = new Set(BOT_GROUPS.flatMap((group) => group.ids))
-  const rest = BOT_REPLY_FIELDS.filter((field) => !used.has(field.id)).map((field) => field.id)
-  return rest.length
-    ? [...BOT_GROUPS, { id: 'otras', title: 'Otras respuestas', hint: 'Respuestas que no están en un grupo.', ids: rest }]
-    : BOT_GROUPS
-})()
-
-const HUB_ITEMS: Array<{ id: string; title: string; hint: string }> = [
-  { id: LIMITS_ID, title: 'Límites del chat', hint: 'Bienvenida, largo del mensaje y bloqueo por ráfaga.' },
-  ...REPLY_GROUPS,
-]
-
-const HUB_IDS = new Set(HUB_ITEMS.map((item) => item.id))
-
-function clampSettings(form: BotSettings): BotSettings {
-  return {
-    ...form,
-    minChars: Math.max(1, Number(form.minChars) || 3),
-    maxChars: Math.max(3, Number(form.maxChars) || 250),
-    blockMinutes: Math.max(1, Number(form.blockMinutes) || 5),
-    burstLimit: Math.max(2, Number(form.burstLimit) || 8),
-  }
+function snapshotSliders() {
+  return { ...defaultSliderValues(), ...getActiveDocument().sliders }
 }
 
 export function BotIpAdminPage() {
   const navigate = useNavigate()
   const { section } = useParams()
-  const [form, setForm] = useState<BotSettings>(() => getBotSettings())
-  const group = REPLY_GROUPS.find((item) => item.id === section)
-  const hubItem = HUB_ITEMS.find((item) => item.id === section)
+  const [sliders, setSliders] = useState<SliderValues>(snapshotSliders)
+  const [savedSliders, setSavedSliders] = useState<SliderValues>(snapshotSliders)
+  const [pendingMarkdown, setPendingMarkdown] = useState<string | null>(null)
+  const [confirmReset, setConfirmReset] = useState(false)
+  const [hasUpload, setHasUpload] = useState(() => hasUploadedMarkdown())
+  const fileRef = useRef<HTMLInputElement>(null)
+  const isDirty = Boolean(pendingMarkdown) || !slidersEqual(sliders, savedSliders)
 
   useEffect(() => {
-    if (section && !HUB_IDS.has(section)) {
+    if (section) {
       navigate('/contenido/bot', { replace: true })
-      return
     }
-    setForm(getBotSettings())
   }, [navigate, section])
 
-  const save = () => {
-    const next = clampSettings(form)
-    saveBotSettings(next)
-    setForm(next)
-    notifySuccess('BotIP actualizado')
-  }
-
-  const restore = () => {
-    const current = getBotSettings()
-    const defaults = DEFAULT_BOT_SETTINGS
-    let next = current
-    if (section === LIMITS_ID) {
-      next = {
-        ...current,
-        minChars: defaults.minChars,
-        maxChars: defaults.maxChars,
-        blockMinutes: defaults.blockMinutes,
-        burstLimit: defaults.burstLimit,
-        welcome: defaults.welcome,
+  const saveAdjustments = () => {
+    if (!isDirty) return
+    if (pendingMarkdown) {
+      const uploaded = saveActiveMarkdown(pendingMarkdown, 'subido')
+      if (!uploaded.ok) {
+        notifyError('No se aplicó el archivo', uploaded.errors[0])
+        return
       }
-    } else if (group) {
-      const replies = { ...current.replies }
-      for (const id of group.ids) {
-        replies[id] = { ...defaults.replies[id] }
-      }
-      next = { ...current, replies }
-    }
-    saveBotSettings(next)
-    setForm(next)
-    notifySuccess('Valores por defecto restaurados')
-  }
-
-  const setReply = (id: string, patch: Partial<{ text: string; keywords: string; paused: string }>) => {
-    setForm((current) => ({
-      ...current,
-      replies: {
-        ...current.replies,
-        [id]: { ...current.replies[id], ...patch },
-      },
-    }))
-  }
-
-  const back = () => {
-    if (!section) {
-      navigate(-1)
+      const doc = applySlidersToDocument(uploaded.doc, sliders, 'subido')
+      saveActiveDocument(doc)
+      setHasUpload(true)
+      setPendingMarkdown(null)
+      setSliders({ ...defaultSliderValues(), ...doc.sliders })
+      setSavedSliders({ ...defaultSliderValues(), ...doc.sliders })
+      notifySuccess('Ajustes guardados')
       return
     }
-    navigate('/contenido/bot')
+    const origin = getActiveSlot() === 'uploaded' ? 'subido' : 'modificado'
+    const doc = applySlidersToDocument(getActiveDocument(), sliders, origin)
+    saveActiveDocument(doc)
+    const next = { ...defaultSliderValues(), ...doc.sliders }
+    setSliders(next)
+    setSavedSliders(next)
+    notifySuccess('Ajustes guardados')
   }
 
-  if (!section) {
-    return (
-      <div className="content-studio">
-        <div className="content-card">
-          <ContentBack onBack={back} />
-          <div className="landing-admin__grid">
-            {HUB_ITEMS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                className="landing-admin__card"
-                onClick={() => navigate(`/contenido/bot/${item.id}`)}
-              >
-                <strong>{item.title}</strong>
-                <span>{item.hint}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    )
+  const downloadMarkdown = (source: string, filename: string, okMessage: string) => {
+    const blob = new Blob([source], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.click()
+    URL.revokeObjectURL(url)
+    notifySuccess(okMessage)
   }
 
-  const fields = (group?.ids ?? [])
-    .map((id) => BOT_REPLY_FIELDS.find((field) => field.id === id))
-    .filter((field): field is (typeof BOT_REPLY_FIELDS)[number] => Boolean(field))
+  const downloadOriginal = () => {
+    const file = factoryDownload()
+    downloadMarkdown(file.source, file.filename, 'Se descargó botIP.md de fábrica')
+  }
+
+  const downloadUploaded = () => {
+    const source = uploadedMarkdownSource()
+    if (!source) {
+      notifyError('No hay un archivo subido para descargar')
+      return
+    }
+    downloadMarkdown(source, downloadUploadedFileName(), 'Se descargó botIP2.md')
+  }
+
+  const uploadBehavior = (file: File | undefined) => {
+    if (!file) return
+    if (!file.name.toLowerCase().endsWith('.md')) {
+      notifyError('Solo se aceptan archivos .md')
+      return
+    }
+    const reader = new FileReader()
+    reader.onload = () => {
+      const text = String(reader.result ?? '')
+      const result = parseBotMarkdown(text)
+      if (!result.ok) {
+        notifyError('No se aplicó el archivo', result.errors[0])
+        return
+      }
+      setPendingMarkdown(text)
+      setSliders({ ...defaultSliderValues(), ...result.doc.sliders })
+      notifySuccess('Contexto listo. Pulse Guardar ajustes para aplicarlo.')
+    }
+    reader.readAsText(file)
+  }
+
+  const confirmFactoryReset = () => {
+    resetActiveMarkdown()
+    const factory = defaultSliderValues()
+    setPendingMarkdown(null)
+    setSliders(factory)
+    setSavedSliders(factory)
+    setConfirmReset(false)
+    notifySuccess('El chat volvió a botIP.md de fábrica')
+  }
+
+  const slot = getActiveSlot()
+  const usingUploaded = slot === 'uploaded' && hasUpload
+  const specById = Object.fromEntries(SLIDER_SPECS.map((spec) => [spec.id, spec]))
 
   return (
-    <section className="content-studio">
+    <div className="content-studio">
       <div className="content-card">
         <div className="admin-toolbar">
-          <ContentBack onBack={back} />
+          <ContentBack onBack={() => navigate(-1)} />
           <div className="landing-admin__actions">
-            <button type="button" className="admin-btn" onClick={save}>Guardar</button>
-            <button type="button" className="admin-btn admin-btn--ghost" onClick={restore}>Restaurar valores por defecto</button>
+            <PopupSelect
+              variant="button"
+              align="end"
+              triggerLabel="Descargar contexto"
+              aria-label="Qué contexto descargar"
+              options={[
+                {
+                  value: 'original',
+                  label: 'Original de fábrica (botIP.md)',
+                  description: 'El comportamiento establecido de fabrica',
+                },
+                {
+                  value: 'uploaded',
+                  label: 'Último archivo subido (botIP2.md)',
+                  description: hasUpload
+                    ? 'El contexto que se aplicó la última vez que se subió un .md. El chat lo usa mientras no restablezcas.'
+                    : 'Aún no hay un archivo subido para descargar.',
+                  disabled: !hasUpload,
+                },
+              ]}
+              onChange={(next) => {
+                if (next === 'original') downloadOriginal()
+                if (next === 'uploaded') downloadUploaded()
+              }}
+            />
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={() => fileRef.current?.click()}>
+              Subir comportamiento
+            </button>
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={() => setConfirmReset(true)}>
+              Restablecer original
+            </button>
+            {isDirty ? (
+              <button type="button" className="admin-btn" onClick={saveAdjustments}>
+                Guardar ajustes
+              </button>
+            ) : null}
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".md,text/markdown"
+              hidden
+              onChange={(event) => {
+                uploadBehavior(event.target.files?.[0])
+                event.target.value = ''
+              }}
+            />
           </div>
         </div>
-        <h2 className="content-card__title">{hubItem?.title ?? 'Gestión botIP'}</h2>
-        <div className={section === LIMITS_ID ? 'content-studio__cols content-studio__cols--limites' : 'content-studio__cols'}>
-          {section === LIMITS_ID ? (
-            <>
-              <section className="landing-admin__block">
-                <h3>Reglas para la respuesta</h3>
-                <div className="bot-limits">
-                  <div className="bot-limits__row">
-                    <label className="admin-form__field">
-                      Mínimo de caracteres
-                      <input className="admin-input" type="number" value={form.minChars} onChange={(event) => setForm({ ...form, minChars: Number(event.target.value) })} />
-                    </label>
-                    <label className="admin-form__field">
-                      Máximo de caracteres
-                      <input className="admin-input" type="number" value={form.maxChars} onChange={(event) => setForm({ ...form, maxChars: Number(event.target.value) })} />
-                    </label>
-                  </div>
-                  <div className="bot-limits__row">
-                    <label className="admin-form__field">
-                      Tiempo de bloqueo
-                      <input className="admin-input" type="number" value={form.blockMinutes} onChange={(event) => setForm({ ...form, blockMinutes: Number(event.target.value) })} />
-                    </label>
-                    <label className="admin-form__field">
-                      Límite de mensajes
-                      <input className="admin-input" type="number" value={form.burstLimit} onChange={(event) => setForm({ ...form, burstLimit: Number(event.target.value) })} />
-                    </label>
-                  </div>
-                </div>
-              </section>
-              <section className="landing-admin__block">
-                <h3>Mensaje de bienvenida</h3>
-                <BotReplyPreview
-                  previewLabel="Así lo verá el visitante"
-                  title="Editar mensaje"
-                  value={form.welcome}
-                  onChange={(welcome) => setForm({ ...form, welcome })}
-                />
-              </section>
-            </>
-          ) : (
-            fields.map((field) => (
-              <div key={field.id} className="landing-admin__block">
-                <h3>{field.label}</h3>
-                <div className="content-studio__split">
-                  <BotKeywordList
-                    keywords={form.replies[field.id]?.keywords ?? ''}
-                    paused={form.replies[field.id]?.paused}
-                    onChange={(next) => setReply(field.id, next)}
-                  />
-                  <BotReplyPreview
-                    value={form.replies[field.id]?.text ?? ''}
-                    onChange={(text) => setReply(field.id, { text })}
-                  />
-                </div>
-              </div>
-            ))
-          )}
+        <p className="bot-ip-origin">
+          El archivo establecido para el comportamiento es {usingUploaded ? 'botIP2.md (archivo subido)' : 'botIP.md'}
+          {pendingMarkdown ? ' Hay un contexto nuevo sin guardar.' : isDirty ? ' Hay ajustes sin guardar.' : ''}
+        </p>
+        <div className="bot-slider-list">
+          {SLIDER_GROUPS.map((group) => (
+            <section key={group.title} className="bot-slider-group">
+              <h3 className="bot-slider-group__title">{group.title}</h3>
+              {group.ids.map((id) => {
+                const spec = specById[id]
+                if (!spec) return null
+                const value = sliders[spec.id]
+                const steps = Math.round((spec.max - spec.min) / spec.step) + 1
+                return (
+                  <label key={spec.id} className="bot-slider">
+                    <span className="bot-slider__head">
+                      <strong>{spec.label}</strong>
+                      <span className="bot-slider__value">
+                        {sliderDisplay(spec, value)}
+                        {value === spec.factory ? ' · valor de fábrica' : ''}
+                      </span>
+                    </span>
+                    <span className="bot-slider__help">{spec.help}</span>
+                    <input
+                      className="bot-slider__range"
+                      type="range"
+                      min={spec.min}
+                      max={spec.max}
+                      step={spec.step}
+                      value={value}
+                      onChange={(event) => setSliders({ ...sliders, [spec.id]: Number(event.target.value) })}
+                    />
+                    {steps <= 12 ? (
+                      <span className="bot-slider__ticks" aria-hidden="true">
+                        {Array.from({ length: steps }, (_, index) => spec.min + index * spec.step).map((tick) => (
+                          <i key={tick} />
+                        ))}
+                      </span>
+                    ) : null}
+                  </label>
+                )
+              })}
+            </section>
+          ))}
         </div>
       </div>
-    </section>
+      <Modal
+        isOpen={confirmReset}
+        title="Restablecer comportamiento original"
+        onClose={() => setConfirmReset(false)}
+        footer={
+          <>
+            <button type="button" className="admin-btn admin-btn--ghost" onClick={() => setConfirmReset(false)}>
+              Cancelar
+            </button>
+            <button type="button" className="admin-btn" onClick={confirmFactoryReset}>
+              Restablecer
+            </button>
+          </>
+        }
+      >
+        <p>
+          El chat vuelve a botIP.md de fábrica y se descartan los sliders locales. El último archivo subido se conserva para descargarlo como botIP2.md.
+        </p>
+      </Modal>
+    </div>
   )
 }

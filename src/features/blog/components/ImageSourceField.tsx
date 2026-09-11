@@ -1,5 +1,4 @@
 import { useId, useRef, useState } from 'react'
-import { Plus } from 'lucide-react'
 import { notifyError } from '@/shared/lib/notify'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
 import { fileToWebpDataUrl } from '../lib/imageToWebp'
@@ -10,8 +9,12 @@ type ImageSourceFieldProps = {
   onChange: (value: string) => void
   disabled?: boolean
   placeholder?: string
-  /** Si se define, muestra la acción "Agregar" (imagen +1). */
-  onAdd?: () => void
+  maxEdge?: number
+  asObjectUrl?: boolean
+}
+
+function isLocalPreview(src: string) {
+  return src.startsWith('data:image/') || src.startsWith('blob:')
 }
 
 export function ImageSourceField({
@@ -19,7 +22,8 @@ export function ImageSourceField({
   onChange,
   disabled = false,
   placeholder = 'URL de la imagen',
-  onAdd,
+  maxEdge,
+  asObjectUrl = false,
 }: ImageSourceFieldProps) {
   const inputId = useId()
   const fileRef = useRef<HTMLInputElement>(null)
@@ -30,7 +34,8 @@ export function ImageSourceField({
     if (!file) return
     setBusy(true)
     try {
-      onChange(await fileToWebpDataUrl(file))
+      onChange(asObjectUrl ? URL.createObjectURL(file) : await fileToWebpDataUrl(file, 0.85, maxEdge))
+      setShowView(true)
     } catch {
       notifyError('No se pudo cargar la imagen')
     } finally {
@@ -42,16 +47,16 @@ export function ImageSourceField({
     <div className="image-source-field">
       <input
         className="admin-input"
-        value={value.startsWith('data:image/') ? '' : value}
-        placeholder={value.startsWith('data:image/') ? 'Imagen local (WebP) cargada' : placeholder}
+        value={isLocalPreview(value) ? '' : value}
+        placeholder={isLocalPreview(value) ? 'Imagen en vista previa (no se guarda en el navegador)' : placeholder}
         disabled={disabled || busy}
         onChange={(event) => onChange(event.target.value)}
       />
       <IconAction
-        label="Ver imagen"
+        label={showView ? 'Ocultar imagen' : 'Ver imagen'}
         variant="view"
         disabled={disabled || busy || !value}
-        onClick={() => setShowView((current) => !current)}
+        onClick={() => setShowView((open) => !open)}
       />
       <input
         id={inputId}
@@ -67,7 +72,7 @@ export function ImageSourceField({
         }}
       />
       <IconAction
-        label="Cambiar imagen"
+        label="Editar imagen"
         variant="edit"
         disabled={disabled || busy}
         onClick={() => fileRef.current?.click()}
@@ -81,18 +86,6 @@ export function ImageSourceField({
           setShowView(false)
         }}
       />
-      {onAdd ? (
-        <button
-          type="button"
-          className="image-source-field__upload"
-          title="Agregar imagen"
-          disabled={disabled || busy}
-          onClick={onAdd}
-        >
-          <Plus size={16} strokeWidth={1.75} aria-hidden />
-          Agregar
-        </button>
-      ) : null}
       {showView && value ? <img className="image-source-field__view" src={value} alt="" /> : null}
     </div>
   )

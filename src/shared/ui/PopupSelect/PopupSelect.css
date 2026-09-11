@@ -1,0 +1,132 @@
+.popup-select {
+  position: relative;
+}
+
+.popup-select__trigger {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  gap: 8px;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.popup-select__trigger:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.popup-select__trigger--filter {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  box-sizing: border-box;
+  font-size: 13px;
+  height: 36px;
+  min-height: 36px;
+  min-width: 148px;
+  padding: 8px 14px;
+}
+
+.popup-select__trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.popup-select__caret {
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+  opacity: 0.55;
+  transition: transform var(--motion-duration-fast, 160ms) var(--motion-ease-soft, ease);
+}
+
+.popup-select__caret.is-open {
+  transform: rotate(180deg);
+}
+
+.popup-select__menu {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  left: 0;
+  max-height: min(320px, 70vh);
+  min-width: 100%;
+  overflow: auto;
+  padding: 8px;
+  position: absolute;
+  top: calc(100% + 6px);
+  z-index: 40;
+}
+
+.popup-select__menu--end {
+  left: auto;
+  right: 0;
+}
+
+.popup-select__menu--wide {
+  min-width: min(360px, 80vw);
+}
+
+.popup-select__option {
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.popup-select__option:hover:not(:disabled) {
+  background: var(--color-bg-page);
+}
+
+.popup-select__option:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.popup-select__option.is-selected {
+  background: var(--color-bg-page);
+}
+
+.popup-select__option strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.popup-select__option span {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.popup-select__option-row {
+  align-items: baseline;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.admin-toolbar__filters .popup-select__trigger--filter {
+  border-radius: 8px;
+  font-size: 13px;
+  height: 36px;
+  min-height: 36px;
+  padding: 8px 14px;
+}

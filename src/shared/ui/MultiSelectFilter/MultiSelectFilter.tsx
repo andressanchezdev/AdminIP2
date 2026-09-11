@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
+import '../PopupSelect/PopupSelect.css'
 import './MultiSelectFilter.css'
 
 export type MultiSelectOption = {
@@ -37,7 +38,7 @@ function triggerLabel(
   return `${selected.length} seleccionadas`
 }
 
-/** Filtro multi-opción estilo select/popup (patrón Verificar de ventasIP). */
+/** Filtro multi-opción con el mismo popup que Descargar contexto. */
 export function MultiSelectFilter({
   label,
   options,
@@ -107,21 +108,21 @@ export function MultiSelectFilter({
   }
 
   return (
-    <div className={`multi-select-filter ${className}`.trim()} ref={wrapRef}>
+    <div className={`popup-select multi-select-filter ${className}`.trim()} ref={wrapRef}>
       {label ? <span className="multi-select-filter__caption">{label}</span> : null}
       <div className="multi-select-filter__control">
         <button
           type="button"
-          className={`multi-select-filter__trigger ${value.length || allSelected ? 'is-active' : ''}`}
+          className="popup-select__trigger popup-select__trigger--filter"
           aria-haspopup="listbox"
           aria-expanded={open}
           aria-controls={listId}
           onClick={() => setOpen((current) => !current)}
         >
-          <span className="multi-select-filter__trigger-label">
+          <span className="popup-select__trigger-label">
             {triggerLabel(value, allValues, emptyLabel, allLabel)}
           </span>
-          <span className={`multi-select-filter__caret ${open ? 'is-open' : ''}`} aria-hidden />
+          <span className={`popup-select__caret ${open ? 'is-open' : ''}`} aria-hidden />
         </button>
         {value.length > 0 && !allSelected ? (
           <button
@@ -137,26 +138,30 @@ export function MultiSelectFilter({
       </div>
 
       {open ? (
-        <div className="multi-select-filter__menu" id={listId} role="listbox" aria-multiselectable>
+        <div
+          className="popup-select__menu popup-select__menu--end"
+          id={listId}
+          role="listbox"
+          aria-multiselectable
+        >
           <button
             type="button"
             role="option"
             aria-selected={allSelected}
-            className={`multi-select-filter__item multi-select-filter__item--special ${allSelected ? 'is-selected' : ''}`}
+            className={`popup-select__option ${allSelected ? 'is-selected' : ''}`}
             onClick={() => handleOptionClick({ value: '__all__', label: allLabel, kind: 'all' })}
           >
-            {allLabel}
+            <strong>{allLabel}</strong>
           </button>
           <button
             type="button"
             role="option"
             aria-selected={noneSelected}
-            className={`multi-select-filter__item multi-select-filter__item--special ${noneSelected ? 'is-selected' : ''}`}
+            className={`popup-select__option ${noneSelected ? 'is-selected' : ''}`}
             onClick={() => handleOptionClick({ value: '__none__', label: noneLabel, kind: 'none' })}
           >
-            {noneLabel}
+            <strong>{noneLabel}</strong>
           </button>
-          <div className="multi-select-filter__divider" aria-hidden />
           {options.map((option) => {
             const selected = isActive(option)
             return (
@@ -165,11 +170,13 @@ export function MultiSelectFilter({
                 type="button"
                 role="option"
                 aria-selected={selected}
-                className={`multi-select-filter__item ${selected ? 'is-selected' : ''}`}
+                className={`popup-select__option ${selected ? 'is-selected' : ''}`}
                 onClick={() => handleOptionClick(option)}
               >
-                <span>{option.label}</span>
-                {option.hint ? <span className="multi-select-filter__hint">{option.hint}</span> : null}
+                <span className="popup-select__option-row">
+                  <strong>{option.label}</strong>
+                  {option.hint ? <span>{option.hint}</span> : null}
+                </span>
               </button>
             )
           })}

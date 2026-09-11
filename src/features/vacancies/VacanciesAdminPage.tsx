@@ -14,6 +14,7 @@ import {
 import { confirmAction, notifyError, notifySuccess } from '@/shared/lib/notify'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { PopupSelect } from '@/shared/ui/PopupSelect/PopupSelect'
 import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import {
   AdminRowCard,
@@ -244,18 +245,15 @@ export function VacanciesAdminPage() {
             placeholder="Buscar por título o ubicación… (pulse Enter)"
             onSearch={setQuery}
           />
-          <select
-            className="admin-input"
+          <PopupSelect
             aria-label="Filtrar por estado"
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as VacancyStatus | 'all')}
-          >
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status === 'all' ? 'Todos los estados' : status}
-              </option>
-            ))}
-          </select>
+            onChange={(next) => setStatusFilter(next as VacancyStatus | 'all')}
+            options={STATUS_OPTIONS.map((status) => ({
+              value: status,
+              label: status === 'all' ? 'Todos los estados' : status,
+            }))}
+          />
         </div>
         {canCreate ? (
           <div className="admin-toolbar__create">

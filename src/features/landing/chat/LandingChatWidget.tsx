@@ -1,18 +1,12 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { answerLandingChat, type ChatReply } from './answerChat'
-import {
-  commitUserMessage,
-  endChatSession,
-  isContextFollowUp,
-  isFreshConversation,
-  priorUserMessages,
-  startChatSession,
-} from './chatContext'
+import { endChatSession, startChatSession } from './sessionContext'
 import { chatDraftError, readChatGuard, registerChatSend } from './chatGuard'
 import { getBotSettings } from './botSettings'
-import { greetingReply, type ChatAction } from './intents'
+import { welcomeReply, type ChatAction } from './intents'
 import { downloadLandingCatalog } from '../lib/downloadLandingCatalog'
+import { handleLandingHashClick, parseLandingHash } from '../landingScroll'
 
 type ChatMessage = {
   id: string
@@ -21,9 +15,26 @@ type ChatMessage = {
   text: string
 }
 
-const REPLY_DELAY_MS = 700
+function ChatLink({
+  action,
+  index,
+  onPrompt,
+  onClose,
+}: {
+  action: ChatAction
+  index?: number
+  onPrompt?: (prompt: string) => void
+  onClose?: () => void
+}) {
+  if (action.kind === 'prompt' && action.prompt) {
+    return (
+      <button type="button" className="landing-chat__option" onClick={() => onPrompt?.(action.prompt || '')}>
+        {index ? <span className="landing-chat__option-index">{index}</span> : null}
+        {action.label}
+      </button>
+    )
+  }
 
-function ChatLink({ action }: { action: ChatAction }) {
   if (action.kind === 'catalog-download') {
     return (
       <button
@@ -42,6 +53,22 @@ function ChatLink({ action }: { action: ChatAction }) {
   if (action.external || href.startsWith('http') || href.startsWith('mailto:')) {
     return (
       <a className="landing-chat__action" href={href} target="_blank" rel="noreferrer">
+        {action.label}
+      </a>
+    )
+  }
+
+  const sectionId = parseLandingHash(href)
+  if (sectionId) {
+    return (
+      <a
+        className="landing-chat__action"
+        href={`/#${sectionId}`}
+        onClick={(event) => {
+          onClose?.()
+          handleLandingHashClick(event, `#${sectionId}`)
+        }}
+      >
         {action.label}
       </a>
     )
@@ -70,7 +97,7 @@ export function LandingChatWidget() {
   const bodyRef = useRef<HTMLDivElement>(null)
   const replyTimer = useRef<number | null>(null)
   const limits = getBotSettings()
-  const welcome = greetingReply()
+  const welcome = welcomeReply()
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState('')
   const [typing, setTyping] = useState(false)
@@ -100,12 +127,18 @@ export function LandingChatWidget() {
     return () => window.clearInterval(timer)
   }, [])
 
+  const lastBot = [...messages].reverse().find((message) => message.role === 'bot')
+  const lastOptions = lastBot?.reply?.options ?? []
+  const awaitingChoice = lastOptions.some((item) => item.kind === 'prompt')
+  const minChars = awaitingChoice ? 1 : limits.minChars
+
   const pushQuery = (query: string) => {
     const text = query.trim()
     if (typing) return
     if (refreshBlock()) return
 
-    const error = chatDraftError(text)
+    const matchesOption = lastOptions.some((item) => (item.prompt || item.label) === text)
+    const error = chatDraftError(text, { allowShort: awaitingChoice || matchesOption })
     if (error) {
       setNotice(error)
       return
@@ -129,12 +162,7 @@ export function LandingChatWidget() {
 
     let reply: ChatReply
     try {
-      const fresh = isFreshConversation(text)
-      const history = fresh ? [] : priorUserMessages(text)
-      reply = answerLandingChat(text, history)
-      if (fresh) commitUserMessage(text, 'clear')
-      else if (isContextFollowUp(text)) commitUserMessage(text, 'append')
-      else commitUserMessage(text, 'replace')
+      reply = answerLandingChat(text)
     } catch {
       reply = {
         text: 'Tuve un inconveniente al preparar la respuesta y no quiero dejarte sin una respuesta. Escríbeme de nuevo o te contacto con un asesor por WhatsApp.',
@@ -142,6 +170,7 @@ export function LandingChatWidget() {
       }
     }
 
+    const delay = Math.max(0, getBotSettings().replyDelayMs ?? 3000)
     replyTimer.current = window.setTimeout(() => {
       setMessages((current) => [
         ...current,
@@ -149,7 +178,7 @@ export function LandingChatWidget() {
       ])
       setTyping(false)
       replyTimer.current = null
-    }, REPLY_DELAY_MS)
+    }, delay)
   }
 
   const submit = (event?: FormEvent) => {
@@ -192,10 +221,22 @@ export function LandingChatWidget() {
             {messages.map((message) => (
               <article key={message.id} className={`landing-chat__bubble landing-chat__bubble--${message.role}`}>
                 <p>{message.text}</p>
+                {message.reply?.options?.length ? (
+                  <div className="landing-chat__options">
+                    {message.reply.options.map((action, index) => (
+                      <ChatLink
+                        key={action.label}
+                        action={action}
+                        index={index + 1}
+                        onPrompt={pushQuery}
+                      />
+                    ))}
+                  </div>
+                ) : null}
                 {message.reply?.actions.length ? (
                   <div className="landing-chat__actions">
                     {message.reply.actions.map((action) => (
-                      <ChatLink key={action.label} action={action} />
+                      <ChatLink key={action.label} action={action} onClose={() => setOpen(false)} />
                     ))}
                   </div>
                 ) : null}
@@ -221,17 +262,17 @@ export function LandingChatWidget() {
                 if (notice) setNotice('')
               }}
               onKeyDown={onKeyDown}
-              placeholder="Escribe tu consulta"
+              placeholder={awaitingChoice ? 'Elige 1, 2 o el nombre' : 'Escribe tu consulta'}
               aria-label="Mensaje"
               autoComplete="off"
-              minLength={limits.minChars}
+              minLength={minChars}
               maxLength={limits.maxChars}
               disabled={typing || Boolean(blockedMessage)}
             />
             <button
               type="submit"
               className="landing-chat__send"
-              disabled={typing || Boolean(blockedMessage) || draft.trim().length < limits.minChars}
+              disabled={typing || Boolean(blockedMessage) || draft.trim().length < minChars}
             >
               Enviar
             </button>

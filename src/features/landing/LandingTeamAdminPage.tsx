@@ -17,6 +17,7 @@ import { ImageSourceField } from '@/features/blog/components/ImageSourceField'
 import { confirmAction, notifyError, notifySuccess } from '@/shared/lib/notify'
 import { Modal } from '@/shared/ui/Modal/Modal'
 import { IconAction } from '@/shared/ui/IconAction/IconAction'
+import { PopupSelect } from '@/shared/ui/PopupSelect/PopupSelect'
 import { SearchInput } from '@/shared/ui/SearchInput/SearchInput'
 import {
   AdminRowCard,
@@ -28,6 +29,7 @@ import {
   validateLandingTeamForm,
   type LandingTeamFormInput,
 } from './landingTeamValidation'
+import { ContentBack } from './ContentBack'
 import './LandingTeamAdminPage.css'
 
 type FormState = LandingTeamFormInput
@@ -259,42 +261,32 @@ export function LandingTeamAdminPage({ onBack }: { onBack?: () => void }) {
 
   return (
     <div className="admin-page">
-      {onBack ? (
-        <button type="button" className="admin-btn admin-btn--ghost" onClick={onBack}>
-          Volver a secciones
-        </button>
-      ) : null}
       <div className="admin-toolbar">
+        {onBack ? <ContentBack onBack={onBack} /> : null}
         <div className="admin-toolbar__filters">
           <SearchInput
             appliedValue={query}
             placeholder="Buscar por nombre o cargo… (pulse Enter)"
             onSearch={setQuery}
           />
-          <select
-            className="admin-input"
+          <PopupSelect
             aria-label="Filtrar por grupo"
             value={groupFilter}
-            onChange={(event) => setGroupFilter(event.target.value as LandingTeamGroup | 'all')}
-          >
-            {GROUP_OPTIONS.map((group) => (
-              <option key={group} value={group}>
-                {group === 'all' ? 'Todos los grupos' : GROUP_LABEL[group]}
-              </option>
-            ))}
-          </select>
-          <select
-            className="admin-input"
+            onChange={(next) => setGroupFilter(next as LandingTeamGroup | 'all')}
+            options={GROUP_OPTIONS.map((group) => ({
+              value: group,
+              label: group === 'all' ? 'Todos los grupos' : GROUP_LABEL[group],
+            }))}
+          />
+          <PopupSelect
             aria-label="Filtrar por estado"
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as LandingTeamStatus | 'all')}
-          >
-            {STATUS_OPTIONS.map((status) => (
-              <option key={status} value={status}>
-                {status === 'all' ? 'Todos los estados' : status}
-              </option>
-            ))}
-          </select>
+            onChange={(next) => setStatusFilter(next as LandingTeamStatus | 'all')}
+            options={STATUS_OPTIONS.map((status) => ({
+              value: status,
+              label: status === 'all' ? 'Todos los estados' : status,
+            }))}
+          />
         </div>
         {canCreate ? (
           <div className="admin-toolbar__create">

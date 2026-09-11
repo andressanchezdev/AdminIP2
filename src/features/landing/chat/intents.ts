@@ -1,20 +1,24 @@
-import { LANDING_CONTACT } from '../content'
-import { getLandingContent, visibleBrands } from '../landingContentStore'
-import { CATALOG_PRODUCTS } from '../catalogProducts'
-import { ACCESSORY_TERMS, CATALOG_PART_TERMS, findTerm, OTHER_PART_TERMS } from './motoParts'
-import { applyBotText, getBotSettings, keywordsOf } from './botSettings'
-import { groupLabel, type TeamMatch } from './teamLookup'
+import { findTerm, listPartFamilies, liveAccessoryTerms, liveCatalogParts, liveOtherParts, liveWeakLexemes, resolvePartFamily } from './motoParts'
+import { applyBotText, defaultKeywords, getBotSettings, keywordsOf, liveContact, livePayments } from './botSettings'
+import { nextAskPhrase, nextAskSubject } from './askPhrase'
+import { advisorAskKind, groupLabel, type TeamMatch } from './teamLookup'
 import type { LandingTeamMember } from '@/mocks/data'
+import { liveBrandNames, liveCatalogLabels, liveCatalogProducts, liveLexiconSet, livePublishedTeam, liveShipping } from './botip/liveData'
+import { isBroadPriceAsk } from './conversationThread'
+import type { SessionContext } from './sessionContext'
+import { formatOfferCard, inventorySummary, pickLastOffer, PRICE_DISCLAIMER } from './inventory'
 
 export type ChatAction = {
   href?: string
   label: string
   external?: boolean
-  kind?: 'catalog-download'
+  kind?: 'catalog-download' | 'prompt'
+  prompt?: string
 }
 
 export type ChatReply = {
   actions: ChatAction[]
+  options?: ChatAction[]
   text: string
 }
 
@@ -33,6 +37,8 @@ type IntentId =
   | 'company'
   | 'social'
   | 'thanks'
+  | 'credit'
+  | 'payment'
 
 type Intent = {
   id: IntentId
@@ -43,7 +49,7 @@ const CATALOG_PATH = '/explorar/catalogo'
 const VACANCY_PATH = '/explorar/vacantes'
 
 function whatsappHref(text: string) {
-  const base = LANDING_CONTACT.whatsappUrl
+  const base = liveContact().whatsappUrl
   const joiner = base.includes('?') ? '&' : '?'
   return `${base}${joiner}text=${encodeURIComponent(text)}`
 }
@@ -51,10 +57,10 @@ function whatsappHref(text: string) {
 const contactActions = (): ChatAction[] => [
   {
     href: whatsappHref('Hola, quiero más información de Importadora Premium.'),
-    label: 'Escribir por WhatsApp',
+    label: 'Ir a WhatsApp',
     external: true,
   },
-  { href: `mailto:${LANDING_CONTACT.email}`, label: 'Enviar correo' },
+  { href: `mailto:${liveContact().email}`, label: 'Enviar correo' },
 ]
 
 export function getChatIntents(): Intent[] {
@@ -65,62 +71,27 @@ export function getChatIntents(): Intent[] {
 }
 
 const CHAT_INTENTS: readonly Intent[] = [
-  {
-    id: 'greeting',
-    keywords: ['hola', 'buenas', 'buenos', 'saludo', 'hey'],
-  },
-  {
-    id: 'whatsapp',
-    keywords: ['whatsapp', 'contacto', 'telefono', 'celular', 'correo', 'email', 'llamar', 'escribir'],
-  },
-  {
-    id: 'catalog',
-    keywords: ['catalogo', 'productos', 'surtido', 'linea'],
-  },
-  {
-    id: 'parts',
-    keywords: ['repuesto', 'repuestos', 'pieza', 'piezas', 'componente'],
-  },
-  {
-    id: 'accessory',
-    keywords: ['accesorio', 'accesorios'],
-  },
-  {
-    id: 'attention',
-    keywords: ['asesor', 'asesoria', 'pedido', 'comprar', 'obtener', 'atencion', 'ayuda', 'servicio'],
-  },
-  {
-    id: 'complaint',
-    keywords: ['queja', 'reclamo', 'reclamar', 'quejar', 'molestia', 'problema', 'garantia'],
-  },
-  {
-    id: 'quote',
-    keywords: ['precio', 'precios', 'stock', 'cotizar', 'cotizacion', 'vale', 'cuesta', 'disponibilidad'],
-  },
-  {
-    id: 'vacancy',
-    keywords: ['vacante', 'vacantes', 'empleo', 'trabajo', 'postular', 'hoja'],
-  },
-  {
-    id: 'location',
-    keywords: ['direccion', 'ubicacion', 'google maps', 'donde', 'sede', 'local'],
-  },
-  {
-    id: 'company',
-    keywords: ['vision', 'mision', 'equipo', 'nosotros', 'marca', 'marcas', 'empresa', 'quienes'],
-  },
-  {
-    id: 'social',
-    keywords: ['instagram', 'tiktok', 'facebook', 'redes', 'red'],
-  },
-  {
-    id: 'thanks',
-    keywords: ['gracias', 'gracia', 'adios', 'chao', 'bye'],
-  },
+  { id: 'greeting', keywords: defaultKeywords('greeting') },
+  { id: 'whatsapp', keywords: defaultKeywords('whatsapp') },
+  { id: 'catalog', keywords: defaultKeywords('catalog') },
+  { id: 'parts', keywords: defaultKeywords('parts') },
+  { id: 'accessory', keywords: defaultKeywords('accessory') },
+  { id: 'attention', keywords: defaultKeywords('attention') },
+  { id: 'complaint', keywords: defaultKeywords('complaint') },
+  { id: 'quote', keywords: defaultKeywords('quote') },
+  { id: 'vacancy', keywords: defaultKeywords('vacancy') },
+  { id: 'location', keywords: defaultKeywords('location') },
+  { id: 'company', keywords: defaultKeywords('company') },
+  { id: 'social', keywords: defaultKeywords('social') },
+  { id: 'thanks', keywords: defaultKeywords('thanks') },
+  { id: 'credit', keywords: defaultKeywords('credit') },
+  { id: 'payment', keywords: defaultKeywords('payment') },
+  { id: 'shipping', keywords: defaultKeywords('shipping') },
+  { id: 'orderStatus', keywords: defaultKeywords('orderStatus') },
 ]
 
 export function catalogSummary() {
-  return getLandingContent().catalog.options.map((option) => option.label).join(', ')
+  return liveCatalogLabels()
 }
 
 function labelOf(term: string) {
@@ -129,37 +100,154 @@ function labelOf(term: string) {
 }
 
 function askToNarrow(subject: string) {
-  return `Dime la marca o el modelo de ${subject}.`
+  return nextAskSubject(subject)
+}
+
+export const INTENT_FOCUS_LABELS = new Set([
+  'catalog',
+  'quote',
+  'product',
+  'payment',
+  'credit',
+  'parts',
+  'accessory',
+  'greeting',
+  'attention',
+  'company',
+  'location',
+  'shipping',
+  'orderStatus',
+  'social',
+  'thanks',
+])
+
+function subjectFrom(tokens: readonly string[], ctx?: SessionContext) {
+  const family = resolvePartFamily(tokens)
+  if (family && !family.ambiguous) return family.label
+  const focusLabel = ctx?.conversationFocus?.label || ''
+  const safeFocus = focusLabel && !INTENT_FOCUS_LABELS.has(focusLabel.toLowerCase()) ? focusLabel : ''
+  return (
+    findTerm(tokens, [...liveCatalogParts(), ...liveOtherParts(), ...liveAccessoryTerms()]) ||
+    ctx?.entities.pieza ||
+    ctx?.entities.producto ||
+    ctx?.entities.accesorio ||
+    ctx?.entities.namedPart ||
+    safeFocus
+  )
+}
+
+function quoteAsk(named: string) {
+  return named ? nextAskPhrase(named) : nextAskPhrase()
+}
+
+function completeVars(named: string, extra: Record<string, string> = {}) {
+  return {
+    term: named || 'el producto que buscas',
+    ask: quoteAsk(named),
+    phone: liveContact().phoneDisplay,
+    email: liveContact().email,
+    catalog: catalogSummary(),
+    address: liveContact().address,
+    hours: liveContact().hoursDisplay,
+    city: liveContact().city,
+    landmark: liveContact().landmark,
+    bank: livePayments().bank,
+    accountType: livePayments().accountType,
+    accountNumber: livePayments().accountNumber || 'el número vigente que te confirma un asesor',
+    holder: livePayments().holder,
+    freeMetroFrom: liveShipping().freeMetroFrom,
+    cityScope: liveShipping().cityScope,
+    ...extra,
+  }
 }
 
 export function whatsappReply(): ChatReply {
   return {
-    text: applyBotText('whatsapp', `Puedes escribirnos por WhatsApp al ${LANDING_CONTACT.phoneDisplay} o al correo ${LANDING_CONTACT.email}.`, {
-      phone: LANDING_CONTACT.phoneDisplay,
-      email: LANDING_CONTACT.email,
-    }),
+    text: applyBotText(
+      'whatsapp',
+      `Claro. Nuestro WhatsApp es ${liveContact().phoneDisplay} y el correo ${liveContact().email}. La sede está en ${liveContact().address}. ${nextAskPhrase()}`,
+      completeVars(''),
+    ),
     actions: contactActions(),
   }
 }
 
 function catalogStepActions(): ChatAction[] {
   return [
-    {
-      href: whatsappHref('Hola, quiero hablar con un asesor para conocer el catálogo.'),
-      label: 'Hablar con un asesor real',
-      external: true,
-    },
     { kind: 'catalog-download', label: 'Descargar el catálogo' },
     { href: CATALOG_PATH, label: 'Ver catálogo' },
   ]
 }
 
-export function catalogReply(): ChatReply {
+const SALE_NOTE = 'Este chat informa el precio de referencia; la compra la cierra un asesor.'
+
+function priceCardActions(term: string): ChatAction[] {
+  return [
+    { href: CATALOG_PATH, label: 'Ver en catálogo' },
+    {
+      href: whatsappHref(
+        term
+          ? `Hola, quiero validar el precio de ${term}.`
+          : 'Hola, quiero validar un precio. Te indico pieza, marca y modelo.',
+      ),
+      label: 'Validar precio con un asesor',
+      external: true,
+    },
+  ]
+}
+
+const CATEGORY_WORDS = new Set(['categoria', 'categorias', 'lineas'])
+const PRODUCT_LIST_WORDS = new Set(['producto', 'productos', 'products'])
+
+export function categorySummary() {
+  return catalogSummary()
+}
+
+export function productNamesSummary() {
+  return liveCatalogProducts().map((item) => item.label).join(', ')
+}
+
+export function categoriesReply(): ChatReply {
+  const names = categorySummary()
   return {
-    text: applyBotText('catalog', 'Te muestro el catálogo. Elige cómo quieres verlo.'),
+    text: applyBotText(
+      'catalog',
+      `Nuestras categorías publicadas son ${names}. Dime cuál te interesa y te oriento con los productos de esa línea.`,
+      completeVars('', { catalog: names }),
+    ),
     actions: catalogStepActions(),
   }
 }
+
+export function productsListReply(): ChatReply {
+  const names = productNamesSummary()
+  return {
+    text: applyBotText(
+      'catalog',
+      `En el catálogo tenemos estos productos: ${names}. Dime cuál buscas o la categoría, y te ayudo a afinar.`,
+      completeVars('', { catalog: names, names }),
+    ),
+    actions: catalogStepActions(),
+  }
+}
+
+export function catalogReply(tokens: readonly string[] = []): ChatReply {
+  const wantsCategories = tokens.some((token) => CATEGORY_WORDS.has(token))
+  const wantsProducts = tokens.some((token) => PRODUCT_LIST_WORDS.has(token))
+  if (wantsCategories && !wantsProducts) return categoriesReply()
+  if (wantsProducts) return productsListReply()
+  return {
+    text: applyBotText(
+      'catalog',
+      'En el catálogo publicado encuentras {catalog}. Puedes verlo en línea, descargar el PDF o cotizar con un asesor al {phone}. Escribe la pieza que buscas y te oriento.',
+      completeVars(''),
+    ),
+    actions: catalogStepActions(),
+  }
+}
+
+const GENERIC_PRODUCT_TOKENS = new Set(['producto', 'productos', 'catalogo', 'catalog', 'surtido', 'linea', 'item', 'articulo'])
+export const COMPANY_NAME_TOKENS = new Set(['premium', 'importadora', 'importador', 'importacion', 'importadores'])
 
 function productWords(label: string, id: string) {
   return `${label} ${id}`
@@ -170,102 +258,201 @@ function productWords(label: string, id: string) {
     .filter((word) => word.length > 2)
 }
 
-function matchingProducts(tokens: readonly string[]) {
-  return CATALOG_PRODUCTS.filter((product) => {
-    const words = productWords(product.label, product.id)
-    return tokens.some((token) =>
-      words.some((word) => word === token || word.startsWith(token) || token.startsWith(word)),
-    )
+function tokenMatchesWord(token: string, word: string) {
+  if (liveWeakLexemes().has(token) || token.length < 3) return false
+  if (token === word) return true
+  if (token === `${word}s` || word === `${token}s`) return true
+  if (
+    token.length >= 5 &&
+    word.length >= 5 &&
+    Math.abs(token.length - word.length) <= 2 &&
+    (token.startsWith(word) || word.startsWith(token))
+  ) {
+    return true
+  }
+  return false
+}
+
+export function matchingProductsForTokens(tokens: readonly string[]) {
+  const useful = tokens.filter((token) => token.length >= 3 && !GENERIC_PRODUCT_TOKENS.has(token) && !COMPANY_NAME_TOKENS.has(token))
+  if (!useful.length) return []
+  const wanted = resolvePartFamily(useful)
+  const byId = liveCatalogProducts().filter((product) =>
+    useful.some((token) => token === product.id || token.replace(/-/g, '') === product.id.replace(/-/g, '')),
+  )
+  const byWord = liveCatalogProducts().filter((product) => {
+    const pool = [product.id, ...productWords(product.label, product.id)]
+    if (wanted && !wanted.ambiguous) {
+      const itemFamily = resolvePartFamily(
+        product.label
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/\p{M}/gu, '')
+          .split(/[^a-z0-9]+/)
+          .filter(Boolean),
+      )
+      if (itemFamily?.id !== wanted.id) return false
+    }
+    if (wanted?.ambiguous) return false
+    return useful.some((token) => pool.some((word) => tokenMatchesWord(token, word)))
+  })
+  const seen = new Set<string>()
+  return [...byId, ...byWord].filter((product) => {
+    if (seen.has(product.id)) return false
+    seen.add(product.id)
+    return true
   })
 }
 
-export function productReply(tokens: readonly string[]): ChatReply | null {
-  const hits = matchingProducts(tokens)
+function pickedProductReply(tokens: readonly string[], ctx: SessionContext): ChatReply | null {
+  const picked = pickLastOffer(ctx, tokens, ctx.lastUserText || '')
+  if (!picked) return null
+  ctx.entities.producto = picked.nombre
+  const term = picked.nombre
+  const offer = formatOfferCard(picked)
+  return {
+    text: applyBotText(
+      'product',
+      `En el catálogo encontré coincidencias para {term}: {names}.\n\n{offer}\n\n${SALE_NOTE}`,
+      completeVars(term, {
+        names: term,
+        offer,
+      }),
+    ),
+    actions: priceCardActions(term),
+  }
+}
+
+export function productReply(tokens: readonly string[], ctx?: SessionContext): ChatReply | null {
+  if (ctx) {
+    const picked = pickedProductReply(tokens, ctx)
+    if (picked) return picked
+  }
+  const families = listPartFamilies(tokens)
+  if (families.length >= 2) {
+    if (ctx) {
+      ctx.pendingConfirmation = {
+        intent: 'product',
+        payload: {
+          kind: 'product',
+          intent: 'product',
+          previous: families[0].label,
+          next: families[1].label,
+          rightIntent: 'product',
+        },
+      }
+    }
+    return {
+      text: applyBotText('disambiguation', '¿Te refieres a {left} o a {right}?', {
+        left: families[0].label,
+        right: families[1].label,
+      }),
+      actions: [],
+      options: [
+        { kind: 'prompt', label: families[0].label, prompt: families[0].label },
+        { kind: 'prompt', label: families[1].label, prompt: families[1].label },
+      ],
+    }
+  }
+  const family = resolvePartFamily(tokens)
+  if (family?.ambiguous) {
+    return {
+      text: 'Cuando dices freno puede ser pastillas, bandas (tambor) o discos: son productos distintos. ¿Cuál de esos buscas?',
+      actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
+    }
+  }
+  if (family?.id === 'banda_freno') {
+    const hits = matchingProductsForTokens(tokens)
+    if (!hits.length) return namedPartReply(tokens, ctx)
+  }
+  const hits = matchingProductsForTokens(tokens)
   if (hits.length === 0) return null
 
-  const term = findTerm(tokens, CATALOG_PART_TERMS) || hits[0].label
-  const versions = [
-    'Hay varias coincidencias en el catálogo. Dime la marca o el modelo del vehículo para afinar.',
-    'Encontré más de una opción. Para acotar, indícame la marca y el modelo.',
-    'Esa consulta coincide con varios productos. Dime la marca o el modelo para ubicar el correcto.',
-    'Puedo afinar esa coincidencia. Dime la marca y el modelo del vehículo.',
-    'Hay varias fichas parecidas. Dime la marca o el modelo y te oriento mejor.',
-  ]
+  const term = family?.label || findTerm(tokens, liveCatalogParts()) || hits[0].label || subjectFrom(tokens, ctx)
+  const names = hits.slice(0, 4).map((item) => item.label).join(', ')
+  const offer = inventorySummary(tokens, ctx) || 'Aún no hay precio de lista para esa coincidencia. Un asesor lo valida al escribirte.'
 
   return {
-    text: guidedText('product', versions[0], versions, { term }),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver en catálogo' },
-      {
-        href: whatsappHref(`Hola, busco ${term}. Te indico marca y modelo del vehículo.`),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    text: applyBotText(
+      'product',
+      `En el catálogo encontré coincidencias para {term}: {names}.\n\n{offer}\n\n${SALE_NOTE}`,
+      completeVars(term, {
+        names,
+        offer,
+      }),
+    ),
+    actions: priceCardActions(term),
   }
 }
 
 export function hasProductTerm(tokens: readonly string[]) {
-  return Boolean(findTerm(tokens, CATALOG_PART_TERMS))
+  return Boolean(findTerm(tokens, liveCatalogParts()) || findTerm(tokens, keywordsOf('product')))
 }
 
-export function namedPartReply(tokens: readonly string[]): ChatReply | null {
-  const part = findTerm(tokens, OTHER_PART_TERMS)
+export function namedPartReply(tokens: readonly string[], ctx?: SessionContext): ChatReply | null {
+  const family = resolvePartFamily(tokens)
+  const part =
+    family && !family.ambiguous
+      ? family.label
+      : findTerm(tokens, liveOtherParts()) || findTerm(tokens, keywordsOf('namedPart')) || ctx?.entities.namedPart
   if (!part) return null
+  const named = labelOf(part)
 
   return {
-    text: applyBotText('namedPart', `${labelOf(part)} no tiene ficha en este chat. ${askToNarrow(part)} Un asesor confirma el precio y el stock.`, { term: labelOf(part) }),
-    actions: [
-      {
-        href: whatsappHref(`Hola, quiero consultar el repuesto: ${part}`),
-        label: 'Consultar repuesto',
-        external: true,
-      },
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-    ],
-  } 
+    text: applyBotText(
+      'namedPart',
+      `${named} no tiene ficha en este chat, así que no invento precio ni stock. ${askToNarrow(part)} Un asesor confirma la referencia al ${liveContact().phoneDisplay}.`,
+      completeVars(named),
+    ),
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
+  }
 }
 
 export function partsReply(): ChatReply {
   return {
-    text: applyBotText('parts', `Estos son los repuestos publicados: ${catalogSummary()}. Dime qué pieza buscas.`, { catalog: catalogSummary() }),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-      {
-        href: whatsappHref('Hola, quiero consultar un repuesto.'),
-        label: 'Consultar por WhatsApp',
-        external: true,
-      },
-    ],
+    text: applyBotText(
+      'parts',
+      `Estas son las líneas de repuestos publicadas: ${catalogSummary()}. ${nextAskPhrase()} Precio y stock los confirma un asesor al ${liveContact().phoneDisplay}.`,
+      completeVars(''),
+    ),
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
-export function accessoryReply(tokens: readonly string[] = []): ChatReply {
-  const accessory = findTerm(tokens, ACCESSORY_TERMS)
+export function accessoryReply(tokens: readonly string[] = [], ctx?: SessionContext): ChatReply {
+  const accessory = findTerm(tokens, liveAccessoryTerms()) || ctx?.entities.accesorio || ''
   const named = accessory ? labelOf(accessory) : 'Accesorios'
 
   return {
-    text: applyBotText('accessory', `${named} no tiene ficha en este chat. ${askToNarrow(accessory || 'el accesorio')}`, { term: named }),
-    actions: [
-      {
-        href: whatsappHref(accessory ? `Hola, quiero consultar el accesorio: ${accessory}` : 'Hola, quiero consultar accesorios.'),
-        label: 'Consultar accesorio',
-        external: true,
-      },
-    ],
+    text: applyBotText(
+      'accessory',
+      `${named} se consulta con un asesor porque aquí no confirmo ficha, precio ni stock. ${quoteAsk(accessory ? named : '')} WhatsApp ${liveContact().phoneDisplay}.`,
+      completeVars(accessory ? named : ''),
+    ),
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
 export function socialReply(): ChatReply {
   return {
-    text: applyBotText('social', `Nos encuentras en ${LANDING_CONTACT.social.map((item) => item.label).join(', ')}.`, {
-      social: LANDING_CONTACT.social.map((item) => item.label).join(', '),
-    }),
-    actions: LANDING_CONTACT.social.map((item) => ({
+    text: applyBotText(
+      'social',
+      `Puedes seguirnos en ${liveContact().social.map((item) => item.label).join(', ')}. Elige la red desde las opciones o dime si buscas un producto.`,
+      completeVars(''),
+    ),
+    actions: liveContact().social.map((item) => ({
       href: item.href,
       label: item.label,
       external: true,
     })),
+  }
+}
+
+export function socialDefineReply(network: string): ChatReply {
+  const base = socialReply()
+  return {
+    text: `${labelOf(network)} es una de nuestras redes. ${base.text}`,
+    actions: base.actions,
   }
 }
 
@@ -278,9 +465,11 @@ export function thanksReply(): ChatReply {
 
 export function attentionReply(): ChatReply {
   return {
-    text: applyBotText('attention', `Te atiendo. Dime el producto o la referencia, o escríbenos por WhatsApp al ${LANDING_CONTACT.phoneDisplay}.`, {
-      phone: LANDING_CONTACT.phoneDisplay,
-    }),
+    text: applyBotText(
+      'attention',
+      `Te atiendo. ${nextAskPhrase()} También puedes escribir a un asesor al ${liveContact().phoneDisplay}.`,
+      completeVars(''),
+    ),
     actions: [
       {
         href: whatsappHref('Hola, quiero atención de un asesor.'),
@@ -294,65 +483,251 @@ export function attentionReply(): ChatReply {
 
 export function complaintReply(): ChatReply {
   return {
-    text: applyBotText('complaint', `Lamentamos el inconveniente. Cuéntame qué pasó y te ayudo. También puedes escribir al ${LANDING_CONTACT.phoneDisplay} o a ${LANDING_CONTACT.email}.`, {
-      phone: LANDING_CONTACT.phoneDisplay,
-      email: LANDING_CONTACT.email,
-    }),
+    text: applyBotText(
+      'complaint',
+      `Lamentamos el inconveniente. Cuéntame qué pasó (producto, pedido o fecha si los tienes) y te ayudo a dejarlo radicado. También puedes escribir al WhatsApp ${liveContact().phoneDisplay} o a ${liveContact().email}.`,
+      completeVars(''),
+    ),
     actions: [
       {
         href: whatsappHref('Hola, quiero registrar una queja o reclamo.'),
         label: 'Enviar queja por WhatsApp',
         external: true,
       },
-      { href: `mailto:${LANDING_CONTACT.email}?subject=Queja%20o%20reclamo`, label: 'Escribir al correo' },
+      { href: `mailto:${liveContact().email}?subject=Queja%20o%20reclamo`, label: 'Escribir al correo' },
     ],
   }
 }
 
-export function quoteReply(tokens: readonly string[] = []): ChatReply {
-  const term = findTerm(tokens, [...CATALOG_PART_TERMS, ...OTHER_PART_TERMS, ...ACCESSORY_TERMS])
-  const named = term ? labelOf(term) : 'ese producto'
+export function quoteReply(tokens: readonly string[] = [], ctx?: SessionContext): ChatReply {
+  if (isBroadPriceAsk(tokens)) {
+    if (ctx) ctx.holdFocus = true
+    return {
+      text: `No puedo darte un listado de precios de varios productos a la vez. Sí puedo indicarte el precio de un producto concreto del inventario al que tengo acceso, si me dices la pieza o la referencia. Las listas y descuentos los confirma un asesor.`,
+      actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
+    }
+  }
+  const picked = ctx ? pickLastOffer(ctx, tokens, ctx.lastUserText || '') : null
+  if (picked && ctx) {
+    ctx.entities.producto = picked.nombre
+    const named = picked.nombre
+    const offer = formatOfferCard(picked)
+    return {
+      text: `${named ? `Sobre ${named}` : 'Referencia de inventario'}:\n\n${offer}\n\n${SALE_NOTE} Dime marca y modelo si necesitas otra referencia. También puedes verlo en el catálogo.`,
+      actions: priceCardActions(named),
+    }
+  }
+  const term = subjectFrom(tokens, ctx)
+  const named = term ? labelOf(term) : ''
+  const offer = inventorySummary(tokens.length ? tokens : [term], ctx)
+  const body = offer
+    ? `${named ? `Sobre ${named}` : 'Referencia de inventario'}:\n\n${offer}\n\n${SALE_NOTE} Dime marca y modelo si necesitas otra referencia. También puedes verlo en el catálogo.`
+    : `Aún no hay una ficha de inventario para ${named || 'esa consulta'}. Dime la referencia, marca y modelo.\n${PRICE_DISCLAIMER}`
   return {
-    text: applyBotText('quote', `No confirmo el precio ni el stock de ${named} en este chat. ${askToNarrow(term || 'el producto')}`, {
-      term: named,
-    }),
-    actions: [
-      {
-        href: whatsappHref('Hola, quiero cotizar un producto.'),
-        label: 'Pedir cotización',
-        external: true,
-      },
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-    ],
+    text: `${body}`,
+    actions: offer ? priceCardActions(named) : [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
 export function vacancyReply(): ChatReply {
   return {
-    text: applyBotText('vacancy', 'Las vacantes están publicadas en Trabaja con nosotros.'),
+    text: applyBotText(
+      'vacancy',
+      `Las vacantes vigentes están en Trabaja con nosotros. Ahí ves el perfil, los requisitos y puedes postularte. Si quieres orientación, escríbenos al ${liveContact().phoneDisplay}.`,
+      completeVars(''),
+    ),
     actions: [{ href: VACANCY_PATH, label: 'Ver vacantes' }],
   }
 }
 
-export function locationReply(): ChatReply {
+export const HOUR_WORD_LIST = [
+  'hora',
+  'horas',
+  'horario',
+  'horarios',
+  'abre',
+  'abren',
+  'abierto',
+  'abierta',
+  'abiertos',
+  'abiertas',
+  'cierra',
+  'cierran',
+  'cerrado',
+  'atencion',
+  'atienden',
+  'hasta',
+] as const
+
+export const HOME_PLACE_LIST = ['medellin', 'antioquia', 'colombia', 'alpujarra', 'centro'] as const
+
+export const OTHER_CITY_LIST = [
+  'bogota',
+  'cali',
+  'barranquilla',
+  'cartagena',
+  'bucaramanga',
+  'pereira',
+  'manizales',
+  'cucuta',
+  'ibague',
+  'villavicencio',
+  'pasto',
+  'neiva',
+  'armenia',
+  'monteria',
+  'sincelejo',
+  'envigado',
+  'itagui',
+  'bello',
+  'sabaneta',
+  'rionegro',
+] as const
+
+function placeSummary() {
+  return `Estamos en ${liveContact().area}, ${liveContact().region} (${liveContact().country}), en ${liveContact().address}, ${liveContact().landmark}.`
+}
+
+export function locationReply(tokens: readonly string[] = []): ChatReply {
+  const hoursAsk = tokens.some((token) => liveLexiconSet('hourWords', new Set(HOUR_WORD_LIST)).has(token)) && !tokens.some((token) => ['donde', 'ubicacion', 'ubicados', 'ciudad', 'local'].includes(token))
+  const hours = liveContact().hoursDisplay
+  const otherCities = liveLexiconSet('otherCities', new Set(OTHER_CITY_LIST))
+  const homePlace = liveLexiconSet('homePlace', new Set(HOME_PLACE_LIST))
+  const askedAway = tokens.find((token) => otherCities.has(token) && !homePlace.has(token))
+  const askedHome = tokens.some((token) => homePlace.has(token))
+  let fallback: string
+  if (askedAway) {
+    const city = askedAway.charAt(0).toUpperCase() + askedAway.slice(1)
+    fallback = `No tenemos local en ${city}. ${placeSummary()} Horario: ${hours}.`
+  } else if (hoursAsk) {
+    fallback = `Atendemos ${hours}. ${placeSummary()}`
+  } else if (askedHome || tokens.some((token) => ['ciudad', 'ubicados', 'encuentran', 'local', 'sucursal', 'donde', 'ubicacion', 'direccion', 'sede'].includes(token))) {
+    fallback = `Sí: nuestro local está en ${liveContact().city}. ${placeSummary()} Horario: ${hours}.`
+  } else {
+    fallback = `${placeSummary()} Horario: ${hours}.`
+  }
+  const templated = applyBotText('location', fallback, completeVars(''))
+  const text = askedAway
+    ? `No tenemos local en ${askedAway.charAt(0).toUpperCase() + askedAway.slice(1)}. ${templated}`
+    : templated
   return {
-    text: applyBotText('location', `Puedes visitarnos en ${LANDING_CONTACT.address}.`, { address: LANDING_CONTACT.address }),
+    text,
+    actions: [{ href: liveContact().mapsShareUrl, label: 'Abrir mapa', external: true }],
+  }
+}
+
+function transferDetails() {
+  const number = livePayments().accountNumber.trim()
+  const base = `${livePayments().bank}, ${livePayments().accountType}, a nombre de ${livePayments().holder}`
+  if (number) return `${base}, número ${number}`
+  return `${base}. El número de cuenta vigente te lo confirma un asesor al ${liveContact().phoneDisplay}`
+}
+
+export function creditReply(): ChatReply {
+  return {
+    text: applyBotText(
+      'credit',
+      'Para temas de crédito, únicamente los clientes Premium que llevan una gran trayectoria pueden disfrutar de este beneficio. No manejamos Sistecrédito ni financiación de terceros. Si ya eres cliente con cupo, un asesor lo valida.',
+      completeVars(''),
+    ),
     actions: [
-      { href: LANDING_CONTACT.mapsShareUrl, label: 'Abrir mapa', external: true },
       {
-        href: whatsappHref('Hola, quiero indicaciones para llegar.'),
-        label: 'Pedir indicaciones',
+        href: whatsappHref('Hola, consulto si aplico al crédito de clientes Premium con trayectoria.'),
+        label: 'Validar crédito con un asesor',
         external: true,
       },
     ],
   }
 }
 
-export function companyReply(): ChatReply {
+export function paymentReply(tokens: readonly string[] = [], ctx?: SessionContext): ChatReply {
+  const named = subjectFrom(tokens, ctx)
+  const about = named ? `Para ${labelOf(named)}, ` : ''
+  const body = applyBotText(
+    'payment',
+    `${about}manejamos pago inmediato con efectivo o transferencia. ${transferDetails()}.`,
+    completeVars(named),
+  )
+  const text = named && !body.toLowerCase().includes(named.toLowerCase()) ? `${about}${body}` : body
   return {
-    text: applyBotText('company', `Puedes conocer nuestra visión, el equipo y marcas como ${visibleBrands().slice(0, 3).map((item) => item.name).join(', ')}.`, {
-      brands: visibleBrands().slice(0, 3).map((item) => item.name).join(', '),
-    }),
+    text,
+    actions: [
+      {
+        href: whatsappHref(
+          named
+            ? `Hola, quiero pagar ${named} por efectivo o transferencia. ¿Me confirmas la cuenta?`
+            : 'Hola, quiero pagar por efectivo o transferencia. ¿Me confirmas número y tipo de cuenta?',
+        ),
+        label: 'Confirmar cuenta con un asesor',
+        external: true,
+      },
+    ],
+  }
+}
+
+export function shippingReply(): ChatReply {
+  const ship = liveShipping()
+  return {
+    text: applyBotText(
+      'shipping',
+      `Hacemos envíos a todo el país. Envío gratis en el ${ship.cityScope} si la compra es mayor a $${ship.freeMetroFrom} COP. También hacemos envíos el mismo día y seguros hasta la puerta.`,
+      completeVars('', {
+        freeMetroFrom: ship.freeMetroFrom,
+        cityScope: ship.cityScope,
+        city: liveContact().city,
+      }),
+    ),
+    actions: [],
+  }
+}
+
+export function orderStatusReply(): ChatReply {
+  return {
+    text: applyBotText(
+      'orderStatus',
+      'Este chat no consulta el estado de pedidos. Esa información la confirma tu vendedor o ingresando a tu usuario cliente Premium.',
+      completeVars(''),
+    ),
+    actions: [],
+  }
+}
+
+export function rectifyTypoReply(guess: string): ChatReply {
+  return {
+    text: applyBotText('rectifyTypo', '¿Quisiste decir {guess}?', { guess, term: guess }),
+    actions: [],
+    options: [
+      { kind: 'prompt', label: 'Sí', prompt: 'si' },
+      { kind: 'prompt', label: 'No', prompt: 'no' },
+    ],
+  }
+}
+
+export function rectifyFocusReply(focus: string): ChatReply {
+  return {
+    text: applyBotText('rectifyFocus', '¿Seguimos con {term} o me dices otra pieza?', { term: focus }),
+    actions: [],
+  }
+}
+
+export function rectifyNeedPartReply(): ChatReply {
+  return {
+    text: applyBotText(
+      'rectifyNeedPart',
+      nextAskPhrase(),
+    ),
+    actions: [],
+  }
+}
+
+export function companyReply(): ChatReply {
+  const brands = liveBrandNames().slice(0, 3).join(', ') || 'nuestras marcas'
+  return {
+    text: applyBotText(
+      'company',
+      `Importadora Premium: puedes conocer la visión, el equipo y marcas aliadas como ${brands}. Dime si buscas empresa, una persona del equipo o un producto.`,
+      completeVars('', { brands }),
+    ),
     actions: [
       { href: '/#vision', label: 'Visión' },
       { href: '/#equipo', label: 'Equipo' },
@@ -361,9 +736,34 @@ export function companyReply(): ChatReply {
   }
 }
 
-export function greetingReply(): ChatReply {
+export function welcomeReply(): ChatReply {
   return {
     text: getBotSettings().welcome.trim() || 'Hola, bienvenido al chat Premium. Cuéntanos tu duda o el motivo de la consulta.',
+    actions: [],
+  }
+}
+
+export function greetingReply(ctx?: SessionContext): ChatReply {
+  const name = ctx?.entities.userName
+  const hello = name
+    ? `Hola ${labelOf(name)}. ¿En qué te ayudo?`
+    : applyBotText('greeting', 'Hola, ¿en qué te ayudo?')
+  return {
+    text: hello,
+    actions: [],
+  }
+}
+
+export function userNameAckReply(name: string): ChatReply {
+  return {
+    text: `Gracias, ${labelOf(name)}. Quedo con tu nombre para esta conversación. ${nextAskPhrase()}`,
+    actions: [],
+  }
+}
+
+export function howAreYouReply(): ChatReply {
+  return {
+    text: 'Excelente, feliz de atenderte. ¿En qué te puedo ayudar?',
     actions: [],
   }
 }
@@ -371,14 +771,7 @@ export function greetingReply(): ChatReply {
 export function insultUnmatchedReply(): ChatReply {
   return {
     text: applyBotText('insult', 'Esa expresión no es una consulta. Dime el producto o el motivo, con respeto.'),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-      {
-        href: whatsappHref('Hola, quiero una consulta de productos.'),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
@@ -392,42 +785,21 @@ export function sexualUnmatchedReply(): ChatReply {
 export function violenceUnmatchedReply(word: string): ChatReply {
   return {
     text: applyBotText('violence', `${labelOf(word)} no es un tema de este chat. Dime si buscas un repuesto.`, { term: labelOf(word) }),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-      {
-        href: whatsappHref('Hola, quiero consultar un producto de Importadora Premium.'),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
 export function foodUnmatchedReply(word: string): ChatReply {
   return {
     text: applyBotText('food', `${labelOf(word)} no es un producto de este chat. Aquí atendemos repuestos, así que dime la pieza.`, { term: labelOf(word) }),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-      {
-        href: whatsappHref('Hola, quiero consultar un repuesto. Te indico marca y modelo.'),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
 export function creatureUnmatchedReply(word: string): ChatReply {
   return {
     text: applyBotText('creature', `${labelOf(word)} no es un repuesto. Dime la pieza que buscas.`, { term: labelOf(word) }),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-      {
-        href: whatsappHref('Hola, quiero consultar un repuesto para mi vehículo.'),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
@@ -435,20 +807,13 @@ export function vehicleUnmatchedReply(word: string): ChatReply {
   const label = labelOf(word)
   return {
     text: applyBotText('vehicle', `${label} es un vehículo, no un producto. Dime la marca, el modelo y la pieza.`, { term: label }),
-    actions: [
-      { href: CATALOG_PATH, label: 'Ver catálogo' },
-      {
-        href: whatsappHref(`Hola, busco un repuesto para mi ${word}. Te indico marca y modelo.`),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    actions: [{ href: CATALOG_PATH, label: 'Ver catálogo' }],
   }
 }
 
 function memberWhatsapp(member: LandingTeamMember) {
   const digits = member.whatsappDigits || member.phoneDisplay.replace(/\D/g, '')
-  return digits ? `https://wa.me/${digits}` : LANDING_CONTACT.whatsappUrl
+  return digits ? `https://wa.me/${digits}` : liveContact().whatsappUrl
 }
 
 function rolePhrase(role: string) {
@@ -474,7 +839,68 @@ function describeMember(member: LandingTeamMember) {
   })
 }
 
-export function teamMatchReply(match: Exclude<TeamMatch, null>): ChatReply {
+const ROLES_LINE = 'En Premium hay varios roles; los publicados son asesores y administrativos.'
+
+function advisorGroupReply(_members: LandingTeamMember[], kind: ReturnType<typeof advisorAskKind>): ChatReply {
+  const list = livePublishedTeam('asesor').filter((item) => item.fullName.trim())
+  const names = joinNames(list.map((member) => member.fullName))
+  const carousel: ChatAction = { href: '/#asesores', label: 'Ver grupo de asesores' }
+  const options = list.map((member) => ({ kind: 'prompt' as const, label: member.fullName, prompt: member.fullName }))
+
+  if (list.length === 0) {
+    return {
+      text: applyBotText('teamEmpty', 'Por ahora no hay asesores en el equipo.', { group: 'asesores' }),
+      actions: [carousel],
+    }
+  }
+
+  if (kind === 'ask') {
+    return {
+      text: `${ROLES_LINE} Puedes preguntarle a cualquiera de nuestro equipo comercial: ${names}. Indícame el nombre del asesor que quieres que te atienda y te paso el contacto.`,
+      actions: [carousel],
+      options,
+    }
+  }
+
+  if (kind === 'exist') {
+    return {
+      text: `${ROLES_LINE} Estos son los asesores publicados: ${names}. Elige con libertad el que mejor se ajuste a tu perfil; dime el nombre y te oriento con su contacto.`,
+      actions: [carousel],
+      options,
+    }
+  }
+
+  if (kind === 'call') {
+    return {
+      text: `${ROLES_LINE} Puedes llamar o escribir a cualquiera de estos asesores: ${names}. También los ves en el carrusel de la página principal, en Nuestro equipo. Elige uno aquí o ábrelo en la landing.`,
+      actions: [carousel],
+      options,
+    }
+  }
+
+  return {
+    text: `${ROLES_LINE} En el grupo de asesores están ${names}. Elije el asesor que desees`,
+    actions: [carousel],
+    options,
+  }
+}
+
+export function teamMatchReply(match: Exclude<TeamMatch, null>, tokens: readonly string[] = []): ChatReply {
+  if (match.type === 'all') {
+    const asesores = match.asesores.map((member) => member.fullName)
+    const admins = match.administrativos.map((member) => member.fullName)
+    const advisorLine = asesores.length
+      ? `En asesores están ${joinNames(asesores)}.`
+      : 'Por ahora no hay asesores publicados.'
+    const adminLine = admins.length
+      ? `En administrativos están ${joinNames(admins)}.`
+      : 'Por ahora no hay administrativos publicados.'
+    return {
+      text: `${ROLES_LINE} ${advisorLine} ${adminLine} Dime un nombre si quieres el teléfono o escribirle.`,
+      actions: [{ href: '/#equipo', label: 'Ver equipo' }],
+    }
+  }
+
   if (match.type === 'member') {
     const listed = match.members.slice(0, 4)
     const lines = listed.map(describeMember)
@@ -493,15 +919,15 @@ export function teamMatchReply(match: Exclude<TeamMatch, null>): ChatReply {
   }
 
   if (match.type === 'group') {
-    const shown = match.members.slice(0, 8).map((member) => member.fullName)
-    const extra = match.members.length > shown.length ? ` y ${match.members.length - shown.length} más` : ''
+    if (match.group === 'asesor') return advisorGroupReply(match.members, advisorAskKind(tokens))
+    const shown = match.members.map((member) => member.fullName)
     const group = groupLabel(match.group).toLowerCase()
-    const names = `${joinNames(shown)}${extra}`
+    const names = joinNames(shown)
     return {
       text:
         match.members.length === 0
           ? applyBotText('teamEmpty', `Por ahora no hay ${group} en el equipo.`, { group })
-          : applyBotText('teamGroup', `En el grupo de ${group} están ${names}. Dime un nombre y te doy el teléfono.`, {
+          : applyBotText('teamGroup', `${ROLES_LINE} En el grupo de ${group} están ${names}. Dime un nombre y te doy el teléfono.`, {
               group,
               names,
               term: names,
@@ -534,14 +960,7 @@ export function personUnmatchedReply(word: string): ChatReply {
   const label = labelOf(word)
   return {
     text: applyBotText('person', `${label} no está en el equipo ni en el catálogo. Dime si es un nombre o una pieza.`, { term: label }),
-    actions: [
-      { href: '/#equipo', label: 'Ver equipo' },
-      {
-        href: whatsappHref(`Hola, mi consulta está relacionada con el nombre ${word}.`),
-        label: 'Hablar con un asesor',
-        external: true,
-      },
-    ],
+    actions: [{ href: '/#equipo', label: 'Ver equipo' }],
   }
 }
 
@@ -551,35 +970,17 @@ function quoteTerm(value: string) {
   return clean.length > 40 ? `${clean.slice(0, 37)}…` : clean
 }
 
-function pickVersion(seed: string, versions: readonly string[]) {
-  const index = [...seed].reduce((sum, char) => sum + char.charCodeAt(0), 0) % versions.length
-  return versions[index] || versions[0]
-}
-
-function guidedText(id: string, defaultText: string, versions: readonly string[], vars: Record<string, string>) {
-  const stored = getBotSettings().replies[id]?.text?.trim()
-  const source = stored && stored !== defaultText ? stored : pickVersion(vars.term || id, versions)
-  return Object.entries(vars).reduce((text, [key, value]) => text.split(`{${key}}`).join(value), source)
-}
-
 export function companyHintReply(word: string): ChatReply {
   const term = quoteTerm(word)
-  const versions = [
-    `"${term}" se refiere a nosotros, Importadora Premium. Esa palabra sola no me dice qué necesitas. Escribe la pieza, la marca y el modelo, por ejemplo pastillas AKT.`,
-    `Estás hablando de la empresa, no de un producto. Dime si buscas una pieza, el catálogo, el equipo o cómo contactarnos.`,
-    `Importadora Premium somos nosotros. Para ayudarte escribe la pieza y el modelo del vehículo, o dime si quieres ubicación, horario o un asesor.`,
-  ]
-  const defaultText = '"{term}" se refiere a nosotros, Importadora Premium. Esa palabra sola no me dice qué necesitas. Escribe la pieza, la marca y el modelo, por ejemplo pastillas AKT.'
   return {
-    text: guidedText('fallbackCompany', defaultText, versions, { term }),
+    text: applyBotText(
+      'fallbackCompany',
+      '"{term}" se refiere a nosotros, Importadora Premium. Esa palabra sola no me dice qué necesitas. ¿Buscas un repuesto concreto, por ejemplo pastillas AKT?',
+      { term },
+    ),
     actions: [
       { href: CATALOG_PATH, label: 'Ver catálogo' },
       { href: '/#equipo', label: 'Ver equipo' },
-      {
-        href: whatsappHref('Hola, quiero consultar un producto. Te indico la pieza, la marca y el modelo.'),
-        label: 'Hablar con un asesor real',
-        external: true,
-      },
     ],
   }
 }
@@ -591,55 +992,34 @@ export function fallbackReply(entered = ''): ChatReply {
   const mixed = /[a-záéíóúñ]/.test(raw) && /[A-ZÁÉÍÓÚÑ]/.test(raw)
   const shown = quoteTerm(raw)
 
-  let text = guidedText(
+  let text = applyBotText(
     'fallback',
-    'No ubiqué "{term}" como pieza, marca o modelo. Escríbelo así: la pieza, la marca y el modelo del vehículo.',
-    [
-      `No ubiqué "${shown}" como pieza, marca o modelo. Escríbelo así: la pieza, la marca y el modelo del vehículo.`,
-      `Con "${shown}" no me alcanza. No lo repitas solo. Agrégale qué pieza buscas y para qué moto o carro.`,
-      `No alcancé a relacionar "${shown}". Dime una de estas tres cosas: la pieza, la marca o el modelo.`,
-    ],
+    'No reconoci "{term}" como una consulta de catálogo. {ask} O elige una de las opciones.',
     { term: shown },
   )
 
   if (mixed && raw.length <= 80) {
-    text = guidedText(
+    text = applyBotText(
       'fallbackMixed',
-      'No entendí "{term}" con mayúsculas mezcladas. Escríbelo normal y agrega la pieza o el producto.',
-      [
-        `No entendí "${shown}" con mayúsculas mezcladas. Escríbelo normal y agrega la pieza o el producto.`,
-        `"${shown}" mezcla mayúsculas y minúsculas. Escríbelo de forma normal y dime la pieza, la marca o el modelo.`,
-      ],
+      'No entendí "{term}" ya ue integra mayusculas y minusculas. Escríbelo normal y agrega la pieza o el producto.',
       { term: shown },
     )
   } else if (raw.length > 80 || words.length > 8) {
-    text = guidedText(
+    text = applyBotText(
       'fallbackWide',
       'El mensaje es muy largo y no lo relacioné. Déjalo en una frase con la pieza y el modelo, por ejemplo pastillas para AKT 125.',
-      [
-        'El mensaje es muy largo y no lo relacioné. Déjalo en una frase con la pieza y el modelo, por ejemplo pastillas para AKT 125.',
-        'Hay demasiada información junta. Resume en una frase: qué pieza buscas y el modelo del vehículo.',
-      ],
       { term: shown },
     )
   } else if (words.length <= 2 && longest >= 10) {
-    text = guidedText(
+    text = applyBotText(
       'fallbackLong',
-      '"{term}" no la ubiqué como pieza ni como dato de la empresa. Si es una pieza, escríbela completa; si no, dime la marca y el modelo.',
-      [
-        `"${shown}" no la ubiqué como pieza ni como dato de la empresa. Si es una pieza, escríbela completa; si no, dime la marca y el modelo.`,
-        `"${shown}" es larga y no la relacioné. No la repitas igual. Dime la pieza con su nombre de catálogo, o la marca y el modelo.`,
-      ],
+      '"{term}" no logro entender tu consulta. repite la consulta proporcionando mas informacion, dime la marca o el modelo.',
       { term: shown },
     )
   } else if (!raw || raw.length <= 4 || (words.length === 1 && raw.length <= 5)) {
-    text = guidedText(
+    text = applyBotText(
       'fallbackShort',
-      '"{term}" es muy corta y no me sirve sola. Escribe el nombre de la pieza y el modelo, por ejemplo filtro AKT.',
-      [
-        `"${shown || 'eso'}" es muy corta y no me sirve sola. Escribe el nombre de la pieza y el modelo, por ejemplo filtro AKT.`,
-        `"${shown || 'eso'}" no me da un dato útil. Evita una sola sílaba. Escribe la pieza y la marca o el modelo del vehículo.`,
-      ],
+      '"{term}" es muy corto para poder proporcionarte informacion de valor. Escribe el nombre de la pieza y el modelo. ',
       { term: shown || 'eso' },
     )
   }
@@ -648,4 +1028,129 @@ export function fallbackReply(entered = ''): ChatReply {
     text,
     actions: catalogStepActions(),
   }
+}
+
+export function clarificationReply(): ChatReply {
+  return { text: applyBotText('clarification', `No alcancé a leer un mensaje. ${nextAskPhrase()}`), actions: [] }
+}
+
+export function newTopicPromptReply(): ChatReply {
+  return {
+    text: `Listo, cambiamos de tema. ${nextAskPhrase()}`,
+    actions: catalogStepActions(),
+  }
+}
+
+export function switchMissReply(term: string): ChatReply {
+  const shown = quoteTerm(term)
+  return {
+    text: `No tengo ficha de inventario para ${shown}. Puedes ver el catálogo o validar con un asesor.`,
+    actions: catalogStepActions(),
+  }
+}
+
+export const FALLBACK_MENU_OPTIONS: ChatAction[] = [
+  { kind: 'prompt', label: 'Precios', prompt: 'quiero cotizar un producto' },
+  { kind: 'prompt', label: 'Productos', prompt: 'quiero ver el catalogo' },
+  { kind: 'prompt', label: 'Soporte técnico', prompt: 'quiero hablar con un asesor' },
+]
+
+export function menuReply(): ChatReply {
+  return {
+    text: applyBotText('fallbackMenu', 'Elige una opción para continuar:'),
+    actions: [],
+    options: FALLBACK_MENU_OPTIONS,
+  }
+}
+
+export function handoffReply(): ChatReply {
+  return {
+    text: applyBotText('humanHandoff', '¿Quieres que te conecte con un asesor humano?'),
+    actions: contactActions(),
+  }
+}
+
+export function disambiguationReply(left: string, right: string): ChatReply {
+  return choiceReply(left, right)
+}
+
+export function choiceReply(left: string, right: string): ChatReply {
+  return {
+    text: applyBotText('disambiguation', '¿Te refieres a {left} o a {right}?', { left, right }),
+    actions: [],
+    options: [
+      { kind: 'prompt', label: left, prompt: left },
+      { kind: 'prompt', label: right, prompt: right },
+    ],
+  }
+}
+
+export function entityConflictReply(previous: string, next: string): ChatReply {
+  return choiceReply(previous, next)
+}
+
+export function productTokensFromLabel(label: string) {
+  const product = liveCatalogProducts().find((item) => item.label === label)
+  if (product) return [product.id]
+  return label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/\p{M}/gu, '')
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 2)
+}
+
+export function ackRepeatReply(topic: string): ChatReply {
+  return {
+    text: applyBotText('ackRepeat', '¿Te refieres a lo mismo de antes?', { topic: topic || 'eso' }),
+    actions: [],
+  }
+}
+
+export function ackKeywordReply(token: string): ChatReply {
+  return {
+    text: applyBotText(
+      'ackKeywordRepeat',
+      "Veo que mencionas '{token}' varias veces. ¿Quieres precio, disponibilidad o compatibilidad?",
+      { token },
+    ),
+    actions: [],
+  }
+}
+
+export function farewellReply(): ChatReply {
+  return { text: applyBotText('farewell', '¡Hasta luego!'), actions: [] }
+}
+
+export const INTENT_LABELS: Record<string, string> = {
+  greeting: 'un saludo',
+  whatsapp: 'contacto o WhatsApp',
+  catalog: 'el catálogo',
+  parts: 'repuestos',
+  accessory: 'un accesorio',
+  product: 'un producto del catálogo',
+  attention: 'hablar con un asesor',
+  complaint: 'una queja',
+  quote: 'precio o stock',
+  vacancy: 'vacantes',
+  location: 'la ubicación',
+  credit: 'crédito',
+  payment: 'medios de pago',
+  shipping: 'envíos o domicilio',
+  orderStatus: 'el estado de un pedido',
+  company: 'la empresa',
+  social: 'redes sociales',
+  thanks: 'un cierre',
+  namedPart: 'una pieza sin ficha',
+  teamMember: 'alguien del equipo',
+  teamGroup: 'un grupo del equipo',
+  teamSuggest: 'un nombre parecido',
+}
+
+export function humanTopic(raw: string) {
+  const value = raw.trim()
+  if (!value || value === 'eso') return 'eso'
+  const [intent, piece] = value.split(':')
+  if (piece?.trim()) return piece.trim()
+  return INTENT_LABELS[intent] || INTENT_LABELS[value] || value
 }

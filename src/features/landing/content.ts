@@ -1,70 +1,15 @@
 import marcasLogosData from '@/data/landing/marcasLogos.json'
-import { LANDING_IMAGES } from './media'
+import landingContentJson from '@/mocks/landingContent.json'
 
 export const HERO_BG_MS = 2500
 
-export const STATS_SLIDES = [
-  {
-    id: 'productos',
-    lead: 'Más de',
-    value: 23800,
-    trail: 'Productos',
-    duration: 1200,
-    blurStrength: 1.05,
-    maxBlur: 12,
-  },
-  {
-    id: 'categorias',
-    lead: 'Más de',
-    value: 1390,
-    trail: 'Categorías',
-    duration: 800,
-    blurStrength: 0.9,
-    maxBlur: 10,
-  },
-  {
-    id: 'referencias',
-    lead: 'Más de',
-    value: 35100,
-    trail: 'Referencias',
-    duration: 1300,
-    blurStrength: 1.15,
-    maxBlur: 14,
-  },
-] as const
+export const STATS_SLIDES = landingContentJson.stats
 
-export const CATALOG_OPTIONS = [
-  {
-    id: 'llantas',
-    label: 'Llantas',
-    images: [LANDING_IMAGES.catalog.llanta1, LANDING_IMAGES.catalog.llanta2],
-  },
-  {
-    id: 'pastillas',
-    label: 'Pastillas',
-    images: [LANDING_IMAGES.catalog.pastillas1, LANDING_IMAGES.catalog.pastillas2],
-  },
-  {
-    id: 'pinon',
-    label: 'Piñones',
-    images: [LANDING_IMAGES.catalog.pinon1, LANDING_IMAGES.catalog.pinon2],
-  },
-  {
-    id: 'ejes',
-    label: 'Ejes',
-    images: [LANDING_IMAGES.catalog.eje1, LANDING_IMAGES.catalog.eje2],
-  },
-  {
-    id: 'aceite',
-    label: 'Aceites',
-    images: [LANDING_IMAGES.catalog.aceites1, LANDING_IMAGES.catalog.aceites2],
-  },
-  {
-    id: 'ramal',
-    label: 'Ramales',
-    images: [LANDING_IMAGES.catalog.ramal1, LANDING_IMAGES.catalog.ramal2],
-  },
-] as const
+export const CATALOG_OPTIONS = landingContentJson.catalog.options.map((option) => ({
+  id: option.id,
+  label: option.label,
+  images: [option.images[0], option.images[1]] as [string, string],
+}))
 
 export const CATALOG_CAROUSEL_MS = 3500
 
@@ -101,6 +46,14 @@ export const LANDING_CONTACT = {
   email: 'comercial@importadorapremium.com',
   addressLabel: 'Dirección',
   address: 'Carrera 51 # 40 - 22',
+  city: 'Medellín',
+  region: 'Antioquia',
+  country: 'Colombia',
+  area: 'el centro de Medellín',
+  landmark: 'a media cuadra de la estación Alpujarra del Metro de Medellín',
+  hoursWeekdays: 'Lunes a viernes: 8:00 a. m. a 6:00 p. m.',
+  hoursSaturday: 'Sábados: 8:00 a. m. a 3:00 p. m.',
+  hoursDisplay: 'Lunes a viernes de 8:00 a. m. a 6:00 p. m. y sábados de 8:00 a. m. a 3:00 p. m.',
   mapsShareUrl: 'https://maps.app.goo.gl/tHTvYZvbrqpy7Wrv8',
   lat: 6.241189,
   lng: -75.571933,
@@ -123,6 +76,16 @@ export const LANDING_CONTACT = {
       href: 'https://www.facebook.com/share/1DaKoZinoM/',
     },
   ],
+} as const
+
+/** Medios de pago alineados con VentasIP (efectivo, transferencia, crédito interno). */
+export const LANDING_PAYMENTS = {
+  cashLabel: 'efectivo',
+  transferLabel: 'transferencia',
+  bank: 'Bancolombia',
+  accountType: 'Cuenta de ahorros',
+  accountNumber: '',
+  holder: 'Importadora Premium',
 } as const
 
 export const FOOTER_NAV_LINKS = [

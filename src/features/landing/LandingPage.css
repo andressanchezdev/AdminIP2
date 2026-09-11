@@ -76,6 +76,7 @@
 .landing-page #catalogo,
 .landing-page #marcas,
 .landing-page #equipo,
+.landing-page #asesores,
 .landing-page #nosotros,
 .landing-page #ubicacion,
 .landing-page #contacto {
@@ -1039,8 +1040,12 @@
   --carousel-slide-width: calc(
     (100% - (var(--carousel-visible) - 1) * var(--carousel-gap)) / var(--carousel-visible)
   );
+  cursor: grab;
   height: 100%;
   overflow: hidden;
+  overscroll-behavior-x: contain;
+  touch-action: pan-y;
+  user-select: none;
   width: 100%;
 }
 
@@ -1054,9 +1059,20 @@
 }
 
 .landing-carousel__track {
-  height: 576px;
+  height: 580px;
   position: relative;
   width: 100%;
+}
+
+.landing-carousel.is-dragging .landing-carousel__viewport {
+  cursor: grabbing;
+}
+
+.landing-carousel.is-dragging .landing-carousel__card--advisor,
+.landing-carousel.is-dragging .landing-carousel__advisor-dup,
+.landing-carousel.is-dragging .landing-carousel__advisor-main,
+.landing-carousel.is-dragging .landing-carousel__advisor-media {
+  transition: none;
 }
 
 .landing-carousel__nav {
@@ -1157,7 +1173,6 @@
   flex-direction: column;
   gap: 5px;
   justify-content: center;
-  opacity: 0.28;
   text-align: center;
   transform: translate3d(var(--carousel-x), 0, 0) scale(0.72);
   transform-origin: center center;
@@ -1170,21 +1185,18 @@
 
 .landing-carousel__card--advisor.is-far {
   filter: saturate(0.55) brightness(0.88);
-  opacity: 0.32;
   transform: translate3d(var(--carousel-x), 0, 0) scale(0.74);
   z-index: 1;
 }
 
 .landing-carousel__card--advisor.is-side {
   filter: saturate(0.7) brightness(0.92);
-  opacity: 0.48;
   transform: translate3d(var(--carousel-x), 0, 0) scale(0.82);
   z-index: 2;
 }
 
 .landing-carousel__card--advisor.is-center {
   filter: none;
-  opacity: 1;
   transform: translate3d(var(--carousel-x), 0, 0) scale(1.06);
   z-index: 5;
 }
@@ -1199,14 +1211,6 @@
 
 .landing-carousel__card--advisor:not(.is-center) .landing-carousel__advisor-dup {
   opacity: 0.35;
-}
-
-.landing-carousel__card--advisor:not(.is-center) .landing-carousel__advisor-info {
-  opacity: 0.55;
-}
-
-.landing-carousel__card--advisor.is-center .landing-carousel__advisor-info {
-  opacity: 1;
 }
 
 .landing-carousel__header {
@@ -1311,9 +1315,23 @@
   justify-content: center;
   max-height: min(340px, 72%);
   min-height: 180px;
+  opacity: 0.28;
   overflow: visible;
   position: relative;
+  transition: opacity var(--carousel-slide-duration) var(--carousel-slide-ease);
   width: 100%;
+}
+
+.landing-carousel__card--advisor.is-far .landing-carousel__advisor-media {
+  opacity: 0.32;
+}
+
+.landing-carousel__card--advisor.is-side .landing-carousel__advisor-media {
+  opacity: 0.48;
+}
+
+.landing-carousel__card--advisor.is-center .landing-carousel__advisor-media {
+  opacity: 1;
 }
 
 /* Capa cuadros.png: proporción exacta del asset (1080×1920), solo visualización en card. */
@@ -1438,6 +1456,7 @@
   .landing-carousel__card--advisor,
   .landing-carousel__advisor-dup,
   .landing-carousel__advisor-main,
+  .landing-carousel__advisor-media,
   .landing-carousel__dot,
   .landing-carousel__title {
     animation: none;
@@ -1908,7 +1927,6 @@
   background-size: clamp(220px, 42vw, 480px), clamp(220px, 42vw, 480px);
   content: '';
   inset: 0;
-  opacity: 0.95;
   pointer-events: none;
   position: absolute;
   z-index: 0;
@@ -2418,6 +2436,20 @@
 
 .landing-footer__col--brand {
   gap: 10px;
+}
+
+.landing-footer__hours {
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.88rem;
+  gap: 2px;
+  line-height: 1.35;
+  margin: 0;
+}
+
+.landing-footer__hours strong {
+  font-size: 0.92rem;
 }
 
 .landing-footer__logo {
@@ -3538,7 +3570,8 @@ z-index: -1;
 .landing-chat__launcher,
 .landing-chat__send,
 .landing-chat__close,
-.landing-chat__action {
+.landing-chat__action,
+.landing-chat__option {
   font: inherit;
 }
 
@@ -3613,6 +3646,7 @@ z-index: -1;
 
 .landing-chat__bubble p {
   margin: 0;
+  white-space: pre-wrap;
 }
 
 .landing-chat__bubble--bot {
@@ -3634,6 +3668,13 @@ z-index: -1;
   margin-top: 10px;
 }
 
+.landing-chat__options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
 .landing-chat__action {
   background: #fff;
   border: 1px solid rgba(45, 50, 56, 0.16);
@@ -3647,10 +3688,44 @@ z-index: -1;
   text-decoration: none;
 }
 
+.landing-chat__option {
+  align-items: center;
+  background: #fff;
+  border: 1px solid rgba(45, 50, 56, 0.16);
+  border-radius: 12px;
+  color: #2d3238;
+  cursor: pointer;
+  display: flex;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 10px;
+  padding: 8px 10px;
+  text-align: left;
+  width: 100%;
+}
+
+.landing-chat__option-index {
+  align-items: center;
+  background: #ffc629;
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-size: 12px;
+  height: 22px;
+  justify-content: center;
+  min-width: 22px;
+}
+
 .landing-chat__action:hover,
+.landing-chat__option:hover,
 .landing-chat__launcher:hover,
 .landing-chat__send:hover:not(:disabled) {
   background: #ffc629;
+}
+
+.landing-chat__option:hover .landing-chat__option-index {
+  background: #2d3238;
+  color: #fff;
 }
 
 .landing-chat__dots {

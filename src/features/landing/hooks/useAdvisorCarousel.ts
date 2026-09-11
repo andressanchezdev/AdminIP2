@@ -56,6 +56,23 @@ export function useAdvisorCarousel(itemCount: number, enabled = true) {
     setActiveIndex((current) => (current - 1 + count) % count)
   }, [beginStepTransition, count])
 
+  const holdDrag = useCallback(() => {
+    window.clearTimeout(stepTimerRef.current)
+    steppingRef.current = false
+    setIsStepping(false)
+    setIsPaused(true)
+  }, [])
+
+  const releaseDrag = useCallback((indexDelta = 0) => {
+    if (count > 0 && indexDelta !== 0) {
+      beginStepTransition()
+      setActiveIndex((current) => ((current + indexDelta) % count + count) % count)
+    } else if (count > 0) {
+      beginStepTransition()
+    }
+    setIsPaused(false)
+  }, [beginStepTransition, count])
+
   useEffect(() => {
     if (!enabled || isPaused || isStepping || count < 2) return undefined
 
@@ -74,9 +91,10 @@ export function useAdvisorCarousel(itemCount: number, enabled = true) {
   return {
     activeIndex,
     goToSlide,
+    holdDrag,
     isPaused,
     isStepping,
-    setIsPaused,
+    releaseDrag,
     slideNext,
     slidePrev,
   }
